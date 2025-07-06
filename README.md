@@ -1,19 +1,20 @@
-# DuoPass - Marketplace de Ofertas Exclusivas na Suíça
+# 🎭 DUO PASS Club - Marketplace Cultural Suíço
 
 🌐 **Website:** [duopassclub.ch](https://duopassclub.ch)
 
 ## 📋 Sobre o Projeto
 
-DuoPass é uma plataforma inovadora que conecta usuários a ofertas exclusivas na Suíça, proporcionando experiências únicas e economia inteligente.
+DUO PASS Club é uma plataforma cultural suíça que conecta pessoas através de experiências autênticas, sempre em dupla. Focamos em curadoria emocional e conexões reais, diferenciando-nos de apps de cupons genéricos.
 
 ### ✨ Características Principais
 
-- 🎯 **Ofertas Exclusivas:** Descontos especiais em restaurantes, atividades e serviços
-- 👥 **Sistema Duo:** Ofertas especiais para casais e grupos
-- 📱 **QR Codes:** Resgate fácil e seguro das ofertas
+- 🎭 **Experiências Culturais:** Curadoria de estabelecimentos culturais autênticos
+- 👥 **Sempre em Dupla:** Modelo único 2 por 1 para conexões reais
+- 📱 **QR Codes:** Resgate fácil e seguro das experiências
 - 🔐 **Autenticação Segura:** Sistema completo de login e registro
 - 💳 **Pagamentos Integrados:** Processamento seguro via Stripe
-- 📊 **Dashboard Completo:** Gestão de ofertas, usuários e analytics
+- 📊 **Dashboard Completo:** Gestão transparente com compliance legal
+- ⚖️ **Compliance Total:** GDPR, FADP e legislação suíça
 
 ## 🚀 Status do Projeto
 
