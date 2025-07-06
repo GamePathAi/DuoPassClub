@@ -1,0 +1,21 @@
+🔍 Verificando usuário no sistema de autenticação...
+📊 Buscando na tabela users...
+👤 Usuário encontrado na tabela users:
+   ID: f945c79f-1995-4752-af2d-4b314c220041
+   Email: igor_bonafe@msn.com
+   Nome: La Chiquita
+   Verificado: false
+
+🆕 Criando usuário de teste com email diferente...
+✅ Usuário de teste criado:
+   ID: 24b8d9eb-4774-4e4d-b289-1b8a173860a5
+   Email: teste1751110880488@duopass.com
+   Confirmado: Não
+
+🔐 Testando login com usuário de teste...
+❌ Erro no login de teste: {
+  "__isAuthError": true,
+  "name": "AuthApiError",
+  "status": 400,
+  "code": "email_not_confirmed"
+}

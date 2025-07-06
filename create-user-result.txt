@@ -1,0 +1,12 @@
+🔧 Criando usuário no Supabase...
+📝 Registrando igor_bonafe@msn.com...
+✅ Usuário registrado! ID: 9ac93aed-53e0-49d4-b7bb-42e7c123b96e
+📧 Email: igor_bonafe@msn.com
+✉️ Confirmação: Pendente
+🔐 Testando login...
+❌ Erro no login: {
+  "__isAuthError": true,
+  "name": "AuthApiError",
+  "status": 400,
+  "code": "invalid_credentials"
+}

@@ -1,0 +1,8 @@
+🧪 Testando conexão com Supabase...
+🔐 Testando login com igor_bonafe@msn.com...
+❌ Erro no login: {
+  "__isAuthError": true,
+  "name": "AuthApiError",
+  "status": 400,
+  "code": "invalid_credentials"
+}

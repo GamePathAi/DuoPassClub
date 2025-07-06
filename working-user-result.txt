@@ -1,0 +1,23 @@
+🆕 Criando usuário de teste funcional...
+📧 Email: test@duopass.com
+🔑 Senha: 123456
+✅ Usuário criado no sistema de autenticação!
+👤 ID do usuário: 60bfad95-b7b4-4dd3-ad15-7244234dfbfb
+📧 Email: test@duopass.com
+✉️ Confirmado: Não
+
+🔐 Tentando fazer login imediatamente...
+❌ Erro no login: {
+  "__isAuthError": true,
+  "name": "AuthApiError",
+  "status": 400,
+  "code": "email_not_confirmed"
+}
+
+📝 Criando perfil na tabela users...
+❌ Erro ao criar perfil: {
+  "code": "23505",
+  "details": null,
+  "hint": null,
+  "message": "duplicate key value violates unique constraint \"users_pkey\""
+}

@@ -1,0 +1,20 @@
+👤 Inserindo perfil do usuário na tabela users...
+❌ Erro ao inserir perfil: {
+  "code": "23505",
+  "details": null,
+  "hint": null,
+  "message": "duplicate key value violates unique constraint \"users_email_key\""
+}
+👤 Usuário encontrado na tabela: {
+  "id": "f945c79f-1995-4752-af2d-4b314c220041",
+  "email": "igor_bonafe@msn.com",
+  "full_name": "La Chiquita",
+  "user_type": "merchant",
+  "email_verified": false,
+  "email_verification_sent_at": "2025-06-28T10:11:03.647+00:00",
+  "subscription_status": null,
+  "city": null,
+  "canton": null,
+  "created_at": "2025-06-28T10:09:56.056805+00:00",
+  "updated_at": "2025-06-28T10:09:56.056805+00:00"
+}

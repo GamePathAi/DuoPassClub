@@ -1,0 +1,2 @@
+// Re-export da configuração principal do Supabase
+export { supabase as default, supabase, checkSupabaseConnection, checkAuthStatus, getSystemStats, getMonthlyReport, SUPABASE_CONSTANTS } from './supabaseConfig';

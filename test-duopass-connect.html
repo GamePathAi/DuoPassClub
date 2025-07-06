@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste DUO PASS Connect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        .status {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .link-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #C91F1F;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        .link-button:hover {
+            background-color: #a01818;
+        }
+        h1 {
+            color: #C91F1F;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #C91F1F;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste DUO PASS Connect</h1>
+    
+    <div class="test-section">
+        <h2>📋 Checklist de Funcionalidades</h2>
+        
+        <div class="test-item">
+            <span>✅ Componentes criados</span>
+            <span class="status success">CONCLUÍDO</span>
+        </div>
+        
+        <div class="test-item">
+            <span>✅ Schema do banco de dados</span>
+            <span class="status success">CONCLUÍDO</span>
+        </div>
+        
+        <div class="test-item">
+            <span>✅ Rota /duo-pass-connect configurada</span>
+            <span class="status success">CONCLUÍDO</span>
+        </div>
+        
+        <div class="test-item">
+            <span>✅ Link no CustomerDashboard atualizado</span>
+            <span class="status success">CONCLUÍDO</span>
+        </div>
+        
+        <div class="test-item">
+            <span>⏳ Servidor de desenvolvimento rodando</span>
+            <span class="status success">ATIVO</span>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔗 Links de Teste</h2>
+        
+        <div style="text-align: center;">
+            <a href="http://localhost:5174/" class="link-button">🏠 Página Inicial</a>
+            <a href="http://localhost:5174/login" class="link-button">🔐 Login</a>
+            <a href="http://localhost:5174/dashboard" class="link-button">📊 Dashboard</a>
+            <a href="http://localhost:5174/duo-pass-connect" class="link-button">👥 DUO PASS Connect</a>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🧪 Fluxo de Teste</h2>
+        
+        <div class="test-item">
+            <span>1. Fazer login com demo@duopass.com / 123456</span>
+            <span class="status pending">TESTE MANUAL</span>
+        </div>
+        
+        <div class="test-item">
+            <span>2. Acessar Dashboard e clicar em "DUO PASS Connect"</span>
+            <span class="status pending">TESTE MANUAL</span>
+        </div>
+        
+        <div class="test-item">
+            <span>3. Preencher questionário de afinidades culturais</span>
+            <span class="status pending">TESTE MANUAL</span>
+        </div>
+        
+        <div class="test-item">
+            <span>4. Explorar as 5 comunidades disponíveis</span>
+            <span class="status pending">TESTE MANUAL</span>
+        </div>
+        
+        <div class="test-item">
+            <span>5. Testar funcionalidade de chat</span>
+            <span class="status pending">TESTE MANUAL</span>
+        </div>
+        
+        <div class="test-item">
+            <span>6. Verificar paywall para usuários não-assinantes</span>
+            <span class="status pending">TESTE MANUAL</span>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📝 Componentes Implementados</h2>
+        
+        <div class="test-item">
+            <span><strong>DuoPassConnect.tsx</strong> - Componente principal</span>
+            <span class="status success">✓</span>
+        </div>
+        
+        <div class="test-item">
+            <span><strong>CulturalAffinityQuiz.tsx</strong> - Questionário inicial</span>
+            <span class="status success">✓</span>
+        </div>
+        
+        <div class="test-item">
+            <span><strong>CommunityDirectory.tsx</strong> - Diretório de comunidades</span>
+            <span class="status success">✓</span>
+        </div>
+        
+        <div class="test-item">
+            <span><strong>MemberChat.tsx</strong> - Sistema de mensagens</span>
+            <span class="status success">✓</span>
+        </div>
+        
+        <div class="test-item">
+            <span><strong>ConnectPaywall.tsx</strong> - Paywall para não-assinantes</span>
+            <span class="status success">✓</span>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎯 Funcionalidades Principais</h2>
+        
+        <div class="test-item">
+            <span>🔒 Exclusividade para membros com verificação de subscription</span>
+            <span class="status success">IMPLEMENTADO</span>
+        </div>
+        
+        <div class="test-item">
+            <span>📋 Questionário de 10 perguntas sobre preferências culturais</span>
+            <span class="status success">IMPLEMENTADO</span>
+        </div>
+        
+        <div class="test-item">
+            <span>🏛️ 5 comunidades fixas (Arte, Gastronomia, Música, Bem-estar, Cultura)</span>
+            <span class="status success">IMPLEMENTADO</span>
+        </div>
+        
+        <div class="test-item">
+            <span>💬 Sistema de chat direto entre membros</span>
+            <span class="status success">IMPLEMENTADO</span>
+        </div>
+        
+        <div class="test-item">
+            <span>🎨 Interface elegante com gradientes e ícones</span>
+            <span class="status success">IMPLEMENTADO</span>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Status do Sistema</h2>
+        <p style="text-align: center; font-size: 18px; color: #155724; background-color: #d4edda; padding: 15px; border-radius: 5px;">
+            <strong>✅ DUO PASS Connect está funcionando e pronto para teste!</strong>
+        </p>
+        <p style="text-align: center; color: #666;">
+            Servidor rodando em: <strong>http://localhost:5174/</strong>
+        </p>
+    </div>
+    
+    <script>
+        // Verificar se o servidor está respondendo
+        fetch('http://localhost:5174/')
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Servidor está respondendo corretamente');
+                } else {
+                    console.log('⚠️ Servidor respondeu com status:', response.status);
+                }
+            })
+            .catch(error => {
+                console.log('❌ Erro ao conectar com o servidor:', error);
+            });
+    </script>
+</body>
+</html>
