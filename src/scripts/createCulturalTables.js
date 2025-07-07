@@ -84,7 +84,7 @@ const insertSampleData = async () => {
             ambiance_notes: 'Ambiente inspirador, conversas fluem naturalmente',
             best_for: ['primeiro_encontro', 'amigos_arte', 'reflexao_pessoal'],
             emotion_tags: ['inspiracao', 'criatividade', 'conexao'],
-            price_range: 'R$ 25-40',
+            price_range: 'CHF 4.50-7.20',
             duration: '2-3 horas',
             max_participants: 8
           },
@@ -97,7 +97,7 @@ const insertSampleData = async () => {
             ambiance_notes: 'Espaço tranquilo, perfeito para concentração e conversa',
             best_for: ['casais', 'amigos_criativos', 'experiencia_nova'],
             emotion_tags: ['tranquilidade', 'criatividade', 'aprendizado'],
-            price_range: 'R$ 80-120',
+            price_range: 'CHF 14.40-21.60',
             duration: '3-4 horas',
             max_participants: 6
           }

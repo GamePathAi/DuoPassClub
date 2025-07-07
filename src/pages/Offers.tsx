@@ -142,8 +142,8 @@ export function Offers() {
       {
         id: 'demo-5',
         merchant_id: 'demo-merchant-5',
-        title: '📱 iPhone 15 - Cashback R$ 200',
-        description: 'iPhone 15 128GB com cashback exclusivo de R$ 200 + película de vidro e capinha premium inclusos. Parcelamento em até 12x sem juros!',
+        title: '📱 iPhone 15 - Cashback CHF 36.-',
+        description: 'iPhone 15 128GB com cashback exclusivo de CHF 36.- + película de vidro e capinha premium inclusos. Parcelamento em até 12x sem juros!',
         original_value: 1299.00,
         category: 'shopping',
         location: 'Lausanne',

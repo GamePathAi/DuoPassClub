@@ -397,7 +397,7 @@ export function PartnerSignup() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <DollarSign className="w-4 h-4 inline mr-2" />
-                  Preço Normal (R$) *
+                  Preço Normal (CHF) *
                 </label>
                 <input
                   type="number"

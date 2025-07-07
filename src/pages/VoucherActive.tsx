@@ -292,10 +292,10 @@ export function VoucherActive() {
                   </div>
                   <div className="text-right">
                     <div className="text-3xl font-bold">
-                      R$ {(voucher.offer.original_value / 2).toFixed(2)}
+                      CHF {((voucher.offer.original_value * 0.18) / 2).toFixed(2)}
                     </div>
                     <div className="text-white/80 line-through text-sm">
-                      R$ {voucher.offer.original_value.toFixed(2)}
+                      CHF {(voucher.offer.original_value * 0.18).toFixed(2)}
                     </div>
                   </div>
                 </div>

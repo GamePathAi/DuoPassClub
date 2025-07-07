@@ -9,7 +9,7 @@ export { default as ReembolsoProcessado } from './ReembolsoProcessado';
 // Tipos para os templates
 export interface EmailTemplateProps {
   userName: string;
-  [key: string]: any;
+  [key: string]: string | number | boolean | Date;
 }
 
 // Configurações de email
@@ -39,12 +39,15 @@ export const EMAIL_CONFIG = {
 
 // Utilitários para formatação
 export const formatCurrency = (amount: number): string => {
-  return `CHF ${amount.toFixed(2)}`;
+  return new Intl.NumberFormat('de-CH', {
+    style: 'currency',
+    currency: 'CHF'
+  }).format(amount * 0.18);
 };
 
 export const formatDate = (date: string | Date): string => {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return dateObj.toLocaleDateString('pt-BR');
+  return dateObj.toLocaleDateString('de-CH');
 };
 
 // Status de email

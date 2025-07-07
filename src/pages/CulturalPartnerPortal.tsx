@@ -440,8 +440,8 @@ export function CulturalPartnerPortal() {
                     <p className="text-gray-600 text-sm mb-4">{experience.story_behind}</p>
                     <div className="flex items-center justify-between">
                       <div className="text-sm">
-                        <span className="text-gray-500 line-through">R$ {experience.original_price}</span>
-                        <span className="text-green-600 font-semibold ml-2">R$ {experience.duo_price}</span>
+                        <span className="text-gray-500 line-through">CHF {(experience.original_price * 0.18).toFixed(2)}</span>
+                <span className="text-green-600 font-semibold ml-2">CHF {(experience.duo_price * 0.18).toFixed(2)}</span>
                       </div>
                       <div className={`px-2 py-1 rounded text-xs ${
                         experience.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'

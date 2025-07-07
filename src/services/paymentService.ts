@@ -127,7 +127,7 @@ export class PaymentService {
         .insert({
           user_id: userId,
           amount,
-          currency: 'BRL',
+          currency: 'CHF',
           type: 'subscription',
           status: 'pending',
           payment_method_id: paymentMethodId,
@@ -377,7 +377,7 @@ export class PaymentService {
       }
 
       // Adicionar pontos equivalentes ao cashback
-      const pointsFromCashback = Math.round(cashbackAmount * 10); // R$ 1 = 10 pontos
+      const pointsFromCashback = Math.round(cashbackAmount * 10); // CHF 1 = 10 pontos
       await GamificationService.addPoints(
         userId,
         pointsFromCashback,
@@ -395,7 +395,7 @@ export class PaymentService {
         user_id: userId,
         type: 'cashback',
         title: '💰 Cashback recebido!',
-        message: `Você recebeu R$ ${cashbackAmount.toFixed(2)} de cashback (${cashbackPercentage}%)`
+        message: `Você recebeu CHF ${(cashbackAmount * 0.18).toFixed(2)} de cashback (${cashbackPercentage}%)`
       });
     } catch (error) {
       console.error('Erro ao processar cashback:', error);
@@ -415,7 +415,7 @@ export class PaymentService {
       initMethod: '12',
       merchantAccount: merchantKey,
       merchantCategory: '0000',
-      currency: '986', // BRL
+      currency: '756', // CHF
       amount: amount.toFixed(2),
       country: 'BR',
       merchantName: 'DUOPASS CLUB',

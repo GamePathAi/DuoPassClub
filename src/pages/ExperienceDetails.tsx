@@ -350,15 +350,15 @@ export function ExperienceDetails() {
               <div className="space-y-4 mb-8">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Preço Individual</span>
-                  <span className="text-gray-500 line-through">R$ {experience.original_price.toFixed(2)}</span>
+                  <span className="text-gray-500 line-through">CHF {(experience.original_price * 0.18).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center text-xl font-bold">
                   <span className="text-amber-600">DUO PASS</span>
-                  <span className="text-green-600">R$ {experience.duo_price.toFixed(2)}</span>
+                  <span className="text-green-600">CHF {(experience.duo_price * 0.18).toFixed(2)}</span>
                 </div>
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                   <p className="text-sm text-green-700 font-medium">
-                    💰 Economia de R$ {(experience.original_price - experience.duo_price).toFixed(2)}
+                    💰 Economia de CHF {((experience.original_price - experience.duo_price) * 0.18).toFixed(2)}
                   </p>
                 </div>
               </div>

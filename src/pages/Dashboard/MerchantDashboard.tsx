@@ -306,7 +306,7 @@ export function MerchantDashboard() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-[#333333] mb-2">
-                      Valor Original (R$)
+                      Valor Original (CHF)
                     </label>
                     <input
                       type="number"
@@ -458,7 +458,7 @@ const OffersTab = ({ offers, setShowCreateForm, toggleOfferStatus }: {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#333333]">
-                  R$ {offer.original_value.toFixed(2)}
+                  CHF {(offer.original_value * 0.18).toFixed(2)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${

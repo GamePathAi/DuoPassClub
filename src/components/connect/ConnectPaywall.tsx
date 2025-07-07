@@ -57,7 +57,7 @@ const pricingPlans: PricingPlan[] = [
       'Consultoria cultural personalizada'
     ],
     popular: true,
-    savings: 'Economize R$ 15 por trimestre'
+    savings: 'Economize CHF 2.50 por trimestre'
   },
   {
     id: 'annual',
@@ -73,7 +73,7 @@ const pricingPlans: PricingPlan[] = [
       'Mentoria cultural mensal',
       'Acesso a comunidades premium futuras'
     ],
-    savings: 'Economize R$ 120 por ano'
+    savings: 'Economize CHF 22.- por ano'
   }
 ];
 
@@ -253,7 +253,7 @@ export function ConnectPaywall() {
                 
                 <div className="mb-6">
                   <div className="flex items-baseline justify-center">
-                    <span className="text-4xl font-bold text-gray-900">R$ {selectedPlanData.price.toFixed(2)}</span>
+                    <span className="text-4xl font-bold text-gray-900">CHF {selectedPlanData.price.toFixed(2)}</span>
                     <span className="text-gray-600 ml-2">/{selectedPlanData.period}</span>
                   </div>
                   {selectedPlanData.savings && (

@@ -412,10 +412,10 @@ export function OfferPage() {
                 
                 <div className="text-right">
                   <div className="text-3xl font-bold text-[#C91F1F] mb-1">
-                    R$ {(offer.original_value / 2).toFixed(2)}
+                    CHF {((offer.original_value * 0.18) / 2).toFixed(2)}
                   </div>
                   <div className="text-sm text-gray-500 line-through">
-                    R$ {offer.original_value.toFixed(2)}
+                    CHF {(offer.original_value * 0.18).toFixed(2)}
                   </div>
                   <div className="text-sm font-medium text-green-600">
                     50% OFF
@@ -516,10 +516,10 @@ export function OfferPage() {
             <div className="bg-white rounded-xl shadow-sm p-6 sticky top-6">
               <div className="text-center mb-6">
                 <div className="text-4xl font-bold text-[#C91F1F] mb-2">
-                  R$ {(offer.original_value / 2).toFixed(2)}
+                  CHF {((offer.original_value * 0.18) / 2).toFixed(2)}
                 </div>
                 <div className="text-lg text-gray-500 line-through mb-1">
-                  R$ {offer.original_value.toFixed(2)}
+                  CHF {(offer.original_value * 0.18).toFixed(2)}
                 </div>
                 <div className="text-green-600 font-semibold">50% de desconto</div>
               </div>

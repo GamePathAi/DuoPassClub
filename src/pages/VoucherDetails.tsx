@@ -201,7 +201,7 @@ export function VoucherDetails() {
                 <p className="text-lg text-[#C91F1F] font-semibold">
                   {voucher.offer.discount_type === 'percentage' 
                     ? `${voucher.offer.discount_value}% OFF`
-                    : `R$ ${voucher.offer.discount_value} OFF`
+                    : `CHF ${(voucher.offer.discount_value * 0.18).toFixed(2)} OFF`
                   }
                 </p>
               </div>
@@ -317,7 +317,7 @@ export function VoucherDetails() {
               <p className="text-[#C91F1F] font-semibold mb-2">
                 {voucher.offer.discount_type === 'percentage' 
                   ? `${voucher.offer.discount_value}% OFF`
-                  : `R$ ${voucher.offer.discount_value} OFF`
+                  : `CHF ${(voucher.offer.discount_value * 0.18).toFixed(2)} OFF`
                 }
               </p>
               <p className="text-sm text-gray-600">

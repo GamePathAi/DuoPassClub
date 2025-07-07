@@ -34,8 +34,8 @@ export function Vouchers() {
         {
           id: 'demo-2',
           code: 'SAVE20',
-          title: 'R$ 20 de Desconto',
-          description: 'Válido em compras acima de R$ 80',
+          title: 'CHF 3.60 de Desconto',
+    description: 'Válido em compras acima de CHF 14.50',
           discount_type: 'fixed',
           discount_value: 20,
           min_purchase_amount: 80.00,

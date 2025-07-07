@@ -218,7 +218,7 @@ const customerDemoNotifications: DemoNotificationData[] = [
   {
     type: 'voucher_redeemed',
     title: 'Voucher resgatado com sucesso!',
-    message: '💰 Parabéns! Você economizou R$ 25,00 na Pizzaria Italiana',
+    message: '💰 Parabéns! Você economizou CHF 4.50 na Pizzaria Italiana',
     action_url: '/vouchers',
     action_text: 'Ver Vouchers'
   },
@@ -239,7 +239,7 @@ const customerDemoNotifications: DemoNotificationData[] = [
   {
     type: 'voucher_expiring',
     title: 'Voucher expirando!',
-    message: '⏰ Seu voucher de academia expira amanhã - use agora e economize R$ 50,00!',
+    message: '⏰ Seu voucher de academia expira amanhã - use agora e economize CHF 9.-!',
     action_url: '/vouchers',
     action_text: 'Usar Agora'
   },
@@ -253,7 +253,7 @@ const customerDemoNotifications: DemoNotificationData[] = [
   {
     type: 'goal_reached',
     title: 'Meta alcançada!',
-    message: '🎯 Fantástico! Você economizou R$ 200,00 este mês com o DuoPass Club',
+    message: '🎯 Fantástico! Você economizou CHF 36.- este mês com o DuoPass Club',
     action_url: '/history',
     action_text: 'Ver Histórico'
   }
@@ -292,7 +292,7 @@ const merchantDemoNotifications: DemoNotificationData[] = [
   {
     type: 'payment_processed',
     title: 'Pagamento processado',
-    message: '💳 Pagamento de R$ 850,00 referente às ofertas de março foi processado',
+    message: '💳 Pagamento de CHF 153.- referente às ofertas de março foi processado',
     action_url: '/merchant/payments',
     action_text: 'Ver Detalhes'
   },

@@ -18,7 +18,7 @@ export function History() {
           id: 'hist-1',
           type: 'voucher_used',
           title: 'Voucher Utilizado',
-          description: 'Você usou o voucher WELCOME50 e economizou R$ 45,00',
+          description: 'Você usou o voucher WELCOME50 e economizou CHF 8.10',
           amount_saved: 45.00,
           voucher_code: 'WELCOME50',
           merchant_name: 'Restaurante Demo',
@@ -42,7 +42,7 @@ export function History() {
           id: 'hist-3',
           type: 'voucher_used',
           title: 'Voucher Utilizado',
-          description: 'Você usou o voucher SAVE20 e economizou R$ 20,00',
+          description: 'Você usou o voucher SAVE20 e economizou CHF 3.60',
           amount_saved: 20.00,
           voucher_code: 'SAVE20',
           merchant_name: 'Café Gourmet',
@@ -66,7 +66,7 @@ export function History() {
           id: 'hist-5',
           type: 'voucher_used',
           title: 'Voucher Utilizado',
-          description: 'Você usou o voucher FIRST30 e economizou R$ 35,00',
+          description: 'Você usou o voucher FIRST30 e economizou CHF 6.30',
           amount_saved: 35.00,
           voucher_code: 'FIRST30',
           merchant_name: 'Farmácia Central',
@@ -162,7 +162,7 @@ export function History() {
             <h2 className="text-lg font-semibold mb-4">Resumo</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">R$ {totalSaved.toFixed(2)}</div>
+                <div className="text-2xl font-bold text-green-600">CHF {(totalSaved * 0.18).toFixed(2)}</div>
                 <div className="text-sm text-gray-600">Total Economizado</div>
               </div>
               <div className="text-center">
@@ -224,7 +224,7 @@ export function History() {
                   <div className="flex items-center space-x-4">
                     {item.amount_saved > 0 && (
                       <span className="text-green-600 font-semibold">
-                        +R$ {item.amount_saved.toFixed(2)} economizado
+                        +CHF {(item.amount_saved * 0.18).toFixed(2)} economizado
                       </span>
                     )}
                     <span>{formatDate(item.created_at)}</span>

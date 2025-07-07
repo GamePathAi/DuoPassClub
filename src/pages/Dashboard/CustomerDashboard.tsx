@@ -184,14 +184,14 @@ export function CustomerDashboard() {
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
+      return new Intl.NumberFormat('de-CH', {
+        style: 'currency',
+        currency: 'CHF'
+      }).format(value * 0.18);
+    };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR');
+    return new Date(dateString).toLocaleDateString('de-CH');
   };
 
   const getStatusColor = (status: string) => {

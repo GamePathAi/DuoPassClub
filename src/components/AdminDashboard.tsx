@@ -261,7 +261,7 @@ export const AdminDashboard: React.FC = () => {
         />
         <StatCard
           title="Receita Mensal"
-          value={`R$ ${stats.monthly_revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+          value={`CHF ${(stats.monthly_revenue * 0.18).toLocaleString('de-CH', { minimumFractionDigits: 2 })}`}
           change={15.3}
           icon={<DollarSign className="w-6 h-6 text-yellow-600" />}
           color="bg-yellow-100"

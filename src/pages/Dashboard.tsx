@@ -6,7 +6,6 @@ import {
   Calendar, 
   TrendingUp, 
   Settings, 
-  Download, 
   Gift, 
   Star, 
   Crown, 
@@ -18,11 +17,9 @@ import {
   Users,
   MessageCircle,
   Shield,
-  AlertTriangle,
   FileText,
   Eye,
-  Trash2,
-  RefreshCw
+  Trash2
 } from 'lucide-react';
 import { MEMBERSHIP_PLANS } from '../types/membership';
 import { useAuth } from '../contexts/AuthContext';

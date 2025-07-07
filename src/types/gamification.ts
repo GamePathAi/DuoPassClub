@@ -199,7 +199,7 @@ export const PREDEFINED_ACHIEVEMENTS: Omit<Achievement, 'id' | 'created_at'>[] =
   },
   {
     name: 'Gastador VIP',
-    description: 'Gastou mais de R$ 1000 em ofertas',
+    description: 'Gastou mais de CHF 180.- em ofertas',
     icon: '💰',
     points_reward: 600,
     category: 'loyalty',

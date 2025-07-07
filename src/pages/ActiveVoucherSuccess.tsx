@@ -317,7 +317,7 @@ export function ActiveVoucherSuccess() {
                 <div className="flex justify-between items-center pt-4 border-t">
                   <span className="text-gray-600">Valor economizado:</span>
                   <span className="text-green-600 font-bold">
-                    R$ {(voucher.cultural_experiences.original_price - voucher.cultural_experiences.duo_price).toFixed(2)}
+                    CHF {((voucher.cultural_experiences.original_price - voucher.cultural_experiences.duo_price) * 0.18).toFixed(2)}
                   </span>
                 </div>
               </div>

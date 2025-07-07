@@ -218,7 +218,7 @@ export const EMAIL_TEMPLATES = {
           <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
             <p><strong>Título:</strong> {{experience_title}}</p>
             <p><strong>Descrição:</strong> {{experience_description}}</p>
-            <p><strong>Preço Normal:</strong> R$ {{normal_price}}</p>
+            <p><strong>Preço Normal:</strong> CHF {{normal_price}}</p>
             <p><strong>Oferta DUO:</strong> {{duo_value}}</p>
           </div>
           

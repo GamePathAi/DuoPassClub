@@ -205,7 +205,7 @@ export const PartnerDashboard: React.FC = () => {
         />
         <StatCard
           title="Receita Gerada"
-          value={`R$ ${stats.revenue_generated.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+          value={`CHF ${(stats.revenue_generated * 0.18).toLocaleString('de-CH', { minimumFractionDigits: 2 })}`}
           change={18.7}
           icon={<DollarSign className="w-6 h-6 text-yellow-600" />}
           color="bg-yellow-100"
@@ -414,7 +414,7 @@ export const PartnerDashboard: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                    R$ {offer.revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    CHF {(offer.revenue * 0.18).toLocaleString('de-CH', { minimumFractionDigits: 2 })}
                   </td>
                   <td className="px-6 py-4 text-sm font-medium">
                     <div className="flex items-center space-x-2">

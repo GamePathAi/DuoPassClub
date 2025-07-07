@@ -205,7 +205,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                         <p className="text-gray-600 text-sm">{plan.description}</p>
                         <div className="mt-2">
                           <span className="text-2xl font-bold text-blue-600">
-                            R$ {billingCycle === 'yearly' ? plan.price_yearly : plan.price_monthly}
+                            CHF {billingCycle === 'yearly' ? plan.price_yearly : plan.price_monthly}
                           </span>
                           <span className="text-gray-500 ml-1">
                             /{billingCycle === 'yearly' ? 'ano' : 'mês'}
@@ -274,7 +274,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 <div className="flex justify-between items-center">
                   <span>{currentPlan.name} - {billingCycle === 'yearly' ? 'Anual' : 'Mensal'}</span>
                   <span className="font-bold">
-                    R$ {billingCycle === 'yearly' ? currentPlan.price_yearly : currentPlan.price_monthly}
+                    CHF {billingCycle === 'yearly' ? currentPlan.price_yearly : currentPlan.price_monthly}
                   </span>
                 </div>
               </div>

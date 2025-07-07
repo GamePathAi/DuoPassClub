@@ -459,7 +459,7 @@ const CommunicationDashboard: React.FC<CommunicationDashboardProps> = ({ classNa
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <p className="text-sm text-green-600">Receita Atribuída</p>
                 <p className="text-3xl font-bold text-green-700">
-                  R$ {analytics.revenue_attribution?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  CHF {(analytics.revenue_attribution * 0.18)?.toLocaleString('de-CH', { minimumFractionDigits: 2 })}
                 </p>
                 <p className="text-sm text-green-600 mt-1">Últimos 30 dias</p>
               </div>

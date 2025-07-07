@@ -82,10 +82,10 @@ const questions: QuizQuestion[] = [
     icon: DollarSign,
     type: 'single',
     options: [
-      { value: 'low', label: 'Até R$ 50', description: 'Experiências acessíveis' },
-      { value: 'medium', label: 'R$ 50 - R$ 150', description: 'Investimento moderado' },
-      { value: 'high', label: 'R$ 150 - R$ 300', description: 'Experiências premium' },
-      { value: 'luxury', label: 'Acima de R$ 300', description: 'Sem limites para cultura' }
+      { value: 'low', label: 'Até CHF 9.-', description: 'Experiências acessíveis' },
+    { value: 'medium', label: 'CHF 9.- - CHF 27.-', description: 'Investimento moderado' },
+    { value: 'high', label: 'CHF 27.- - CHF 54.-', description: 'Experiências premium' },
+    { value: 'luxury', label: 'Acima de CHF 54.-', description: 'Sem limites para cultura' }
     ]
   },
   {

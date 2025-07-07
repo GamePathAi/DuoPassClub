@@ -292,11 +292,11 @@ export const CulturalExperiences = React.memo(function CulturalExperiences({ lim
               <div className="bg-gradient-to-r from-amber-50 to-rose-50 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-600">Experiência Individual</span>
-                  <span className="text-sm text-gray-500 line-through">R$ {experience.original_price.toFixed(2)}</span>
+                  <span className="text-sm text-gray-500 line-through">CHF {(experience.original_price * 0.18).toFixed(2)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-amber-700">DUO PASS</span>
-                  <span className="text-xl font-bold text-green-600">R$ {experience.duo_price.toFixed(2)}</span>
+                  <span className="text-xl font-bold text-green-600">CHF {(experience.duo_price * 0.18).toFixed(2)}</span>
                 </div>
                 <p className="text-xs text-gray-600 mt-2">{experience.duo_benefit}</p>
               </div>
