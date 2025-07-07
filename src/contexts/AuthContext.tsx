@@ -30,13 +30,20 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// 🔒 Configurações de segurança
+const _0x3e4f = !import.meta.env.PROD;
+const _0x5g6h = import.meta.env.DEV;
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
-
+  
   const loginDemo = useCallback(async () => {
-    console.log('🎭 Fazendo login demo automático...');
+    // Logs removidos em produção
+    if (import.meta.env.DEV) {
+      console.log('🎭 Fazendo login demo automático...');
+    }
     
     const mockUser = {
       id: 'demo-user-id',
@@ -56,14 +63,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Salvar sessão demo no localStorage
     localStorage.setItem('duopass_demo_session', 'active');
     
-    console.log('✅ Login demo realizado com sucesso!');
+    // Log apenas em desenvolvimento
+    if (import.meta.env.DEV) {
+      console.log('✅ Login demo realizado com sucesso!');
+    }
   }, []);
 
   useEffect(() => {
     // Check for demo session first
     const demoSession = localStorage.getItem('duopass_demo_session');
     if (demoSession) {
-      console.log('🎭 Restaurando sessão demo...');
+      // Log apenas em desenvolvimento
+      if (_0x5g6h) {
+        console.log('🎭 Restaurando sessão demo...');
+      }
       loginDemo();
       return;
     }
@@ -119,7 +132,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       setUserProfile(data);
     } catch (error: unknown) {
-      console.error('Error fetching user profile:', error);
+      // Log de erro apenas em desenvolvimento
+      if (_0x5g6h) {
+        console.error('Error fetching user profile:', error);
+      }
     }
   };
 
@@ -133,7 +149,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (checkError && checkError.code !== 'PGRST116') {
       // PGRST116 = "The result contains 0 rows" (email não existe, ok para continuar)
-      console.error('Erro ao verificar email existente:', checkError);
+      if (_0x5g6h) {
+        console.error('Erro ao verificar email existente:', checkError);
+      }
       throw new Error('Erro ao verificar disponibilidade do email');
     }
 
@@ -169,7 +187,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
 
       if (profileError) {
-        console.error('Erro ao criar perfil do usuário:', profileError);
+        if (_0x5g6h) {
+          console.error('Erro ao criar perfil do usuário:', profileError);
+        }
         throw new Error('Erro ao criar perfil do usuário. Tente novamente.');
       }
     }
@@ -178,11 +198,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    console.log('🔐 AuthContext: Iniciando signIn com email:', email);
+    if (_0x5g6h) {
+      console.log('🔐 AuthContext: Iniciando signIn com email:', email);
+    }
     
     // SOLUÇÃO TEMPORÁRIA: Credenciais de teste para demonstração
     if (email === 'demo@duopass.com' && password === '123456') {
-      console.log('✅ AuthContext: Login de demonstração bem-sucedido!');
+      if (_0x5g6h) {
+        console.log('✅ AuthContext: Login de demonstração bem-sucedido!');
+      }
       
       // Simular dados de usuário para demonstração
       const mockUser = {
@@ -228,28 +252,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       });
 
-      console.log('⏳ AuthContext: Aguardando resposta do Supabase...');
+      if (_0x5g6h) {
+        console.log('⏳ AuthContext: Aguardando resposta do Supabase...');
+      }
       const { data, error } = await Promise.race([authPromise, timeoutPromise]) as { data: unknown; error: unknown };
 
-      console.log('📊 AuthContext: Resposta do Supabase:', { data, error });
+      if (_0x5g6h) {
+        console.log('📊 AuthContext: Resposta do Supabase:', { data, error });
+      }
 
       if (error) {
-        console.error('❌ AuthContext: Erro na autenticação:', error);
+        if (_0x5g6h) {
+          console.error('❌ AuthContext: Erro na autenticação:', error);
+        }
         throw error;
       }
 
       // Check if email is verified
       if (data.user && !data.user.email_confirmed_at) {
-        console.log('📧 AuthContext: Email não verificado, fazendo logout');
+        if (_0x5g6h) {
+          console.log('📧 AuthContext: Email não verificado, fazendo logout');
+        }
         // Sign out the user immediately
         await supabase.auth.signOut();
         throw new Error('Email não verificado. Verifique sua caixa de entrada e clique no link de confirmação.');
       }
 
-      console.log('✅ AuthContext: Login bem-sucedido, retornando dados');
+      if (_0x5g6h) {
+        console.log('✅ AuthContext: Login bem-sucedido, retornando dados');
+      }
       return data;
     } catch (error: unknown) {
-      console.error('💥 AuthContext: Erro capturado:', error);
+      if (_0x5g6h) {
+        console.error('💥 AuthContext: Erro capturado:', error);
+      }
       throw error;
     }
   };
@@ -270,7 +306,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       return diffInSeconds >= 60; // 60 seconds cooldown
     } catch (error: unknown) {
-      console.error('Error checking resend cooldown:', error);
+      if (_0x5g6h) {
+        console.error('Error checking resend cooldown:', error);
+      }
       return true;
     }
   };
@@ -292,7 +330,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       return Math.ceil(remaining);
     } catch (error: unknown) {
-      console.error('Error getting resend cooldown:', error);
+      if (_0x5g6h) {
+        console.error('Error getting resend cooldown:', error);
+      }
       return 0;
     }
   };
@@ -305,7 +345,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error(`Aguarde ${cooldown} segundos antes de reenviar o email.`);
     }
 
-    console.log('resend_email_attempted', { email, timestamp: new Date().toISOString() });
+    if (_0x5g6h) {
+      console.log('resend_email_attempted', { email, timestamp: new Date().toISOString() });
+    }
 
     const { error } = await supabase.auth.resend({
       type: 'signup',
@@ -316,7 +358,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     if (error) {
-      console.log('resend_email_failed', { email, error: error.message, timestamp: new Date().toISOString() });
+      if (_0x5g6h) {
+        console.log('resend_email_failed', { email, error: error.message, timestamp: new Date().toISOString() });
+      }
       throw error;
     }
 
@@ -326,16 +370,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .update({ email_verification_sent_at: new Date().toISOString() })
       .eq('email', email);
 
-    console.log('email_verification_sent', { email, timestamp: new Date().toISOString() });
+    if (_0x5g6h) {
+      console.log('email_verification_sent', { email, timestamp: new Date().toISOString() });
+    }
   };
 
   const signOut = async () => {
     try {
-      console.log('🚪 Fazendo logout...');
+      if (_0x5g6h) {
+        console.log('🚪 Fazendo logout...');
+      }
       
       // Limpar Supabase session
       const { error } = await supabase.auth.signOut();
-      if (error) console.error('Erro Supabase logout:', error);
+      if (error && _0x5g6h) {
+        console.error('Erro Supabase logout:', error);
+      }
       
       // Limpar estado local
       setUser(null);
@@ -347,10 +397,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem('sb-token');
       localStorage.removeItem('duopass_demo_session');
       
-      console.log('✅ Logout realizado com sucesso');
+      if (_0x5g6h) {
+        console.log('✅ Logout realizado com sucesso');
+      }
       
     } catch (error) {
-      console.error('❌ Erro no logout:', error);
+      if (_0x5g6h) {
+        console.error('❌ Erro no logout:', error);
+      }
     }
   };
 

@@ -51,6 +51,10 @@ interface CashbackTransaction {
 }
 
 export class PaymentService {
+  // 🔒 Configurações protegidas - Não modificar
+  private static readonly _0x1a2b = import.meta.env.PROD;
+  private static readonly _0x2c3d = !import.meta.env.DEV;
+  
   // Planos de assinatura predefinidos
   static readonly SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     {

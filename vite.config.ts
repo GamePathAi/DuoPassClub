@@ -29,26 +29,47 @@ export default defineConfig({
     ]
   },
   
-  // Configurações de build para produção
+  // Configurações de build para produção com proteção avançada
   build: {
     target: 'es2015',
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false, // Desabilitar em produção por segurança
+    sourcemap: false, // CRÍTICO: Desabilitar source maps para proteção
     minify: 'terser',
     
-    // Configurações do Terser para minificação
+    // Configurações avançadas do Terser para máxima proteção
     terserOptions: {
-      compress: {
-        drop_console: true, // Remover console.logs em produção
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug']
-      },
+        compress: {
+          drop_console: true,        // Remove todos os console.log
+          drop_debugger: true,       // Remove debugger statements
+          pure_funcs: ['console.log', 'console.warn', 'console.error', 'console.info', 'console.debug'],
+          unsafe: true,              // Otimizações agressivas
+          unsafe_comps: true,        // Comparações unsafe
+          passes: 3,                 // Múltiplas passadas de otimização
+          dead_code: true,           // Remove código morto
+          reduce_vars: true,         // Reduz variáveis
+          collapse_vars: true,       // Colapsa variáveis
+          sequences: true,           // Junta sequências
+          conditionals: true,        // Otimiza condicionais
+          booleans: true,           // Otimiza booleanos
+          loops: true,              // Otimiza loops
+          unused: true,             // Remove código não usado
+          hoist_funs: true,         // Hoisting de funções
+          hoist_vars: true          // Hoisting de variáveis
+        },
       mangle: {
-        safari10: true
+        toplevel: true,            // Ofusca nomes globais
+        safari10: true,
+        properties: {
+          regex: /^_/,             // Ofusca propriedades que começam com _
+          reserved: ['__proto__', 'constructor', 'prototype']
+        },
+        reserved: ['require', 'exports', 'module'] // Preserva palavras reservadas
       },
       format: {
-        comments: false
+        comments: false,           // Remove TODOS os comentários
+        beautify: false,          // Não formatar código
+        ascii_only: true          // Apenas ASCII para compatibilidade
       }
     },
     
@@ -114,10 +135,15 @@ export default defineConfig({
     }
   },
   
-  // Variáveis de ambiente
+  // Variáveis de ambiente protegidas
   define: {
+    'process.env.NODE_ENV': JSON.stringify('production'),
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '1.0.0'),
-    __BUILD_TIME__: JSON.stringify(new Date().toISOString())
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+    __DEV__: false,
+    __PROD__: true,
+    'import.meta.env.DEV': false,
+    'import.meta.env.PROD': true
   },
   
   // Configurações de CSS

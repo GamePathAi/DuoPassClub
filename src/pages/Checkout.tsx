@@ -5,6 +5,9 @@ import { ArrowLeft, Check, CreditCard, Shield, Lock, Star, Crown, Trophy } from 
 import { MEMBERSHIP_PLANS } from '../types/membership';
 import { useAuth } from '../contexts/AuthContext';
 
+// Controle de ambiente para proteção
+const _0x7h8i = process.env.NODE_ENV === 'development';
+
 export function Checkout() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -91,18 +94,22 @@ export function Checkout() {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // In a real implementation, this would integrate with Stripe
-      console.log('Processing payment for:', {
-        plan: selectedPlan,
-        billing: billingCycle,
-        amount: getCurrentPrice(),
-        user: user?.email,
-        paymentMethod: formData
-      });
+      if (_0x7h8i) {
+        console.log('Processing payment for:', {
+          plan: selectedPlan,
+          billing: billingCycle,
+          amount: getCurrentPrice(),
+          user: user?.email,
+          paymentMethod: formData
+        });
+      }
 
       // Simulate successful payment
       navigate('/dashboard?welcome=true&plan=' + selectedPlan.id);
     } catch (error) {
-      console.error('Payment failed:', error);
+      if (_0x7h8i) {
+        console.error('Payment failed:', error);
+      }
       alert('Erro no pagamento. Tente novamente.');
     } finally {
       setIsProcessing(false);
