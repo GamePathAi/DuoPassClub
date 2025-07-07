@@ -7,13 +7,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:debug": "vite build --mode development",
+    "build:dev": "vite build --mode development --sourcemap",
     "build:secure": "set NODE_ENV=production && vite build --mode production",
     "build:protected": "npm run lint:fix && set NODE_ENV=production && vite build --mode production --minify terser",
     "preview:secure": "set NODE_ENV=production && vite preview --mode production",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
-    "deploy:secure": "npm run build:protected && echo 'Build protegido concluído - Pronto para deploy'"
+    "deploy:secure": "npm run build:protected && echo 'Build protegido concluído - Pronto para deploy'",
+    "deploy:debug": "npm run build:debug && echo 'Build de debug concluído - Código não minificado para facilitar debug'"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
