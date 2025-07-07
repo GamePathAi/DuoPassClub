@@ -20,7 +20,6 @@ import { MerchantDashboard } from './pages/Dashboard/MerchantDashboard';
 import { CustomerDashboard } from './pages/Dashboard/CustomerDashboard';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { OfferDetails } from './pages/OfferDetails';
-import ActiveVoucher from './pages/ActiveVoucher';
 import { MyVouchers } from './pages/MyVouchers';
 import { VoucherDetails } from './pages/VoucherDetails';
 import { VoucherActive } from './pages/VoucherActive';
@@ -128,7 +127,7 @@ function App() {
               } />
               <Route path="/voucher/:id/active" element={
                 <CustomerRoute>
-                  <ActiveVoucher />
+                  <VoucherActive />
                 </CustomerRoute>
               } />
 
