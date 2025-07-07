@@ -5,9 +5,7 @@ import { Voucher, Offer } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
-interface VoucherWithOffer extends Voucher {
-  offer?: Offer;
-}
+import { VoucherWithOffer } from '../types/voucher';
 
 type VoucherStatus = 'active' | 'used' | 'expired' | 'all';
 

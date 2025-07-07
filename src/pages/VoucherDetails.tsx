@@ -3,23 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Clock, MapPin, Share2, Heart, ArrowLeft, QrCode, AlertCircle, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-
-interface VoucherData {
-  id: string;
-  user_id: string;
-  code: string;
-  title: string;
-  business_name: string;
-  original_price: number;
-  discounted_price: number;
-  image_url?: string;
-  status: 'active' | 'used' | 'expired';
-  created_at: string;
-  expires_at: string;
-  used_at?: string;
-  terms_conditions?: string;
-  offer_id?: string;
-}
+import { VoucherData } from '../types/voucher';
 
 export function VoucherDetails() {
   const { id } = useParams<{ id: string }>();
@@ -98,7 +82,7 @@ export function VoucherDetails() {
     loadVoucherDetails();
   }, [loadVoucherDetails]);
 
-  // ✅ FUNÇÃO PARA RESGATAR VOUCHER
+  // ✅ FUNÇÃO PARA RESGATAR VOUCHER - CORREÇÃO CRÍTICA
   const handleRedeem = async () => {
     if (!voucher || !user) return;
 
@@ -107,9 +91,9 @@ export function VoucherDetails() {
       
       console.log('🎯 Resgatando voucher:', voucher.id);
 
-      // Verificar se o voucher ainda está disponível
-      if (voucher.status !== 'active') {
-        alert('Este voucher não está mais disponível para resgate.');
+      // ✅ Verificar se está no status correto para resgate
+      if (voucher.status !== 'purchased') {
+        alert('Este voucher não está disponível para resgate.');
         return;
       }
 
@@ -119,12 +103,12 @@ export function VoucherDetails() {
         return;
       }
 
-      // Atualizar status para "ativo" (pronto para usar)
+      // ✅ Ativar voucher comprado
       const { error } = await supabase
         .from('vouchers')
         .update({ 
           status: 'active',
-          // Não marcar como usado ainda - isso será feito quando apresentar no estabelecimento
+          used_at: new Date().toISOString()
         })
         .eq('id', voucher.id)
         .eq('user_id', user.id);
@@ -137,8 +121,8 @@ export function VoucherDetails() {
 
       console.log('✅ Voucher resgatado com sucesso');
 
-      // Redirecionar para página do voucher ativo com parâmetro de sucesso
-      navigate(`/voucher/${voucher.code}/active?redeemed=true`);
+      // ✅ Redirecionar usando voucher.id
+      navigate(`/voucher/${voucher.id}/active`);
       
     } catch (error) {
       console.error('❌ Erro inesperado ao resgatar:', error);
@@ -172,10 +156,10 @@ export function VoucherDetails() {
     }
   };
 
-  // ✅ FUNÇÃO PARA NAVEGAR PARA VOUCHER ATIVO
+  // ✅ FUNÇÃO PARA NAVEGAR PARA VOUCHER ATIVO - CORREÇÃO CRÍTICA
   const handleViewActive = () => {
     if (voucher) {
-      navigate(`/voucher/${voucher.code}/active`);
+      navigate(`/voucher/${voucher.id}/active`);
     }
   };
 

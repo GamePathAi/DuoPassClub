@@ -12,11 +12,11 @@ import {
   Phone,
   Globe,
   Navigation,
-
   AlertCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import QRCode from 'qrcode';
 
 interface VoucherDetails {
@@ -74,41 +74,70 @@ export function VoucherActive() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voucher?.expires_at]);
 
+  // ✅ CARREGAMENTO REAL VIA SUPABASE - CORREÇÃO CRÍTICA
   const loadVoucherDetails = async () => {
+    if (!id || !user) {
+      console.error('ID do voucher ou usuário não encontrado');
+      navigate('/meus-vouchers');
+      return;
+    }
+
     try {
       setLoading(true);
       
-      // MOCK DATA - SEM SUPABASE
-      const mockVoucherData: VoucherDetails = {
-        id: id || 'demo-voucher-active',
-        voucher_code: 'DUOACTIVE123',
-        qr_code_data: `DUO-${id}-${Date.now()}`,
-        status: 'active',
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        created_at: new Date().toISOString(),
+      console.log('🔍 Carregando voucher ativo:', id);
+
+      // ✅ Carregar voucher real do Supabase
+      const { data: voucherData, error } = await supabase
+        .from('vouchers')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao carregar voucher:', error);
+        navigate('/meus-vouchers');
+        return;
+      }
+
+      if (!voucherData) {
+        console.error('❌ Voucher não encontrado');
+        navigate('/meus-vouchers');
+        return;
+      }
+
+      // ✅ Transformar dados do Supabase para interface VoucherDetails
+      const transformedVoucher: VoucherDetails = {
+        id: voucherData.id,
+        voucher_code: voucherData.code,
+        qr_code_data: `DUO-${voucherData.id}-${voucherData.code}`,
+        status: voucherData.status,
+        expires_at: voucherData.expires_at,
+        created_at: voucherData.created_at,
         offer: {
-          id: 'demo-offer-active',
-          title: 'Pizza Margherita + Bebida GRÁTIS',
-          description: 'Deliciosa pizza artesanal com molho especial da casa e bebida inclusa.',
-          original_value: 45.90,
-          image_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
-          location: 'Zürich',
-          terms_conditions: 'Válido de segunda a quinta-feira das 18h às 22h. Não cumulativo com outras promoções.',
+          id: voucherData.offer_id || 'default-offer',
+          title: voucherData.title,
+          description: voucherData.terms_conditions || 'Experiência cultural exclusiva DUO PASS',
+          original_value: voucherData.original_price,
+          image_url: voucherData.image_url || 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
+          location: 'Suíça',
+          terms_conditions: voucherData.terms_conditions || 'Válido conforme termos e condições.',
           merchant: {
-            business_name: 'Pizzaria Bella Vista',
-            address: 'Bahnhofstrasse 123, 8001 Zürich',
-            phone: '+41 44 123 4567',
-            website: 'https://pizzariabellavista.ch',
-            description: 'Autêntica pizzaria italiana no coração de Zürich'
+            business_name: voucherData.business_name,
+            address: 'Endereço disponível no estabelecimento',
+            phone: '+41 XX XXX XXXX',
+            website: 'https://duopassclub.ch',
+            description: `Parceiro cultural DUO PASS - ${voucherData.business_name}`
           }
         }
       };
 
-      setVoucher(mockVoucherData);
+      setVoucher(transformedVoucher);
       
-      // Gerar QR Code
-      if (mockVoucherData.qr_code_data) {
-        const qrUrl = await QRCode.toDataURL(mockVoucherData.qr_code_data, {
+      // ✅ Gerar QR Code com dados reais
+      if (transformedVoucher.qr_code_data) {
+        const qrUrl = await QRCode.toDataURL(transformedVoucher.qr_code_data, {
           width: 300,
           margin: 2,
           color: {
@@ -118,10 +147,13 @@ export function VoucherActive() {
         });
         setQrCodeUrl(qrUrl);
       }
+
+      console.log('✅ Voucher ativo carregado com sucesso');
+      
     } catch (err) {
-        console.error('Erro ao carregar voucher:', err);
-        navigate('/vouchers');
-      } finally {
+      console.error('❌ Erro inesperado ao carregar voucher:', err);
+      navigate('/meus-vouchers');
+    } finally {
       setLoading(false);
     }
   };
