@@ -1,37 +1,34 @@
-import { supabase } from './supabase';
-import { Voucher, UsageReport } from '../types';
+import { UsageReport } from '../types';
 import QRCode from 'qrcode';
-import { v4 as uuidv4 } from 'uuid';
-import { addDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from 'date-fns';
+import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from 'date-fns';
 
 export class VoucherService {
-  // Gerar voucher único para um parceiro
-  static async generateVoucher(userId: string, merchantId: string): Promise<Voucher | null> {
+  // Gerar voucher único para um parceiro - MOCK VERSION
+  static async generateVoucher(userId: string, partnerId: string): Promise<unknown> {
     try {
-      // Verificar se já existe voucher ativo para este usuário e parceiro
-      const { data: existingVoucher } = await supabase
-        .from('vouchers')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('merchant_id', merchantId)
-        .eq('status', 'active')
-        .single();
-
+      console.log('🎫 Mock: Gerando voucher...', { userId, partnerId });
+      
+      // Verificar se já existe voucher ativo
+      const existingVoucher = localStorage.getItem(`voucher_${userId}_${partnerId}`);
       if (existingVoucher) {
+        console.log('⚠️ Mock: Usuário já possui voucher ativo para este parceiro');
         throw new Error('Usuário já possui voucher ativo para este parceiro');
       }
-
-      // Gerar código único
-      const voucherCode = this.generateVoucherCode(merchantId);
+      
+      // Gerar voucher mock
+      const voucherId = `voucher_${Date.now()}`;
+      const voucherCode = `DUO${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+      
+      // Gerar QR Code data
       const qrCodeData = JSON.stringify({
-        voucherId: uuidv4(),
+        voucherId,
         userId,
-        merchantId,
+        partnerId,
         code: voucherCode,
         timestamp: new Date().toISOString()
       });
-
-      // Gerar QR Code
+      
+      // Gerar QR Code URL
       const qrCodeUrl = await QRCode.toDataURL(qrCodeData, {
         width: 200,
         margin: 2,
@@ -40,100 +37,144 @@ export class VoucherService {
           light: '#FFFFFF'
         }
       });
-
-      // Criar voucher no banco
-      const { data: voucher, error } = await supabase
-        .from('vouchers')
-        .insert({
-          user_id: userId,
-          merchant_id: merchantId,
-          voucher_code: voucherCode,
-          qr_code_data: qrCodeUrl,
-          status: 'active',
-          expires_at: addDays(new Date(), 30).toISOString() // Válido por 30 dias
-        })
-        .select(`
-          *,
-          user:users(full_name, email),
-          merchant:users!vouchers_merchant_id_fkey(full_name as business_name, email as contact_info)
-        `)
-        .single();
-
-      if (error) throw error;
-      return voucher;
+      
+      const mockVoucher = {
+        id: voucherId,
+        voucher_code: voucherCode,
+        user_id: userId,
+        partner_id: partnerId,
+        merchant_id: partnerId, // Para compatibilidade
+        status: 'active',
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 dias
+        qr_code_data: qrCodeUrl,
+        cultural_experience: {
+          experience_name: 'Experiência DuoPass',
+          duo_price: 60
+        },
+        cultural_partners: {
+          id: partnerId,
+          business_name: 'Parceiro Cultural',
+          contact_name: 'Contato do Parceiro',
+          email: 'contato@parceiro.com',
+          address: {
+            street: 'Rua Cultural, 123',
+            city: 'Genebra',
+            state: 'Genebra',
+            zipcode: '1200'
+          }
+        }
+      };
+      
+      // Salvar no localStorage para persistir
+      localStorage.setItem(`voucher_${userId}_${partnerId}`, JSON.stringify(mockVoucher));
+      localStorage.setItem(`active_voucher_${voucherId}`, JSON.stringify(mockVoucher));
+      
+      console.log('✅ Mock: Voucher gerado com sucesso!', mockVoucher);
+      
+      return mockVoucher;
+      
     } catch (error) {
-      console.error('Erro ao gerar voucher:', error);
+      console.error('❌ Erro ao gerar voucher mock:', error);
+      throw error;
+    }
+  }
+
+  // Verificar se usuário pode gerar voucher para um parceiro - MOCK VERSION
+  static async canGenerateVoucher(userId: string, partnerId: string): Promise<boolean> {
+    try {
+      console.log('🔍 Mock: Verificando se pode gerar voucher...', { userId, partnerId });
+      
+      // Simular verificação de voucher existente
+      const existingVoucher = localStorage.getItem(`voucher_${userId}_${partnerId}`);
+      
+      const canGenerate = !existingVoucher;
+      console.log('🔍 Mock: Pode gerar voucher?', canGenerate);
+      
+      return canGenerate; // true se não existe voucher
+    } catch (error) {
+      console.error('Erro ao verificar voucher:', error);
+      return true; // Em caso de erro, permite gerar
+    }
+  }
+
+  // Buscar voucher ativo - MOCK VERSION
+  static async getActiveVoucher(voucherId: string) {
+    try {
+      const voucher = localStorage.getItem(`active_voucher_${voucherId}`);
+      return voucher ? JSON.parse(voucher) : null;
+    } catch (error) {
+      console.error('Erro ao buscar voucher ativo:', error);
       return null;
     }
   }
 
-  // Validar voucher pelo QR Code
-  static async validateVoucher(qrCodeData: string, merchantId: string, location: string): Promise<{ success: boolean; message: string; voucher?: Voucher }> {
+  // Buscar vouchers do usuário - MOCK VERSION
+  static async getUserVouchers(userId: string): Promise<unknown[]> {
+    try {
+      const vouchers = [];
+      
+      // Procurar todos os vouchers do usuário no localStorage
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith(`voucher_${userId}_`)) {
+          const voucher = localStorage.getItem(key);
+          if (voucher) {
+            vouchers.push(JSON.parse(voucher));
+          }
+        }
+      }
+      
+      return vouchers;
+    } catch (error) {
+      console.error('Erro ao buscar vouchers do usuário:', error);
+      return [];
+    }
+  }
+
+  // Validar voucher pelo QR Code - MOCK VERSION
+  static async validateVoucher(qrCodeData: string, merchantId: string, location: string): Promise<{ success: boolean; message: string; voucher?: unknown }> {
     try {
       const qrData = JSON.parse(qrCodeData);
       
       // Verificar se o QR Code é válido
-      if (!qrData.voucherId || !qrData.userId || !qrData.merchantId || !qrData.code) {
+      if (!qrData.voucherId || !qrData.userId || !qrData.partnerId || !qrData.code) {
         return { success: false, message: 'QR Code inválido' };
       }
 
       // Verificar se o voucher é para este comerciante
-      if (qrData.merchantId !== merchantId) {
+      if (qrData.partnerId !== merchantId) {
         return { success: false, message: 'Voucher não é válido para este estabelecimento' };
       }
 
-      // Buscar voucher no banco
-      const { data: voucher, error } = await supabase
-        .from('vouchers')
-        .select(`
-          *,
-          user:users(full_name, email),
-          merchant:users!vouchers_merchant_id_fkey(full_name as business_name, email as contact_info)
-        `)
-        .eq('voucher_code', qrData.code)
-        .eq('user_id', qrData.userId)
-        .eq('merchant_id', qrData.merchantId)
-        .single();
-
-      if (error || !voucher) {
+      // Buscar voucher no localStorage
+      const voucher = localStorage.getItem(`active_voucher_${qrData.voucherId}`);
+      if (!voucher) {
         return { success: false, message: 'Voucher não encontrado' };
       }
 
+      const voucherData = JSON.parse(voucher);
+
       // Verificar status do voucher
-      if (voucher.status === 'used') {
+      if (voucherData.status === 'used') {
         return { success: false, message: 'Voucher já foi utilizado' };
       }
 
-      if (voucher.status === 'expired' || new Date(voucher.expires_at) < new Date()) {
+      if (voucherData.status === 'expired' || new Date(voucherData.expires_at) < new Date()) {
         return { success: false, message: 'Voucher expirado' };
       }
 
       // Marcar voucher como usado
-      const { error: updateError } = await supabase
-        .from('vouchers')
-        .update({
-          status: 'used',
-          used_at: new Date().toISOString(),
-          used_location: location
-        })
-        .eq('id', voucher.id);
-
-      if (updateError) throw updateError;
-
-      // Registrar uso
-      await supabase.from('voucher_usage').insert({
-        voucher_id: voucher.id,
-        merchant_id: merchantId,
-        user_id: voucher.user_id,
-        used_at: new Date().toISOString(),
-        location,
-        validated_by: merchantId
-      });
+      voucherData.status = 'used';
+      voucherData.used_at = new Date().toISOString();
+      voucherData.used_location = location;
+      
+      localStorage.setItem(`active_voucher_${qrData.voucherId}`, JSON.stringify(voucherData));
 
       return { 
         success: true, 
         message: 'Voucher validado com sucesso!', 
-        voucher: { ...voucher, status: 'used', used_at: new Date().toISOString(), used_location: location }
+        voucher: voucherData
       };
     } catch (error) {
       console.error('Erro ao validar voucher:', error);
@@ -141,27 +182,7 @@ export class VoucherService {
     }
   }
 
-  // Buscar vouchers do usuário
-  static async getUserVouchers(userId: string): Promise<Voucher[]> {
-    try {
-      const { data, error } = await supabase
-        .from('vouchers')
-        .select(`
-          *,
-          merchant:users!vouchers_merchant_id_fkey(full_name as business_name, email as contact_info)
-        `)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Erro ao buscar vouchers:', error);
-      return [];
-    }
-  }
-
-  // Gerar relatório de uso
+  // Gerar relatório de uso - MOCK VERSION
   static async generateUsageReport(period: 'weekly' | 'monthly', date: Date = new Date()): Promise<UsageReport | null> {
     try {
       let startDate: Date;
@@ -175,73 +196,28 @@ export class VoucherService {
         endDate = endOfMonth(date);
       }
 
-      // Buscar usos no período
-      const { data: usages, error } = await supabase
-        .from('voucher_usage')
-        .select(`
-          *,
-          voucher:vouchers(*),
-          user:users!voucher_usage_user_id_fkey(full_name, email),
-          merchant:users!voucher_usage_merchant_id_fkey(full_name as business_name)
-        `)
-        .gte('used_at', startDate.toISOString())
-        .lte('used_at', endDate.toISOString());
-
-      if (error) throw error;
-
-      // Processar estatísticas
-      const merchantStats = new Map();
-      const customerStats = new Map();
-      const uniqueCustomers = new Set();
-
-      usages?.forEach(usage => {
-        const merchantId = usage.merchant_id;
-        const userId = usage.user_id;
-        
-        uniqueCustomers.add(userId);
-
-        // Stats por comerciante
-        if (!merchantStats.has(merchantId)) {
-          merchantStats.set(merchantId, {
-            merchant_id: merchantId,
-            business_name: usage.merchant?.business_name || 'N/A',
-            total_uses: 0,
-            unique_customers: new Set()
-          });
-        }
-        const merchantStat = merchantStats.get(merchantId);
-        merchantStat.total_uses++;
-        merchantStat.unique_customers.add(userId);
-
-        // Stats por cliente
-        if (!customerStats.has(userId)) {
-          customerStats.set(userId, {
-            user_id: userId,
-            full_name: usage.user?.full_name || 'N/A',
-            total_uses: 0
-          });
-        }
-        customerStats.get(userId).total_uses++;
-      });
-
-      // Converter para arrays e ordenar
-      const merchantStatsArray = Array.from(merchantStats.values()).map(stat => ({
-        ...stat,
-        unique_customers: stat.unique_customers.size
-      })).sort((a, b) => b.total_uses - a.total_uses);
-
-      const topCustomers = Array.from(customerStats.values())
-        .sort((a, b) => b.total_uses - a.total_uses)
-        .slice(0, 10);
-
+      // Mock data para relatório
       return {
         period,
         start_date: format(startDate, 'yyyy-MM-dd'),
         end_date: format(endDate, 'yyyy-MM-dd'),
-        total_vouchers_used: usages?.length || 0,
-        unique_customers: uniqueCustomers.size,
-        merchant_stats: merchantStatsArray,
-        top_customers: topCustomers
+        total_vouchers_used: 5,
+        unique_customers: 3,
+        merchant_stats: [
+          {
+            merchant_id: 'mock-merchant-1',
+            business_name: 'Café das Letras',
+            total_uses: 3,
+            unique_customers: 2
+          }
+        ],
+        top_customers: [
+          {
+            user_id: 'mock-user-1',
+            full_name: 'João Silva',
+            total_uses: 2
+          }
+        ]
       };
     } catch (error) {
       console.error('Erro ao gerar relatório:', error);
@@ -249,28 +225,11 @@ export class VoucherService {
     }
   }
 
-  // Gerar código único do voucher
-  private static generateVoucherCode(merchantId: string): string {
+  // Gerar código único do voucher - MOCK VERSION
+  private static generateVoucherCode(partnerId: string): string {
     const prefix = 'DUO';
-    const merchantCode = merchantId.substring(0, 3).toUpperCase();
+    const partnerCode = partnerId.substring(0, 3).toUpperCase();
     const randomNumber = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-    return `${prefix}-${merchantCode}-${randomNumber}`;
-  }
-
-  // Verificar se usuário pode gerar voucher para um parceiro
-  static async canGenerateVoucher(userId: string, merchantId: string): Promise<boolean> {
-    try {
-      const { data } = await supabase
-        .from('vouchers')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('merchant_id', merchantId)
-        .eq('status', 'active')
-        .single();
-
-      return !data; // Pode gerar se não existe voucher ativo
-    } catch {
-      return true; // Se der erro, assume que pode gerar
-    }
+    return `${prefix}-${partnerCode}-${randomNumber}`;
   }
 }

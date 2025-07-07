@@ -29,14 +29,24 @@ self.addEventListener('install', (event) => {
     caches.open(STATIC_CACHE)
       .then((cache) => {
         console.log('[SW] Cache estático criado');
-        return cache.addAll(STATIC_FILES);
+        // Cache arquivos individualmente para evitar falhas em lote
+        return Promise.allSettled(
+          STATIC_FILES.map(file => 
+            cache.add(file).catch(err => {
+              console.warn(`[SW] Falha ao cachear ${file}:`, err);
+              return null;
+            })
+          )
+        );
       })
       .then(() => {
-        console.log('[SW] Arquivos estáticos cacheados');
+        console.log('[SW] Arquivos estáticos processados');
         return self.skipWaiting();
       })
       .catch((error) => {
         console.error('[SW] Erro ao instalar:', error);
+        // Continuar mesmo com erro para não bloquear o SW
+        return self.skipWaiting();
       })
   );
 });
@@ -119,8 +129,26 @@ self.addEventListener('fetch', (event) => {
                 return caches.match('/index.html');
               }
               
-              // Para outros recursos, retornar erro
-              throw error;
+              // Para imagens, retornar resposta vazia em vez de erro
+              if (request.destination === 'image' || request.url.includes('/images/')) {
+                return new Response('', {
+                  status: 200,
+                  statusText: 'OK',
+                  headers: { 'Content-Type': 'image/svg+xml' }
+                });
+              }
+              
+              // Para fontes, retornar resposta vazia
+              if (request.destination === 'font' || request.url.includes('/fonts/')) {
+                return new Response('', {
+                  status: 200,
+                  statusText: 'OK',
+                  headers: { 'Content-Type': 'font/woff2' }
+                });
+              }
+              
+              // Para outros recursos, retornar erro silencioso
+              return new Response('', { status: 404 });
             });
         })
     );

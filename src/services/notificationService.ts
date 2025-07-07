@@ -1,4 +1,3 @@
-import { supabase } from '../lib/supabase';
 import { supabase } from '../lib/supabaseConfig';
 import { NotificationInput } from '../hooks/useNotifications';
 // import { NotificationType } from '../types/notification';
@@ -212,7 +211,7 @@ const customerDemoNotifications: DemoNotificationData[] = [
     type: 'offer_new',
     title: 'Nova oferta disponível!',
     message: '🎁 40% OFF Hambúrguer Gourmet na Burger House - Válida até meia-noite!',
-    action_url: '/offers',
+    action_url: '/ofertas',
     action_text: 'Ver Oferta'
   },
   {
@@ -500,7 +499,7 @@ export class NotificationService {
       type: 'offer_new',
       title: 'Nova oferta disponível!',
       message: `🎁 ${discount} em ${offerTitle} - Não perca!`,
-      action_url: '/offers',
+      action_url: '/ofertas',
       action_text: 'Ver Oferta'
     });
   }
@@ -511,7 +510,7 @@ export class NotificationService {
       type: 'offer_expiring',
       title: 'Oferta expirando!',
       message: `⏰ "${offerTitle}" expira em ${hoursLeft} horas`,
-      action_url: '/offers',
+      action_url: '/ofertas',
       action_text: 'Resgatar Agora'
     });
   }

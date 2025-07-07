@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, MapPin, Star, Users, Zap } from 'lucide-react';
 import { OfferCard } from '../components/OfferCard';
-import { ReactComponent as DuoPassLogo } from '../assets/duopass_logo.svg';
+import DuoPassLogo from '../assets/duopass_logo.svg';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Offer } from '../types';

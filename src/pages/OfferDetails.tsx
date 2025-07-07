@@ -243,7 +243,7 @@ export function OfferDetails() {
           <h1 className="text-4xl font-bold text-[#333333] mb-4">404</h1>
           <p className="text-gray-600 mb-4">Oferta não encontrada</p>
           <button
-            onClick={() => navigate('/offers')}
+            onClick={() => navigate('/ofertas')}
             className="text-[#C91F1F] hover:underline"
           >
             Voltar às ofertas

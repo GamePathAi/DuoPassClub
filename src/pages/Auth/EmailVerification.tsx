@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Mail, Loader2 } from 'lucide-react';
-import { ReactComponent as DuoPassLogo } from '../../assets/duopass_logo.svg';
+import DuoPassLogo from '../../assets/duopass_logo.svg';
 import { useAuth } from '../../contexts/AuthContext';
 import { Toast } from '../../components/Toast';
 

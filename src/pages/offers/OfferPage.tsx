@@ -86,7 +86,7 @@ export function OfferPage() {
       const offerId = offerSlugs[slug || ''];
       
       if (!offerId) {
-        navigate('/offers');
+        navigate('/ofertas');
         return;
       }
 
@@ -101,7 +101,7 @@ export function OfferPage() {
         .single();
 
       if (!offerData) {
-        navigate('/offers');
+        navigate('/ofertas');
         return;
       }
 
@@ -280,7 +280,7 @@ export function OfferPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Oferta não encontrada</h1>
           <button
-            onClick={() => navigate('/offers')}
+            onClick={() => navigate('/ofertas')}
             className="text-[#C91F1F] hover:underline"
           >
             Voltar às ofertas

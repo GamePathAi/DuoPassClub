@@ -29,7 +29,7 @@ interface CulturalExperiencesProps {
   showHeader?: boolean;
 }
 
-export const CulturalExperiences = React.memo(function CulturalExperiences({ limit = 6, showHeader = true }: CulturalExperiencesProps) {
+const CulturalExperiencesComponent = function CulturalExperiences({ limit = 6, showHeader = true }: CulturalExperiencesProps) {
   const [experiences, setExperiences] = useState<CulturalExperience[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
@@ -45,7 +45,7 @@ export const CulturalExperiences = React.memo(function CulturalExperiences({ lim
 
   const getDemoExperiences = useCallback((): CulturalExperience[] => [
     {
-      id: 'demo-1',
+      id: 'sarau-literario',
       experience_name: 'Sarau Literário com Café Especial',
       story_behind: 'Uma noite especial onde poesia e café se encontram, criando um ambiente mágico para compartilhar histórias.',
       cultural_value: 'Promove a literatura local e cria um espaço de expressão artística acessível.',
@@ -65,7 +65,7 @@ export const CulturalExperiences = React.memo(function CulturalExperiences({ lim
       }
     },
     {
-      id: 'demo-2',
+      id: 'jantar-velas',
       experience_name: 'Jantar à Luz de Velas com Música ao Vivo',
       story_behind: 'Uma experiência gastronômica que celebra receitas familiares em um ambiente romântico.',
       cultural_value: 'Preserva tradições culinárias familiares e promove conexões genuínas.',
@@ -85,7 +85,7 @@ export const CulturalExperiences = React.memo(function CulturalExperiences({ lim
       }
     },
     {
-      id: 'demo-3',
+      id: 'oficina-ceramica',
       experience_name: 'Oficina de Cerâmica e Chá da Tarde',
       story_behind: 'Conecte-se com a arte milenar da cerâmica enquanto saboreia chás especiais.',
       cultural_value: 'Preserva técnicas artesanais e promove mindfulness através da arte.',
@@ -336,4 +336,10 @@ export const CulturalExperiences = React.memo(function CulturalExperiences({ lim
       )}
     </div>
   );
-});
+};
+
+// Adicionar displayName para evitar erro de React DevTools
+CulturalExperiencesComponent.displayName = 'CulturalExperiences';
+
+// Exportar com React.memo
+export const CulturalExperiences = React.memo(CulturalExperiencesComponent);

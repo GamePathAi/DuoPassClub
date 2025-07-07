@@ -45,6 +45,33 @@ export function ExperienceDetails() {
   const [experiencesUsed, setExperiencesUsed] = useState(0);
   const [userSubscription, setUserSubscription] = useState<{status: string} | null>(null);
 
+  // Declarar funções useCallback ANTES do useEffect que as usa
+  const checkUserSubscriptionStatus = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      // Mock data - em produção, isso viria do Supabase
+      const mockExperiencesUsed = parseInt(localStorage.getItem(`experiences_used_${user.id}`) || '0');
+      const mockSubscription = localStorage.getItem(`subscription_${user.id}`);
+      
+      setExperiencesUsed(mockExperiencesUsed);
+      setUserSubscription(mockSubscription ? JSON.parse(mockSubscription) : null);
+    } catch (error) {
+      console.error('Erro ao verificar status da assinatura:', error);
+    }
+  }, [user]);
+
+  const checkExistingVoucher = useCallback(async (experienceData: CulturalExperience) => {
+    if (!user || !experienceData) return;
+
+    try {
+      const canGenerate = await VoucherService.canGenerateVoucher(user.id, experienceData.cultural_partners.id);
+      setHasActiveVoucher(!canGenerate);
+    } catch (err) {
+      console.error('Erro ao verificar voucher existente:', err);
+    }
+  }, [user]);
+
   useEffect(() => {
     if (!id) return;
 
@@ -146,25 +173,10 @@ export function ExperienceDetails() {
     setLoading(false);
 
     if (user && selectedExperience) {
-      checkExistingVoucher();
+      checkExistingVoucher(selectedExperience);
       checkUserSubscriptionStatus();
     }
   }, [id, user, checkExistingVoucher, checkUserSubscriptionStatus]);
-
-  const checkUserSubscriptionStatus = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      // Mock data - em produção, isso viria do Supabase
-      const mockExperiencesUsed = parseInt(localStorage.getItem(`experiences_used_${user.id}`) || '0');
-      const mockSubscription = localStorage.getItem(`subscription_${user.id}`);
-      
-      setExperiencesUsed(mockExperiencesUsed);
-      setUserSubscription(mockSubscription ? JSON.parse(mockSubscription) : null);
-    } catch (error) {
-      console.error('Erro ao verificar status da assinatura:', error);
-    }
-  }, [user]);
 
   const canRedeemExperience = () => {
     // Se tem assinatura ativa, pode resgatar
@@ -175,17 +187,6 @@ export function ExperienceDetails() {
     // Se não tem assinatura, verifica limite gratuito
     return experiencesUsed < PAYWALL_CONFIG.FREE_EXPERIENCES_LIMIT;
   };
-
-  const checkExistingVoucher = useCallback(async () => {
-    if (!user || !experience) return;
-
-    try {
-      const canGenerate = await VoucherService.canGenerateVoucher(user.id, experience.cultural_partners.id);
-      setHasActiveVoucher(!canGenerate);
-    } catch (err) {
-      console.error('Erro ao verificar voucher existente:', err);
-    }
-  }, [user, experience]);
 
   const handleRedeemVoucher = async () => {
     if (!user) {

@@ -31,7 +31,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // 🔒 Configurações de segurança
-const _0x3e4f = !import.meta.env.PROD;
 const _0x5g6h = import.meta.env.DEV;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

@@ -14,12 +14,115 @@ type VoucherStatus = 'active' | 'used' | 'expired' | 'all';
 export function MyVouchers() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  
+  // 1. Estados primeiro
   const [vouchers, setVouchers] = useState<VoucherWithOffer[]>([]);
   const [filteredVouchers, setFilteredVouchers] = useState<VoucherWithOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<VoucherStatus>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // 2. Função getDemoVouchers ANTES de ser usada
+  const getDemoVouchers = useCallback((): VoucherWithOffer[] => {
+    const now = new Date();
+    return [
+      {
+        id: 'demo-voucher-1',
+        user_id: user?.id || 'demo-user',
+        offer_id: 'demo-1',
+        merchant_id: 'demo-merchant-1',
+        voucher_code: 'DUO123456',
+        qr_code_data: 'demo-qr-data-1',
+        status: 'active',
+        created_at: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        expires_at: new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000).toISOString(),
+        used_at: null,
+        offer: {
+          id: 'demo-1',
+          merchant_id: 'demo-merchant-1',
+          title: '🍕 Pizza Margherita + Bebida GRÁTIS',
+          description: 'Deliciosa pizza artesanal com molho especial da casa.',
+          original_value: 45.90,
+          category: 'gastronomy',
+          location: 'Zürich',
+          city: 'Zürich',
+          expires_at: new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000).toISOString(),
+          is_active: true,
+          image_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
+          terms_conditions: 'Válido de segunda a quinta-feira das 18h às 22h.',
+          created_at: new Date().toISOString(),
+          merchant: {
+            business_name: 'Pizzaria Bella Vista',
+            contact_info: '+41 44 123 4567'
+          }
+        }
+      },
+      {
+        id: 'demo-voucher-2',
+        user_id: user?.id || 'demo-user',
+        offer_id: 'demo-2',
+        merchant_id: 'demo-merchant-2',
+        voucher_code: 'DUO789012',
+        qr_code_data: 'demo-qr-data-2',
+        status: 'used',
+        created_at: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+        expires_at: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+        used_at: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        offer: {
+          id: 'demo-2',
+          merchant_id: 'demo-merchant-2',
+          title: '💄 Maquiagem Completa - 50% OFF',
+          description: 'Transformação completa com maquiagem profissional.',
+          original_value: 120.00,
+          category: 'beauty',
+          location: 'Genève',
+          city: 'Genève',
+          expires_at: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+          is_active: true,
+          image_url: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=300&fit=crop',
+          terms_conditions: 'Agendamento obrigatório com 24h de antecedência.',
+          created_at: new Date().toISOString(),
+          merchant: {
+            business_name: 'Studio Glamour',
+            contact_info: '+41 22 987 6543'
+          }
+        }
+      },
+      {
+        id: 'demo-voucher-3',
+        user_id: user?.id || 'demo-user',
+        offer_id: 'demo-3',
+        merchant_id: 'demo-merchant-3',
+        voucher_code: 'DUO345678',
+        qr_code_data: 'demo-qr-data-3',
+        status: 'expired',
+        created_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(),
+        expires_at: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        used_at: null,
+        offer: {
+          id: 'demo-3',
+          merchant_id: 'demo-merchant-3',
+          title: '☕ Café Premium + Croissant',
+          description: 'Café especial da casa com croissant artesanal.',
+          original_value: 18.50,
+          category: 'gastronomy',
+          location: 'Basel',
+          city: 'Basel',
+          expires_at: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          is_active: false,
+          image_url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop',
+          terms_conditions: 'Válido apenas no período da manhã.',
+          created_at: new Date().toISOString(),
+          merchant: {
+            business_name: 'Café Central',
+            contact_info: '+41 61 555 0123'
+          }
+        }
+      }
+    ];
+  }, [user]);
+
+  // 3. Função loadVouchers AGORA pode usar getDemoVouchers
   const loadVouchers = useCallback(async () => {
     if (!user) return;
     
@@ -125,104 +228,7 @@ export function MyVouchers() {
     filterVouchers();
   }, [filterVouchers]);
 
-  const getDemoVouchers = useCallback((): VoucherWithOffer[] => {
-    const now = new Date();
-    return [
-      {
-        id: 'demo-voucher-1',
-        user_id: user?.id || 'demo-user',
-        offer_id: 'demo-1',
-        merchant_id: 'demo-merchant-1',
-        voucher_code: 'DUO123456',
-        qr_code_data: 'demo-qr-data-1',
-        status: 'active',
-        created_at: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        expires_at: new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000).toISOString(),
-        used_at: null,
-        offer: {
-          id: 'demo-1',
-          merchant_id: 'demo-merchant-1',
-          title: '🍕 Pizza Margherita + Bebida GRÁTIS',
-          description: 'Deliciosa pizza artesanal com molho especial da casa.',
-          original_value: 45.90,
-          category: 'gastronomy',
-          location: 'Zürich',
-          city: 'Zürich',
-          expires_at: new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000).toISOString(),
-          is_active: true,
-          image_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
-          terms_conditions: 'Válido de segunda a quinta-feira das 18h às 22h.',
-          created_at: new Date().toISOString(),
-          merchant: {
-            business_name: 'Pizzaria Bella Vista',
-            contact_info: '+41 44 123 4567'
-          }
-        }
-      },
-      {
-        id: 'demo-voucher-2',
-        user_id: user?.id || 'demo-user',
-        offer_id: 'demo-2',
-        merchant_id: 'demo-merchant-2',
-        voucher_code: 'DUO789012',
-        qr_code_data: 'demo-qr-data-2',
-        status: 'used',
-        created_at: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        expires_at: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-        used_at: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        offer: {
-          id: 'demo-2',
-          merchant_id: 'demo-merchant-2',
-          title: '💄 Maquiagem Completa - 50% OFF',
-          description: 'Transformação completa com maquiagem profissional.',
-          original_value: 120.00,
-          category: 'beauty',
-          location: 'Genève',
-          city: 'Genève',
-          expires_at: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-          is_active: true,
-          image_url: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=300&fit=crop',
-          terms_conditions: 'Agendamento obrigatório com 24h de antecedência.',
-          created_at: new Date().toISOString(),
-          merchant: {
-            business_name: 'Studio Glamour',
-            contact_info: '+41 22 987 6543'
-          }
-        }
-      },
-      {
-        id: 'demo-voucher-3',
-        user_id: user?.id || 'demo-user',
-        offer_id: 'demo-3',
-        merchant_id: 'demo-merchant-3',
-        voucher_code: 'DUO345678',
-        qr_code_data: 'demo-qr-data-3',
-        status: 'expired',
-        created_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(),
-        expires_at: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        used_at: null,
-        offer: {
-          id: 'demo-3',
-          merchant_id: 'demo-merchant-3',
-          title: '☕ Café Premium + Croissant',
-          description: 'Café especial da casa com croissant artesanal.',
-          original_value: 18.50,
-          category: 'gastronomy',
-          location: 'Basel',
-          city: 'Basel',
-          expires_at: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          is_active: false,
-          image_url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop',
-          terms_conditions: 'Válido apenas no período da manhã.',
-          created_at: new Date().toISOString(),
-          merchant: {
-            business_name: 'Café Central',
-            contact_info: '+41 61 555 0123'
-          }
-        }
-      }
-    ];
-  }, [user]);
+
 
   const getVoucherStatus = (voucher: VoucherWithOffer) => {
     if (voucher.status === 'used') return 'used';
@@ -406,7 +412,7 @@ export function MyVouchers() {
             </p>
             {!searchTerm && selectedStatus === 'all' && (
               <button
-                onClick={() => navigate('/offers')}
+                onClick={() => navigate('/ofertas')}
                 className="bg-gradient-to-r from-[#F6C100] to-[#C91F1F] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
               >
                 Ver Ofertas

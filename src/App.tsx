@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { Layout } from './components/Layout/Layout';
@@ -7,7 +7,7 @@ import { ProtectedRoute, CustomerRoute, MerchantRoute, PartnerRoute } from './co
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { Home } from './pages/Home';
-import { Offers } from './pages/Offers';
+
 import { Vouchers } from './pages/Vouchers';
 import { History } from './pages/History';
 import { Profile } from './pages/Profile';
@@ -20,7 +20,7 @@ import { MerchantDashboard } from './pages/Dashboard/MerchantDashboard';
 import { CustomerDashboard } from './pages/Dashboard/CustomerDashboard';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { OfferDetails } from './pages/OfferDetails';
-import { ActiveVoucher } from './pages/ActiveVoucher';
+import ActiveVoucher from './pages/ActiveVoucher';
 import { MyVouchers } from './pages/MyVouchers';
 import { VoucherDetails } from './pages/VoucherDetails';
 import { VoucherActive } from './pages/VoucherActive';
@@ -79,7 +79,7 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
-              <Route path="/offers" element={<Offers />} />
+              <Route path="/offers" element={<Navigate to="/ofertas" replace />} />
               <Route path="/offer/:id" element={<OfferDetails />} />
               
               {/* Experiências Routes */}
@@ -131,11 +131,6 @@ function App() {
                   <ActiveVoucher />
                 </CustomerRoute>
               } />
-              <Route path="/voucher/:id" element={
-                 <CustomerRoute>
-                   <VoucherActive />
-                 </CustomerRoute>
-               } />
 
               <Route path="/oferta/:offerId" element={<OfferPage />} />
               <Route path="/oferta/desconto-pizza" element={<DescontoPizza />} />

@@ -4,7 +4,7 @@ import { Gift, ShoppingBag, Users, QrCode, Eye, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Voucher, Offer } from '../../types';
 import { supabase } from '../../lib/supabase';
-import { ReactComponent as DuoPassLogo } from '../../assets/duopass_logo.svg';
+import DuoPassLogo from '../../assets/duopass_logo.svg';
 import { ETicket } from '../../components/ETicket';
 import { DuoPassConnect } from '../../components/connect/DuoPassConnect';
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, QrCode, MapPin, Clock, Share2, ArrowLeft, Copy } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -31,15 +31,44 @@ export function ActiveVoucherSuccess() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
+  // 1. Estados primeiro
   const [voucher, setVoucher] = useState<VoucherDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
-  useEffect(() => {
-    loadVoucherDetails();
-  }, [id, loadVoucherDetails]);
+  // 2. Função getMockVoucher primeiro (dependência)
+  const getMockVoucher = useCallback((voucherId: string): VoucherDetails => {
+    const voucherCode = searchParams.get('code') || 'DUO' + Math.random().toString(36).substr(2, 8).toUpperCase();
+    
+    return {
+      id: voucherId,
+      voucher_code: voucherCode,
+      qr_code_data: `DUO_PASS_${voucherCode}`,
+      status: 'active',
+      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 dias
+      created_at: new Date().toISOString(),
+      cultural_partners: {
+        business_name: 'Café das Letras',
+        contact_name: 'Maria Silva',
+        email: 'contato@cafedasletras.com',
+        address: {
+          street: 'Rua das Flores, 123',
+          city: 'São Paulo',
+          state: 'SP',
+          zipcode: '01234-567'
+        }
+      },
+      cultural_experiences: {
+        experience_name: 'Sarau Íntimo com Degustação',
+        duo_benefit: 'Duas pessoas vivem uma experiência cultural única com degustação completa.',
+        original_price: 120.00,
+        duo_price: 60.00
+      }
+    };
+  }, [searchParams]);
 
+  // 3. Função loadVoucherDetails ANTES de ser usada
   const loadVoucherDetails = useCallback(async () => {
     if (!id) return;
 
@@ -82,35 +111,10 @@ export function ActiveVoucherSuccess() {
     }
   }, [id, user?.id, getMockVoucher]);
 
-  const getMockVoucher = useCallback((voucherId: string): VoucherDetails => {
-    const voucherCode = searchParams.get('code') || 'DUO' + Math.random().toString(36).substr(2, 8).toUpperCase();
-    
-    return {
-      id: voucherId,
-      voucher_code: voucherCode,
-      qr_code_data: `DUO_PASS_${voucherCode}`,
-      status: 'active',
-      expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 dias
-      created_at: new Date().toISOString(),
-      cultural_partners: {
-        business_name: 'Café das Letras',
-        contact_name: 'Maria Silva',
-        email: 'contato@cafedasletras.com',
-        address: {
-          street: 'Rua das Flores, 123',
-          city: 'São Paulo',
-          state: 'SP',
-          zipcode: '01234-567'
-        }
-      },
-      cultural_experiences: {
-        experience_name: 'Sarau Íntimo com Degustação',
-        duo_benefit: 'Duas pessoas vivem uma experiência cultural única com degustação completa.',
-        original_price: 120.00,
-        duo_price: 60.00
-      }
-    };
-  }, [searchParams]);
+  // 4. AGORA useEffect pode usar loadVoucherDetails (linha 41 corrigida)
+  useEffect(() => {
+    loadVoucherDetails();
+  }, [loadVoucherDetails]);
 
   const copyVoucherCode = async () => {
     if (!voucher) return;
@@ -371,7 +375,7 @@ export function ActiveVoucherSuccess() {
           </button>
           
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/experiencias')}
             className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-all"
           >
             Descobrir Mais Experiências

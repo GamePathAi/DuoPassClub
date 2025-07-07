@@ -68,8 +68,8 @@ export function Home() {
             transition={{ duration: 0.8, delay: 0.8 }}
           >
             <Link
-              to="/offers"
-              onClick={() => console.log('🔗 Clicou em Descobrir Experiências - Navegando para /offers')}
+              to="/ofertas"
+              onClick={() => console.log('🔗 Clicou em Descobrir Experiências - Navegando para /ofertas')}
               className="inline-flex items-center bg-white text-[#C91F1F] px-10 py-5 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
             >
               Descobrir Experiências
@@ -275,7 +275,7 @@ export function Home() {
             viewport={{ once: true }}
           >
             <CategoryGrid onCategorySelect={(category) => {
-              navigate(`/offers?category=${category}`);
+              navigate(`/ofertas?category=${category}`);
             }} />
           </motion.div>
         </div>
@@ -310,7 +310,7 @@ export function Home() {
             viewport={{ once: true }}
           >
             <Link
-              to="/offers"
+              to="/ofertas"
               className="inline-flex items-center bg-white text-[#C91F1F] px-10 py-5 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
             >
               Explorar Ofertas
@@ -372,7 +372,7 @@ export function Home() {
               <Heart className="ml-3 w-7 h-7" />
             </Link>
             <Link
-              to="/offers"
+              to="/ofertas"
               className="inline-flex items-center bg-transparent border-3 border-white text-white px-12 py-6 rounded-full font-bold text-xl hover:bg-white hover:text-[#C91F1F] transition-all"
             >
               Descobrir Experiências

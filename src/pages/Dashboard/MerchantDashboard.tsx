@@ -3,7 +3,7 @@ import { Plus, Edit2, Eye, QrCode, BarChart3, Users } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Offer, Voucher, UsageReport } from '../../types';
 import { supabase } from '../../lib/supabase';
-import { ReactComponent as DuoPassLogo } from '../../assets/duopass_logo.svg';
+import DuoPassLogo from '../../assets/duopass_logo.svg';
 import { QRScanner } from '../../components/QRScanner';
 import { VoucherService } from '../../lib/voucherService';
 

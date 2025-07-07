@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabaseConfig';
 import QRCode from 'qrcode';
 
 interface VoucherDetails {
@@ -79,30 +78,37 @@ export function VoucherActive() {
     try {
       setLoading(true);
       
-      const { data: voucherData, error } = await supabase
-        .from('vouchers')
-        .select(`
-          *,
-          offer:offers(
-            *,
-            merchant:merchants(*)
-          )
-        `)
-        .eq('id', id)
-        .eq('user_id', user?.id)
-        .single();
+      // MOCK DATA - SEM SUPABASE
+      const mockVoucherData: VoucherDetails = {
+        id: id || 'demo-voucher-active',
+        voucher_code: 'DUOACTIVE123',
+        qr_code_data: `DUO-${id}-${Date.now()}`,
+        status: 'active',
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        created_at: new Date().toISOString(),
+        offer: {
+          id: 'demo-offer-active',
+          title: 'Pizza Margherita + Bebida GRÁTIS',
+          description: 'Deliciosa pizza artesanal com molho especial da casa e bebida inclusa.',
+          original_value: 45.90,
+          image_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
+          location: 'Zürich',
+          terms_conditions: 'Válido de segunda a quinta-feira das 18h às 22h. Não cumulativo com outras promoções.',
+          merchant: {
+            business_name: 'Pizzaria Bella Vista',
+            address: 'Bahnhofstrasse 123, 8001 Zürich',
+            phone: '+41 44 123 4567',
+            website: 'https://pizzariabellavista.ch',
+            description: 'Autêntica pizzaria italiana no coração de Zürich'
+          }
+        }
+      };
 
-      if (error || !voucherData) {
-        console.error('Erro ao carregar voucher:', error);
-        navigate('/vouchers');
-        return;
-      }
-
-      setVoucher(voucherData);
+      setVoucher(mockVoucherData);
       
       // Gerar QR Code
-      if (voucherData.qr_code_data) {
-        const qrUrl = await QRCode.toDataURL(voucherData.qr_code_data, {
+      if (mockVoucherData.qr_code_data) {
+        const qrUrl = await QRCode.toDataURL(mockVoucherData.qr_code_data, {
           width: 300,
           margin: 2,
           color: {

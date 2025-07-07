@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { ReactComponent as DuoPassLogo } from '../../assets/duopass_logo.svg';
+import DuoPassLogo from '../../assets/duopass_logo.svg';
 
 export function SignUp() {
   const { signUp } = useAuth();

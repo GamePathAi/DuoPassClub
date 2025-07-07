@@ -42,7 +42,7 @@ export const pageConfigs: Record<string, Partial<SEOConfig>> = {
     description: 'Descubra ofertas exclusivas e experiências únicas na Suíça com DuoPass. Restaurantes, atividades, hospedagem e muito mais.',
     keywords: ['ofertas suíça', 'descontos suíça', 'duopass', 'turismo suíça']
   },
-  '/offers': {
+  '/ofertas': {
     title: 'Ofertas Exclusivas - DuoPass',
     description: 'Explore todas as ofertas disponíveis no DuoPass. Restaurantes, atividades, hospedagem e experiências únicas na Suíça.',
     keywords: ['ofertas', 'descontos', 'restaurantes', 'atividades', 'suíça']
@@ -247,7 +247,7 @@ export const generateSitemap = () => {
   const baseUrl = 'https://duopass.ch';
   const pages = [
     { url: '/', priority: 1.0, changefreq: 'daily' },
-    { url: '/offers', priority: 0.9, changefreq: 'daily' },
+    { url: '/ofertas', priority: 0.9, changefreq: 'daily' },
     { url: '/pricing', priority: 0.8, changefreq: 'weekly' },
     { url: '/auth/signup', priority: 0.7, changefreq: 'monthly' },
     { url: '/auth/signin', priority: 0.7, changefreq: 'monthly' },

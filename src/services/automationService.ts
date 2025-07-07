@@ -170,7 +170,7 @@ export const AUTOMATION_TEMPLATES: AutomationTemplate[] = [
           parameters: {
             title: 'Oferta especial te esperando!',
             body: 'Volte e ganhe 20% de desconto na sua próxima compra',
-            deep_link: '/offers/special'
+            deep_link: '/ofertas/special'
           },
           delay_minutes: 1440 // 24 horas
         },
