@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Calendar, Eye, Trash2, Filter, Search, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
-import { Voucher, Offer } from '../types';
+// Removed unused imports
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
