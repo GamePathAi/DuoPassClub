@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Star, Crown, Trophy, ArrowRight, Sparkles } from 'lucide-react';
+import { Check, Star, Crown, Trophy, ArrowRight, Sparkles, Gift, Users, Zap, Shield, Clock, Heart } from 'lucide-react';
 import { MEMBERSHIP_PLANS, MembershipPlan } from '../types/membership';
 import { useAuth } from '../contexts/AuthContext';
 
-export function Memberships() {
+export default function Memberships() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
@@ -43,58 +43,72 @@ export function Memberships() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-rose-50 to-purple-50">
-      {/* Hero Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative overflow-hidden bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white py-20"
-      >
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="mb-8"
-          >
-            <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 mb-6">
-              <Sparkles className="w-5 h-5" />
-              <span className="font-medium">Exclusividade Cultural Suíça</span>
+      {/* Hero Section Golden Week */}
+      <div className="bg-gradient-to-br from-orange-50 via-purple-50 to-pink-50 border-2 border-orange-200 rounded-2xl p-8 mb-12 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-orange-200 to-transparent rounded-full opacity-50"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-200 to-transparent rounded-full opacity-50"></div>
+        <div className="text-center relative z-10">
+          <div className="w-20 h-20 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <Crown className="w-10 h-10 text-white" />
+          </div>
+          <h1 className="text-5xl font-bold text-gray-900 mb-4">
+            <span className="bg-gradient-to-r from-orange-500 to-purple-600 bg-clip-text text-transparent">
+              7 Dias de Experiências
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+              Culturais Premium
+            </span>
+          </h1>
+          <p className="text-2xl text-gray-700 mb-2 font-semibold">
+            Depois, continue com <strong className="text-green-600">1 experiência/mês para sempre</strong>
+          </p>
+          <p className="text-lg text-gray-600 mb-8">
+            Sem cartão de crédito • Sem compromisso • Qualidade Michelin garantida
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="text-center p-4 bg-white/70 rounded-xl border border-orange-100">
+              <Gift className="w-10 h-10 text-orange-500 mx-auto mb-3" />
+              <h3 className="font-bold text-gray-900 mb-1">4 Vouchers Premium</h3>
+              <p className="text-gray-600 text-sm">Experiências top-tier Michelin</p>
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Torne-se Membro do
-              <span className="block bg-gradient-to-r from-yellow-300 to-pink-300 bg-clip-text text-transparent">
-                DUO PASS Club
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-              Experiências culturais autênticas, sempre em dupla, com curadoria emocional exclusiva na Suíça
-            </p>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
-          >
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2">500+</div>
-              <div className="text-white/80">Membros Ativos</div>
+            <div className="text-center p-4 bg-white/70 rounded-xl border border-purple-100">
+              <Users className="w-10 h-10 text-purple-500 mx-auto mb-3" />
+              <h3 className="font-bold text-gray-900 mb-1">Connect Completo</h3>
+              <p className="text-gray-600 text-sm">Todas as 5 comunidades VIP</p>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2">150+</div>
-              <div className="text-white/80">Experiências Únicas</div>
+            <div className="text-center p-4 bg-white/70 rounded-xl border border-yellow-100">
+              <Star className="w-10 h-10 text-yellow-500 mx-auto mb-3" />
+              <h3 className="font-bold text-gray-900 mb-1">Curadoria Personal</h3>
+              <p className="text-gray-600 text-sm">Baseada em suas preferências</p>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold mb-2">98%</div>
-              <div className="text-white/80">Satisfação</div>
+            <div className="text-center p-4 bg-white/70 rounded-xl border border-blue-100">
+              <Zap className="w-10 h-10 text-blue-500 mx-auto mb-3" />
+              <h3 className="font-bold text-gray-900 mb-1">Suporte Priority</h3>
+              <p className="text-gray-600 text-sm">Resposta garantida em 2h</p>
             </div>
-          </motion.div>
+          </div>
+          <button className="bg-gradient-to-r from-orange-500 via-purple-600 to-pink-500 text-white font-bold py-5 px-10 rounded-2xl text-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 flex items-center space-x-4 mx-auto mb-4">
+            <Crown className="w-7 h-7" />
+            <span>Começar Golden Week Grátis</span>
+            <ArrowRight className="w-7 h-7" />
+          </button>
+          <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+            <div className="flex items-center">
+              <Shield className="w-4 h-4 mr-2 text-green-500" />
+              <span>Sem compromisso</span>
+            </div>
+            <div className="flex items-center">
+              <Clock className="w-4 h-4 mr-2 text-blue-500" />
+              <span>Ativação imediata</span>
+            </div>
+            <div className="flex items-center">
+              <Heart className="w-4 h-4 mr-2 text-red-500" />
+              <span>1000+ casais satisfeitos</span>
+            </div>
+          </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Billing Toggle */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -107,6 +121,15 @@ export function Memberships() {
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Escolha Seu Plano Cultural</h2>
           <p className="text-xl text-gray-600 mb-8">Experiências autênticas que conectam pessoas através da cultura</p>
           
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Quer mais experiências? Faça upgrade quando quiser
+            </h2>
+            <p className="text-gray-600">
+              Todos os planos incluem tudo do Freemium + benefícios exclusivos
+            </p>
+          </div>
+
           <div className="inline-flex items-center bg-white rounded-full p-1 shadow-lg border">
             <button
               onClick={() => setBillingCycle('monthly')}
@@ -134,8 +157,53 @@ export function Memberships() {
           </div>
         </motion.div>
 
+        {/* Freemium Card */}
+        <div className="max-w-md mx-auto mb-8">
+          <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 text-center">
+            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Heart className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Cultural Freemium</h3>
+            <p className="text-green-600 font-bold text-lg mb-4">SEMPRE GRATUITO</p>
+            <p className="text-gray-600 text-sm mb-4">Disponível automaticamente após Golden Week</p>
+            
+            <div className="space-y-2 text-sm text-gray-600">
+              <div className="flex items-center">
+                <Check className="w-4 h-4 text-green-500 mr-3" />
+                <span>1 Voucher Cultural/Mês</span>
+              </div>
+              <div className="flex items-center">
+                <Check className="w-4 h-4 text-green-500 mr-3" />
+                <span>Experiências Selecionadas</span>
+              </div>
+              <div className="flex items-center">
+                <Check className="w-4 h-4 text-green-500 mr-3" />
+                <span>Connect Básico</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-green-100 rounded-lg">
+              <p className="text-xs text-green-700">
+                ✨ <strong>Nenhuma pegadinha:</strong> Após 7 dias, continue grátis para sempre
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Header for paid plans */}
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Quer mais experiências? Faça upgrade quando quiser
+          </h2>
+          <p className="text-gray-600">
+            Todos os planos incluem tudo do Freemium + benefícios exclusivos
+          </p>
+        </div>
+
         {/* Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+
+
           {MEMBERSHIP_PLANS.map((plan, index) => {
             const isPopular = plan.popular;
             const savings = getSavings(plan);
@@ -162,8 +230,10 @@ export function Memberships() {
                     <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${plan.color_scheme.gradient} text-white mb-4`}>
                       {getPlanIcon(plan.tier)}
                     </div>
+                    {plan.name === 'Cultural Starter' && <span className="bg-orange-100 text-orange-700 text-xs px-3 py-1 rounded-full mb-4 inline-block">POPULAR PARA CASAIS</span>}
+                    {plan.name === 'Cultural Ambassador' && <span className="bg-red-100 text-red-700 text-xs px-3 py-1 rounded-full mb-4 inline-block">EXPERIÊNCIA PREMIUM</span>}
                     <h3 className="text-2xl font-bold text-gray-800 mb-2">{plan.name}</h3>
-                    <p className="text-gray-600">{plan.description}</p>
+                    <p className="text-gray-600 h-10">{plan.name === 'Cultural Explorer' ? 'O plano mais popular para exploradores culturais ativos' : plan.description}</p>
                   </div>
 
                   {/* Pricing */}
@@ -189,7 +259,7 @@ export function Memberships() {
                     {plan.features.map((feature, featureIndex) => (
                       <div key={featureIndex} className="flex items-start space-x-3">
                         <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700 text-sm">{feature}</span>
+                        <span className="text-gray-700 text-sm" dangerouslySetInnerHTML={{ __html: plan.name === 'Cultural Starter' && featureIndex === 0 ? '<strong>Tudo do Freemium</strong> + benefícios abaixo' : feature }}></span>
                       </div>
                     ))}
                   </div>
@@ -197,20 +267,13 @@ export function Memberships() {
                   {/* CTA Button */}
                   <button
                     onClick={() => handleSelectPlan(plan.id)}
-                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center space-x-2 ${
-                      isPopular
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-lg hover:shadow-purple-500/25'
-                        : `bg-gradient-to-r ${plan.color_scheme.gradient} text-white hover:shadow-lg`
-                    }`}
+                    className="w-full bg-gradient-to-r from-orange-500 to-purple-600 text-white font-bold py-3 px-6 rounded-xl hover:shadow-lg"
                   >
-                    <span>Começar Agora</span>
-                    <ArrowRight className="w-5 h-5" />
+                    Começar Golden Week → Upgrade
                   </button>
-
-                  {/* Trial Info */}
-                  <div className="text-center mt-4">
-                    <span className="text-sm text-gray-500">7 dias grátis • Cancele a qualquer momento</span>
-                  </div>
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    7 dias premium grátis, depois {plan.name} ou continue no Freemium
+                  </p>
                 </div>
               </motion.div>
             );
@@ -282,33 +345,26 @@ export function Memberships() {
           </div>
         </motion.div>
 
-        {/* FAQ Section */}
-        <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 1.4, duration: 0.6 }}
-          className="mt-20 bg-white rounded-2xl p-8 shadow-lg"
-        >
-          <h3 className="text-3xl font-bold text-center text-gray-800 mb-8">Perguntas Frequentes</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h4 className="font-semibold text-gray-800 mb-2">Como funciona o modelo "2 por 1"?</h4>
-              <p className="text-gray-600 text-sm">Todas as experiências são pensadas para duas pessoas. Você paga por uma experiência e duas pessoas participam, promovendo conexões autênticas.</p>
+        <div className="max-w-3xl mx-auto mt-16">
+          <h2 className="text-2xl font-bold text-center mb-8">Perguntas Frequentes</h2>
+          
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg p-4 border">
+              <h3 className="font-semibold mb-2">❓ O que acontece após os 7 dias?</h3>
+              <p className="text-gray-600 text-sm">Você continua com 1 experiência/mês <strong>PARA SEMPRE</strong>, sem custos.</p>
             </div>
-            <div>
-              <h4 className="font-semibold text-gray-800 mb-2">Posso cancelar a qualquer momento?</h4>
-              <p className="text-gray-600 text-sm">Sim! Não há compromisso de longo prazo. Você pode cancelar sua assinatura a qualquer momento através do seu dashboard.</p>
+            
+            <div className="bg-white rounded-lg p-4 border">
+              <h3 className="font-semibold mb-2">❓ Preciso cancelar algo?</h3>
+              <p className="text-gray-600 text-sm"><strong>Não!</strong> O freemium é permanente. Upgrade opcional.</p>
             </div>
-            <div>
-              <h4 className="font-semibold text-gray-800 mb-2">O que acontece se eu não usar todas as experiências do mês?</h4>
-              <p className="text-gray-600 text-sm">Membros Ambassador podem transferir experiências entre meses. Outros planos renovam mensalmente.</p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-800 mb-2">Como é feita a curadoria das experiências?</h4>
-              <p className="text-gray-600 text-sm">Nossa equipe seleciona cuidadosamente cada parceiro cultural, priorizando autenticidade, qualidade e potencial de conexão humana.</p>
+            
+            <div className="bg-white rounded-lg p-4 border">
+              <h3 className="font-semibold mb-2">❓ Por que é grátis?</h3>
+              <p className="text-gray-600 text-sm">Somos confiantes na qualidade. 7 dias são suficientes para você perceber o valor.</p>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

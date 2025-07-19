@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, MapPin, Star, Users, Zap } from 'lucide-react';
 import { OfferCard } from '../components/OfferCard';
-import DuoPassLogo from '../assets/duopass_logo.svg';
+import DuoPassLogo from '../components/ui/DuoPassLogo';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Offer } from '../types';
 import { supabase } from '../lib/supabase';
 
-export function Offers() {
+export default function Offers() {
   console.log('🔄 Componente Offers iniciado');
   const { user, userProfile } = useAuth();
   const { t } = useLanguage();

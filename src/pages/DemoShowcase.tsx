@@ -33,7 +33,7 @@ interface DemoShowcaseProps {
   className?: string;
 }
 
-export function DemoShowcase({ className = '' }: DemoShowcaseProps) {
+export default function DemoShowcase({ className = '' }: DemoShowcaseProps) {
   const [currentStep, setCurrentStep] = useState<DemoStep>('intro');
   const [isPlaying, setIsPlaying] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes

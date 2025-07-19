@@ -1,140 +1,168 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Gift, ShoppingBag, Users, QrCode, Eye, LogOut } from 'lucide-react';
+import { Gift, Users, QrCode, Eye, Settings, CreditCard, BarChart2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Voucher, Offer } from '../../types';
 import { supabase } from '../../lib/supabase';
-import DuoPassLogo from '../../assets/duopass_logo.svg';
-import { ETicket } from '../../components/ETicket';
-import { DuoPassConnect } from '../../components/connect/DuoPassConnect';
+import DuoPassLogo from '../../components/ui/DuoPassLogo';
+import ETicket from '../../components/ETicket';
+import DuoPassConnect from '../../components/connect/DuoPassConnect';
+import DashboardLayout from '../../components/Layout/DashboardLayout';
+import DebugPanel from '../../components/DebugPanel';
+import { VoucherQRCode } from '../../components/VoucherQRCode';
+import TermsModal from '../../components/modals/TermsModal';
+import TutorialModal from '../../components/modals/TutorialModal';
+import TrialOnboardingModal from '../../components/modals/TrialOnboardingModal';
+import SettingsPage from '../Settings'; // Renomeado para evitar conflito
+import AIAnalyticsContainer from '../../components/AIAnalytics/AIAnalyticsContainer';
 
-export function CustomerDashboard() {
-  const { user, signOut } = useAuth();
+const TrialTimer: React.FC<{ expiresAt: string }> = ({ expiresAt }) => {
+  const calculateRemainingTime = () => {
+    const now = new Date();
+    const expiration = new Date(expiresAt);
+    const difference = expiration.getTime() - now.getTime();
+
+    if (difference <= 0) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((difference / 1000 / 60) % 60);
+    const seconds = Math.floor((difference / 1000) % 60);
+
+    return { days, hours, minutes, seconds };
+  };
+
+  const [remainingTime, setRemainingTime] = useState(calculateRemainingTime());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRemainingTime(calculateRemainingTime());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [expiresAt]);
+
+  return (
+    <div className="bg-yellow-400 text-black p-2 text-center text-sm font-semibold">
+      Sua Golden Week termina em: {remainingTime.days}d {remainingTime.hours}h {remainingTime.minutes}m {remainingTime.seconds}s
+    </div>
+  );
+};
+
+const CustomerDashboard = memo(() => {
+  const { user, trialStatus, trialExpiresAt } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'vouchers' | 'offers' | 'connect'>('vouchers');
+  const [activeTab, setActiveTab] = useState<'overview' | 'experiences' | 'connect' | 'billing' | 'settings' | 'insights'>('overview');
   const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
   const [showETicket, setShowETicket] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [selectedVoucherForQR, setSelectedVoucherForQR] = useState<Voucher | null>(null);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showTutorialModal, setShowTutorialModal] = useState(false);
+  const [showTrialOnboarding, setShowTrialOnboarding] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // LOG: Estado inicial do dashboard
+  console.log('🏠 CustomerDashboard: Componente renderizado', {
+    hasUser: !!user,
+    userEmail: user?.email,
+    userId: user?.id,
+    loading,
+    vouchersCount: vouchers.length,
+    offersCount: offers.length,
+    activeTab
+  });
 
   // Handle query parameters for tab selection
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const tabParam = searchParams.get('tab');
-    if (tabParam && ['vouchers', 'offers', 'connect'].includes(tabParam)) {
-      setActiveTab(tabParam as 'vouchers' | 'offers' | 'connect');
+    if (tabParam && ['overview', 'experiences', 'connect', 'billing', 'settings', 'insights'].includes(tabParam)) {
+      setActiveTab(tabParam as 'overview' | 'experiences' | 'connect' | 'billing' | 'settings' | 'insights');
     }
   }, [location.search]);
 
-  const loadUserVouchers = useCallback(async () => {
-    if (!user) {
-      return;
-    }
-    
-    // Se for usuário demo, usar dados mock
-    if (user.id === 'demo-user-id') {
-      const mockVouchers = [
-        {
-          id: 'voucher-1',
-          user_id: 'demo-user-id',
-          voucher_code: 'DEMO001',
-          status: 'active',
-          created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 dias atrás
-          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 dias no futuro
-          used_at: null
-        },
-        {
-          id: 'voucher-2',
-          user_id: 'demo-user-id',
-          voucher_code: 'DEMO002',
-          status: 'used',
-          created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 dias atrás
-          expires_at: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
-          used_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() // usado 1 dia atrás
-        },
-        {
-          id: 'voucher-3',
-          user_id: 'demo-user-id',
-          voucher_code: 'DEMO003',
-          status: 'expired',
-          created_at: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(), // 40 dias atrás
-          expires_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // expirou 5 dias atrás
-          used_at: null
+  useEffect(() => {
+    const checkFirstVisit = () => {
+      const hasAcceptedTerms = localStorage.getItem('hasAcceptedTerms');
+      if (!hasAcceptedTerms) {
+        setShowTermsModal(true);
+      } else {
+        const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+        if (!hasSeenTutorial) {
+          // setShowTutorialModal(true); // Opcional
         }
-      ];
-      setVouchers(mockVouchers);
-      return;
-    }
-    
+      }
+
+      const shouldShowTrialOnboarding = localStorage.getItem('showTrialOnboarding');
+      if (shouldShowTrialOnboarding) {
+        setShowTrialOnboarding(true);
+      }
+    };
+    checkFirstVisit();
+  }, []);
+
+  const handleTrialOnboardingComplete = async (interests: string[]) => {
     try {
+      // Salvar interesses do usuário
+      await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: user?.id,
+          cultural_interests: interests,
+          updated_at: new Date().toISOString()
+        });
+
+      // Remover flag do localStorage
+      localStorage.removeItem('showTrialOnboarding');
+      setShowTrialOnboarding(false);
+    } catch (error) {
+      console.error('Erro ao salvar preferências:', error);
+    }
+  };
+
+  const loadUserVouchers = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      if (!user?.id) {
+        console.log('❌ User ID não disponível');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('vouchers')
         .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .eq('user_id', user.id);
 
       if (error) {
-        console.error('Erro ao carregar vouchers:', error);
+        console.error('❌ Erro Supabase:', error.message);
+        setError(error.message);
         return;
       }
 
       setVouchers(data || []);
-    } catch (error: unknown) {
-      console.error('Erro ao carregar vouchers:', error);
+      console.log('✅ Vouchers carregados:', data?.length);
+
+    } catch (err) {
+      console.error('❌ Erro de rede:', err);
+      setError('Falha na conexão');
+    } finally {
+      setLoading(false);
     }
-  }, [user]);
+  }, [user?.id]);
 
   const loadAvailableOffers = useCallback(async () => {
-    // Se for usuário demo, usar dados mock
-    if (user?.id === 'demo-user-id') {
-      const mockOffers = [
-        {
-          id: 'offer-1',
-          title: 'Desconto 50% em Pizza',
-          description: 'Aproveite 50% de desconto em qualquer pizza grande da nossa pizzaria. Válido de segunda a quinta-feira.',
-          original_value: 45.90,
-          category: 'Alimentação',
-          is_active: true,
-          expires_at: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 dias no futuro
-          created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: 'offer-2',
-          title: 'Massagem Relaxante',
-          description: 'Sessão de massagem relaxante de 60 minutos com desconto especial para novos clientes.',
-          original_value: 120.00,
-          category: 'Bem-estar',
-          is_active: true,
-          expires_at: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-          created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: 'offer-3',
-          title: 'Corte + Barba',
-          description: 'Corte de cabelo masculino + barba feita com navalha. Inclui lavagem e finalização.',
-          original_value: 35.00,
-          category: 'Beleza',
-          is_active: true,
-          expires_at: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-          created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: 'offer-4',
-          title: 'Aula de Yoga',
-          description: 'Pacote com 4 aulas de yoga para iniciantes. Inclui tapete e acompanhamento personalizado.',
-          original_value: 80.00,
-          category: 'Fitness',
-          is_active: true,
-          expires_at: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
-          created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      ];
-      setOffers(mockOffers);
-      return;
-    }
+    console.log('🎯 CustomerDashboard: loadAvailableOffers iniciado');
 
+    console.log('🔍 CustomerDashboard: Buscando ofertas no Supabase');
+    
     try {
       const { data, error } = await supabase
         .from('offers')
@@ -144,44 +172,97 @@ export function CustomerDashboard() {
         .order('created_at', { ascending: false })
         .limit(10);
 
+      console.log('📊 CustomerDashboard: Resultado da busca de ofertas:', { data, error, count: data?.length });
+
       if (error) {
-        console.error('Erro ao carregar ofertas:', error);
+        console.error('❌ CustomerDashboard: Erro ao carregar ofertas:', error);
+        setOffers([]);
         return;
       }
 
       setOffers(data || []);
+      console.log('✅ CustomerDashboard: Ofertas carregadas:', data?.length || 0);
     } catch (error: unknown) {
-      console.error('Erro ao carregar ofertas:', error);
+      console.error('💥 CustomerDashboard: Erro crítico ao carregar ofertas:', error);
+       setOffers([]);
     }
-  }, [user]);
+  }, [user?.id]);
 
-  const loadDashboardData = useCallback(async () => {
-    setLoading(true);
+  const loadData = useCallback(async () => {
+    if (!user?.id) {
+      console.log('⏸️ Pulando carregamento - user:', !!user?.id);
+      return;
+    }
+
     try {
-      await Promise.all([
+      setLoading(true);
+      
+      const [vouchersResult, offersResult] = await Promise.allSettled([
         loadUserVouchers(),
         loadAvailableOffers()
       ]);
-    } catch (error: unknown) {
-      console.error('Erro ao carregar dados do dashboard:', error);
+  
+      if (vouchersResult.status === 'rejected') {
+        console.error('❌ Falha vouchers:', vouchersResult.reason);
+      }
+      
+      if (offersResult.status === 'rejected') {
+        console.error('❌ Falha offers:', offersResult.reason);
+      }
+  
     } finally {
       setLoading(false);
     }
-  }, [loadUserVouchers, loadAvailableOffers]);
+  }, [user?.id, loadUserVouchers, loadAvailableOffers]);
+  
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Monitor loading state changes
+  useEffect(() => {
+    console.log('⏳ CustomerDashboard: Estado de loading mudou para:', loading);
+  }, [loading]);
 
   useEffect(() => {
-    if (user) {
-      loadDashboardData();
-    }
-  }, [user, loadDashboardData]);
+    console.log('🔍 DASHBOARD STATE:', { 
+      userLoaded: !!user?.id, 
+      vouchersCount: vouchers.length, 
+      offersCount: offers.length, 
+      loading 
+    });
+  }, [user?.id, vouchers.length, offers.length, loading]);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error: unknown) {
-      console.error('Erro ao fazer logout:', error);
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const shouldShowOnboarding = searchParams.get('onboarding') === 'true';
+    if (shouldShowOnboarding) {
+      setShowTrialOnboarding(true);
+      navigate('/customer-dashboard', { replace: true });
     }
-  };
+  }, [location.search, navigate]);
+
+  // 🔍 DEBUG: Monitorar renderização de botões
+  useEffect(() => {
+    setTimeout(() => {
+      const buttons = document.querySelectorAll('button');
+      const verDetalhesButtons = Array.from(buttons).filter(btn => 
+        btn.textContent?.includes('Ver Detalhes')
+      );
+      const resgatarButtons = Array.from(buttons).filter(btn => 
+        btn.textContent?.includes('RESGATAR')
+      );
+      
+      console.log('🔘 BOTÕES NO DOM:', {
+        totalButtons: buttons.length,
+        verDetalhesButtons: verDetalhesButtons.length,
+        resgatarButtons: resgatarButtons.length,
+        offersRendered: offers.length
+      });
+    }, 1000);
+  }, [offers, vouchers]);
+
+  // handleSignOut function removed as it was unused
 
   const formatCurrency = (value: number) => {
       return new Intl.NumberFormat('de-CH', {
@@ -216,8 +297,29 @@ export function CustomerDashboard() {
       case 'expired':
         return 'Expirado';
       default:
-        return status;
+        return 'Desconhecido';
     }
+  };
+
+  const handleAcceptTerms = () => {
+    localStorage.setItem('hasAcceptedTerms', 'true');
+    setShowTermsModal(false);
+    setShowTutorialModal(true);
+  };
+
+  const handleFinishTutorial = () => {
+    localStorage.setItem('hasSeenTutorial', 'true');
+    setShowTutorialModal(false);
+  };
+
+  const handleShowQRCode = (voucher: Voucher) => {
+    setSelectedVoucherForQR(voucher);
+    setShowQRCode(true);
+  };
+
+  const handleCloseQRCode = () => {
+    setShowQRCode(false);
+    setSelectedVoucherForQR(null);
   };
 
   const handleViewETicket = (voucher: Voucher) => {
@@ -234,67 +336,64 @@ export function CustomerDashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-16">
         <div className="text-center">
-          <DuoPassLogo className="mx-auto mb-4 h-16 w-auto" fill="currentColor" />
+          <DuoPassLogo height={64} className="mx-auto mb-4 w-auto" />
           <p className="text-[#333333] font-medium">Carregando dashboard...</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-4">
-              <DuoPassLogo className="h-12 w-auto" fill="currentColor" />
-              <div>
-                <h1 className="text-2xl font-bold text-[#333333]">Meu Dashboard</h1>
-                <p className="text-gray-600">Bem-vindo, {user?.email}</p>
-              </div>
-            </div>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              <LogOut className="h-5 w-5" />
-              <span>Sair</span>
-            </button>
-          </div>
-        </div>
-      </div>
+  if (activeTab === 'settings') {
+    return <SettingsPage />;
+  }
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  return (
+    <DashboardLayout title="Meu Dashboard">
+      {trialStatus === 'active' && trialExpiresAt && <TrialTimer expiresAt={trialExpiresAt} />}
+      {showTermsModal && <TermsModal onAccept={handleAcceptTerms} />}
+      {showTutorialModal && <TutorialModal onFinish={handleFinishTutorial} />}
+      {showTrialOnboarding && <TrialOnboardingModal onComplete={handleTrialOnboardingComplete} />}
+
+      <div className="space-y-8">
+        {/* Debug Panel */}
+        <DebugPanel />
         {/* Tabs */}
         <div className="mb-8">
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
               <button
-                onClick={() => setActiveTab('vouchers')}
+                onClick={() => {
+                  setActiveTab('overview');
+                  navigate(`${location.pathname}?tab=overview`, { replace: true });
+                }}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'vouchers'
+                  activeTab === 'overview'
+                    ? 'border-[#FF6B35] text-[#FF6B35]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <BarChart2 className="h-5 w-5 inline mr-2" />
+                Visão Geral
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('experiences');
+                  navigate(`${location.pathname}?tab=experiences`, { replace: true });
+                }}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'experiences'
                     ? 'border-[#FF6B35] text-[#FF6B35]'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
                 <Gift className="h-5 w-5 inline mr-2" />
-                Meus Vouchers
+                Experiências
               </button>
               <button
-                onClick={() => setActiveTab('offers')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'offers'
-                    ? 'border-[#FF6B35] text-[#FF6B35]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <ShoppingBag className="h-5 w-5 inline mr-2" />
-                Ofertas Disponíveis
-              </button>
-              <button
-                onClick={() => setActiveTab('connect')}
+                onClick={() => {
+                  setActiveTab('connect');
+                  navigate(`${location.pathname}?tab=connect`, { replace: true });
+                }}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'connect'
                     ? 'border-[#FF6B35] text-[#FF6B35]'
@@ -302,16 +401,65 @@ export function CustomerDashboard() {
                 }`}
               >
                 <Users className="h-5 w-5 inline mr-2" />
-                DUO PASS Connect
+                Connect
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('billing');
+                  navigate(`${location.pathname}?tab=billing`, { replace: true });
+                }}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'billing'
+                    ? 'border-[#FF6B35] text-[#FF6B35]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <CreditCard className="h-5 w-5 inline mr-2" />
+                Cobrança
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('settings');
+                  navigate(`${location.pathname}?tab=settings`, { replace: true });
+                }}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'settings'
+                    ? 'border-[#FF6B35] text-[#FF6B35]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Settings className="h-5 w-5 inline mr-2" />
+                Configurações
+              </button>
+              <button
+                onClick={() => {
+                  setActiveTab('insights');
+                  navigate(`${location.pathname}?tab=insights`, { replace: true });
+                }}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'insights'
+                    ? 'border-[#FF6B35] text-[#FF6B35]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <BarChart2 className="h-5 w-5 inline mr-2" />
+                💡 Insights Pessoais
               </button>
             </nav>
           </div>
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'vouchers' && (
+        {activeTab === 'overview' && (
           <div>
-            <h2 className="text-xl font-semibold text-[#333333] mb-6">Meus Vouchers</h2>
+            <h2 className="text-xl font-semibold text-[#333333] mb-6">Visão Geral</h2>
+            <p>Conteúdo da Visão Geral...</p>
+          </div>
+        )}
+
+        {activeTab === 'experiences' && (
+          <div>
+            <h2 className="text-xl font-semibold text-[#333333] mb-6">Minhas Experiências (Vouchers)</h2>
             {vouchers.length === 0 ? (
               <div className="text-center py-12">
                 <Gift className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -359,6 +507,15 @@ export function CustomerDashboard() {
                         <QrCode className="h-4 w-4" />
                         <span>Ver E-Ticket</span>
                       </button>
+                      {voucher.status === 'active' && (
+                        <button 
+                          onClick={() => handleShowQRCode(voucher)}
+                          className="px-3 py-2 border border-[#FF6B35] text-[#FF6B35] rounded-lg hover:bg-[#FF6B35] hover:text-white transition-colors"
+                          title="Mostrar QR Code"
+                        >
+                          <QrCode className="h-4 w-4" />
+                        </button>
+                      )}
                       <button className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                         <Eye className="h-4 w-4 text-gray-600" />
                       </button>
@@ -370,52 +527,76 @@ export function CustomerDashboard() {
           </div>
         )}
 
-        {activeTab === 'offers' && (
-          <div>
-            <h2 className="text-xl font-semibold text-[#333333] mb-6">Ofertas Disponíveis</h2>
-            {offers.length === 0 ? (
-              <div className="text-center py-12">
-                <ShoppingBag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">Nenhuma oferta disponível no momento</p>
-              </div>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {offers.map((offer) => (
-                  <div key={offer.id} className="bg-white rounded-lg shadow-md p-6">
-                    <h3 className="font-semibold text-[#333333] mb-2">{offer.title}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{offer.description}</p>
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Valor:</span>
-                        <span className="font-medium text-[#FF6B35]">
-                          {formatCurrency(offer.original_value)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Categoria:</span>
-                        <span>{offer.category}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Expira em:</span>
-                        <span>{formatDate(offer.expires_at)}</span>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => navigate(`/offer/${offer.id}`)}
-                      className="w-full bg-[#FF6B35] hover:bg-[#E55A2B] text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                    >
-                      Ver Detalhes
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
         {activeTab === 'connect' && (
           <div className="-mx-4 sm:-mx-6 lg:-mx-8">
             <DuoPassConnect />
+          </div>
+        )}
+
+        {activeTab === 'billing' && (
+          <div>
+            <h2 className="text-xl font-semibold text-[#333333] mb-6">Cobrança</h2>
+
+            {/* Seção Plano Atual */}
+            <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+              <h3 className="font-semibold text-lg mb-4">Plano Atual</h3>
+              <div className="border border-gray-200 rounded-lg p-4 flex justify-between items-center">
+                <div>
+                  <h4 className="font-bold text-gray-800">DuoPass Gratuito</h4>
+                  <ul className="text-sm text-gray-600 list-disc list-inside mt-2">
+                    <li>Acesso a experiências selecionadas</li>
+                    <li>1 voucher por mês</li>
+                  </ul>
+                </div>
+                <span className="bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">GRATUITO</span>
+              </div>
+            </div>
+
+            {/* Seção Upgrade */}
+            <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+              <h3 className="font-semibold text-lg mb-2">Desbloqueie Mais Experiências</h3>
+              <p className="text-sm text-gray-500 mb-6">Faça o upgrade para aproveitar ao máximo o DuoPass.</p>
+              <div className="grid md:grid-cols-3 gap-4">
+                {/* Plano Starter */}
+                <div className="border border-gray-200 rounded-lg p-4 text-center">
+                  <h4 className="font-bold">Starter</h4>
+                  <p className="text-2xl font-bold my-2">CHF 9<span className="text-sm font-normal">/mês</span></p>
+                  <button onClick={() => navigate('/memberships')} className="w-full bg-[#FF6B35] text-white py-2 rounded-lg hover:bg-[#E55A2B]">Fazer Upgrade</button>
+                </div>
+                {/* Plano Explorer */}
+                <div className="border-2 border-[#FF6B35] rounded-lg p-4 text-center relative">
+                  <span className="absolute top-0 -translate-y-1/2 bg-[#FF6B35] text-white text-xs px-2 py-0.5 rounded-full">POPULAR</span>
+                  <h4 className="font-bold">Explorer</h4>
+                  <p className="text-2xl font-bold my-2">CHF 12<span className="text-sm font-normal">/mês</span></p>
+                  <button onClick={() => navigate('/memberships')} className="w-full bg-[#FF6B35] text-white py-2 rounded-lg hover:bg-[#E55A2B]">Fazer Upgrade</button>
+                </div>
+                {/* Plano Ambassador */}
+                <div className="border border-gray-200 rounded-lg p-4 text-center">
+                  <h4 className="font-bold">Ambassador</h4>
+                  <p className="text-2xl font-bold my-2">CHF 18<span className="text-sm font-normal">/mês</span></p>
+                  <button onClick={() => navigate('/memberships')} className="w-full bg-[#FF6B35] text-white py-2 rounded-lg hover:bg-[#E55A2B]">Fazer Upgrade</button>
+                </div>
+              </div>
+               <div className="text-center mt-4">
+                <a href="/memberships" className="text-sm text-[#FF6B35] hover:underline">Ver todos os detalhes dos planos</a>
+              </div>
+            </div>
+
+            {/* Histórico de Pagamentos */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="font-semibold text-lg mb-4">Histórico de Pagamentos</h3>
+              <p className="text-gray-500">Nenhum pagamento registrado.</p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <SettingsPage />
+        )}
+        {activeTab === 'insights' && (
+          <div>
+            <h2 className="text-xl font-semibold text-[#333333] mb-6">Insights Pessoais</h2>
+            <AIAnalyticsContainer userId={user.id} />
           </div>
         )}
       </div>
@@ -452,6 +633,79 @@ export function CustomerDashboard() {
           </div>
         </div>
       )}
-    </div>
+
+      {/* QR Code Modal */}
+      {showQRCode && selectedVoucherForQR && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-[#333333]">QR Code do Voucher</h3>
+              <button
+                onClick={handleCloseQRCode}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex justify-center">
+              <VoucherQRCode voucher={selectedVoucherForQR} />
+            </div>
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600 mb-4">
+                Apresente este QR code no estabelecimento para validação
+              </p>
+              <button
+                onClick={handleCloseQRCode}
+                className="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🧪 BOTÕES DE TESTE - SEMPRE VISÍVEIS EM DEV */}
+      {import.meta.env.DEV && (
+        <div className="fixed bottom-4 right-4 z-50 space-y-2">
+          <button
+            onClick={() => {
+              console.log('🧪 TESTE: Navegando para /ofertas');
+              navigate('/ofertas');
+            }}
+            className="block w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium shadow-lg"
+          >
+            🧪 Teste /ofertas
+          </button>
+          <button
+            onClick={() => {
+              console.log('🧪 TESTE: Navegando para /meus-vouchers');
+              navigate('/meus-vouchers');
+            }}
+            className="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-lg"
+          >
+            🧪 Teste /meus-vouchers
+          </button>
+          <button
+            onClick={() => {
+              console.log('🧪 TESTE: Estado atual:', {
+                loading,
+                offersCount: offers.length,
+                vouchersCount: vouchers.length,
+                hasUser: !!user,
+                userEmail: user?.email,
+                activeTab
+              });
+            }}
+            className="block w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium shadow-lg"
+          >
+            🔍 Debug Estado
+          </button>
+        </div>
+      )}
+    </DashboardLayout>
   );
-}
+});
+export default CustomerDashboard;

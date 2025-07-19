@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 type ConfirmationStatus = 'loading' | 'success' | 'error';
 
-export function ConfirmEmail() {
+export default function ConfirmEmail() {
   const [status, setStatus] = useState<ConfirmationStatus>('loading');
 
   const [userType, setUserType] = useState<'customer' | 'merchant' | null>(null);
@@ -36,7 +36,7 @@ export function ConfirmEmail() {
           console.log('User already verified, redirecting...');
           setStatus('success');
           setTimeout(() => {
-            navigate('/dashboard');
+            navigate('/customer-dashboard');
           }, 3000);
           return;
         }

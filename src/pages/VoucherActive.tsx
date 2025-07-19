@@ -44,7 +44,7 @@ interface VoucherDetails {
   };
 }
 
-export function VoucherActive() {
+export default function VoucherActive() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -247,7 +247,7 @@ export function VoucherActive() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Voucher não encontrado</h1>
           <button
-            onClick={() => navigate('/vouchers')}
+            onClick={() => navigate('/meus-vouchers')}
             className="text-[#C91F1F] hover:underline"
           >
             Voltar aos meus vouchers
@@ -267,7 +267,7 @@ export function VoucherActive() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <button
-              onClick={() => navigate('/vouchers')}
+              onClick={() => navigate('/meus-vouchers')}
               className="flex items-center text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="h-5 w-5 mr-2" />

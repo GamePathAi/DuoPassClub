@@ -33,7 +33,7 @@ interface CulturalExperience {
   active: boolean;
 }
 
-export function CulturalPartnerPortal() {
+export default function CulturalPartnerPortal() {
   const { user } = useAuth();
   const [partner, setPartner] = useState<CulturalPartner | null>(null);
   const [experiences, setExperiences] = useState<CulturalExperience[]>([]);

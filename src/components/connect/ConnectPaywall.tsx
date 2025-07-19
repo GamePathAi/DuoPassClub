@@ -108,7 +108,7 @@ const connectFeatures = [
   }
 ];
 
-export function ConnectPaywall() {
+export default function ConnectPaywall() {
   const [selectedPlan, setSelectedPlan] = useState('quarterly');
   const [isProcessing, setIsProcessing] = useState(false);
 

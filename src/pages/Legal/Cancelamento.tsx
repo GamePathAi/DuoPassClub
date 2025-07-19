@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, CreditCard, Calendar, AlertCircle, CheckCircle, Clock, Euro } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export function Cancelamento() {
+export default function Cancelamento() {
   const navigate = useNavigate();
   const [showCancelForm, setShowCancelForm] = useState(false);
   const [cancelReason, setCancelReason] = useState('');

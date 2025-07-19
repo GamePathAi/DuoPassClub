@@ -12,7 +12,7 @@ interface PaywallModalProps {
   triggerExperience?: string;
 }
 
-export function PaywallModal({ isOpen, onClose, experiencesUsed }: PaywallModalProps) {
+export default function PaywallModal({ isOpen, onClose, experiencesUsed }: PaywallModalProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
 

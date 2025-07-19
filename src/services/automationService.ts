@@ -1,6 +1,3 @@
-// import { supabase } from '../lib/supabaseConfig';
-// import { CRMService } from './crmService';
-// import { PaymentService } from './paymentService';
 import { GamificationService } from './gamificationService';
 
 export interface AutomationRule {

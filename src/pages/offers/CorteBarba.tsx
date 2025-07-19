@@ -1,6 +1,6 @@
 import React from 'react';
-import { OfferPage } from './OfferPage';
+import OfferPage from './OfferPage';
 
-export function CorteBarba() {
+export default function CorteBarba() {
   return <OfferPage />;
 }

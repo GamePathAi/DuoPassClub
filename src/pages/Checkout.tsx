@@ -4,11 +4,12 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Check, CreditCard, Shield, Lock, Star, Crown, Trophy } from 'lucide-react';
 import { MEMBERSHIP_PLANS } from '../types/membership';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabaseConfig';
 
 // Controle de ambiente para proteção
 const _0x7h8i = process.env.NODE_ENV === 'development';
 
-export function Checkout() {
+export default function Checkout() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -90,27 +91,46 @@ export function Checkout() {
     setIsProcessing(true);
 
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // In a real implementation, this would integrate with Stripe
-      if (_0x7h8i) {
-        console.log('Processing payment for:', {
-          plan: selectedPlan,
-          billing: billingCycle,
-          amount: getCurrentPrice(),
-          user: user?.email,
-          paymentMethod: formData
-        });
-      }
+      if (selectedPlan.id === 'starter') {
+        // Lógica para iniciar o trial de 7 dias
+        const trialEndDate = new Date();
+        trialEndDate.setDate(trialEndDate.getDate() + 7);
 
-      // Simulate successful payment
-      navigate('/dashboard?welcome=true&plan=' + selectedPlan.id);
+        const { error } = await supabase.from('user_subscriptions').insert({
+          user_id: user.id,
+          plan_id: selectedPlan.id,
+          status: 'trialing',
+          trial_end: trialEndDate.toISOString(),
+          current_period_end: trialEndDate.toISOString(),
+        });
+
+        if (error) throw error;
+
+        localStorage.setItem('showTrialOnboarding', 'true');
+        navigate('/customer-dashboard?welcome_trial=true');
+
+      } else {
+        // Simulação de pagamento para outros planos
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        if (_0x7h8i) {
+          console.log('Processing payment for:', {
+            plan: selectedPlan,
+            billing: billingCycle,
+            amount: getCurrentPrice(),
+            user: user?.email,
+            paymentMethod: formData
+          });
+        }
+
+        // Lógica de criação de assinatura paga (simulada)
+        navigate('/customer-dashboard?welcome=true&plan=' + selectedPlan.id);
+      }
     } catch (error) {
       if (_0x7h8i) {
-        console.error('Payment failed:', error);
+        console.error('Subscription/Payment failed:', error);
       }
-      alert('Erro no pagamento. Tente novamente.');
+      alert('Ocorreu um erro. Tente novamente.');
     } finally {
       setIsProcessing(false);
     }

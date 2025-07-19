@@ -112,7 +112,7 @@ const createMockDirectMessages = (memberId: string): DirectMessage[] => [
     }
 ];
 
-export function CommunityChat({ community, onClose, initialChatType = 'group', initialMember }: CommunityChatProps) {
+export default function CommunityChat({ community, onClose, initialChatType = 'group', initialMember }: CommunityChatProps) {
   const { user } = useAuth();
   const [chatType, setChatType] = useState<'group' | 'direct'>(initialChatType);
   const [selectedMember, setSelectedMember] = useState<CommunityMember | null>(initialMember || null);

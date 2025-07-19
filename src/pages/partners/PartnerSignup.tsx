@@ -39,7 +39,7 @@ interface PartnerSignupForm {
   privacyAccepted: boolean;
 }
 
-export function PartnerSignup() {
+export default function PartnerSignup() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<PartnerSignupForm>({
     businessName: '',

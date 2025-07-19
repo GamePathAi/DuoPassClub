@@ -1,0 +1,27 @@
+🔧 Criando usuário admin no Supabase...
+🔍 Verificando se admin já existe...
+❌ Erro ao verificar usuários: {
+  "__isAuthError": true,
+  "name": "AuthApiError",
+  "status": 403,
+  "code": "not_admin"
+}
+📝 Criando novo usuário admin...
+✅ Usuário admin criado! ID: b8b9226c-f55e-4e85-b782-8f35f7d8cc47
+📧 Email: admin@duopass.com
+🔑 Senha: admin123
+✉️ Confirmação: Pendente
+📧 Confirmando email automaticamente...
+❌ Erro ao confirmar email: {
+  "__isAuthError": true,
+  "name": "AuthApiError",
+  "status": 403,
+  "code": "not_admin"
+}
+🔐 Testando login com credenciais admin...
+❌ Erro no login: {
+  "__isAuthError": true,
+  "name": "AuthApiError",
+  "status": 400,
+  "code": "email_not_confirmed"
+}

@@ -8,36 +8,38 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { CulturalAffinityQuiz } from './CulturalAffinityQuiz';
-import { CommunityDirectory } from './CommunityDirectory';
-import { MemberChat } from './MemberChat';
-import { ConnectPaywall } from './ConnectPaywall';
+import CulturalAffinityQuiz from './CulturalAffinityQuiz';
+import CommunityDirectory from './CommunityDirectory';
+import MemberChat from './MemberChat';
+import ConnectPaywall from './ConnectPaywall';
 import { supabase } from '../../lib/supabaseConfig';
 
 type ConnectTab = 'directory' | 'quiz' | 'chat';
 
-interface UserAffinity {
+interface UserPreferences {
   id: string;
   user_id: string;
-  preferred_time: string;
-  cultural_frequency: string;
-  budget_range: string;
-  group_size_preference: string;
-  discovery_style: string;
-  primary_interests: string[];
-  preferred_location: string;
-  available_days: string[];
-  social_style: string;
-  experience_level: string;
+  culture_level: string;
+  interests: string[];
+  location: string;
   created_at: string;
   updated_at: string;
+  // Campos antigos que podem ainda estar em uso em outras partes, manter por compatibilidade ou remover se não forem mais necessários
+  preferred_time?: string;
+  cultural_frequency?: string;
+  budget_range?: string;
+  group_size_preference?: string;
+  discovery_style?: string;
+  available_days?: string[];
+  social_style?: string;
+  experience_level?: string;
 }
 
-export function DuoPassConnect() {
+export default function DuoPassConnect() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<ConnectTab>('directory');
-  const [hasAffinity, setHasAffinity] = useState(false);
-  const [userAffinity, setUserAffinity] = useState<UserAffinity | null>(null);
+  const [hasPreferences, setHasPreferences] = useState(false);
+  const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -52,24 +54,17 @@ export function DuoPassConnect() {
       if (user.id === 'demo-user-id') {
         setIsSubscribed(true);
         // Criar afinidade mock para demo
-        const mockAffinity: UserAffinity = {
+        const mockPreferences: UserPreferences = {
           id: 'demo-affinity',
           user_id: 'demo-user-id',
-          preferred_time: 'evening',
-          cultural_frequency: 'weekly',
-          budget_range: 'medium',
-          group_size_preference: 'couple',
-          discovery_style: 'mixed',
-          primary_interests: ['arte', 'gastronomia', 'musica'],
-          preferred_location: 'São Paulo - SP',
-          available_days: ['friday', 'saturday', 'sunday'],
-          social_style: 'ambivert',
-          experience_level: 'intermediate',
+          culture_level: 'intermediate',
+          interests: ['arte', 'gastronomia', 'musica'],
+          location: 'São Paulo - SP',
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         };
-        setUserAffinity(mockAffinity);
-        setHasAffinity(true);
+        setUserPreferences(mockPreferences);
+        setHasPreferences(true);
         setLoading(false);
         return;
       }
@@ -78,20 +73,20 @@ export function DuoPassConnect() {
       // Por enquanto, vamos simular que usuários autenticados têm acesso
       setIsSubscribed(true);
       
-      // Verificar se usuário já preencheu questionário de afinidades
-      const { data: affinityData, error } = await supabase
-        .from('cultural_affinities')
+      // Verificar se usuário já preencheu questionário de preferências
+      const { data: preferencesData, error } = await supabase
+        .from('preferences')
         .select('*')
         .eq('user_id', user.id)
         .single();
       
       if (error && error.code !== 'PGRST116') {
-        console.error('Erro ao verificar afinidades:', error);
+        console.error('Erro ao verificar preferências:', error);
       }
       
-      if (affinityData) {
-        setUserAffinity(affinityData);
-        setHasAffinity(true);
+      if (preferencesData) {
+        setUserPreferences(preferencesData);
+        setHasPreferences(true);
       }
     } catch (error) {
       console.error('Erro ao verificar subscription e afinidades:', error);
@@ -108,9 +103,9 @@ export function DuoPassConnect() {
     }
   }, [user, checkSubscriptionAndAffinityCallback]);
 
-  const handleQuizComplete = (affinity: UserAffinity) => {
-    setUserAffinity(affinity);
-    setHasAffinity(true);
+  const handleQuizComplete = (preferences: UserPreferences) => {
+    setUserPreferences(preferences);
+    setHasPreferences(true);
     setShowQuiz(false);
     setActiveTab('directory');
   };
@@ -132,11 +127,11 @@ export function DuoPassConnect() {
   }
 
   // Mostrar questionário se ainda não preencheu
-  if (!hasAffinity || showQuiz) {
+  if (!hasPreferences || showQuiz) {
     return (
       <CulturalAffinityQuiz 
         onComplete={handleQuizComplete}
-        existingAffinity={userAffinity}
+        existingPreferences={userPreferences}
         onCancel={() => setShowQuiz(false)}
       />
     );
@@ -164,11 +159,11 @@ export function DuoPassConnect() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'directory':
-        return <CommunityDirectory userAffinity={userAffinity} />;
+        return <CommunityDirectory userPreferences={userPreferences} />;
       case 'chat':
         return <MemberChat />;
       default:
-        return <CommunityDirectory userAffinity={userAffinity} />;
+        return <CommunityDirectory userPreferences={userPreferences} />;
     }
   };
 
@@ -209,20 +204,20 @@ export function DuoPassConnect() {
           </div>
           
           {/* Resumo do Perfil */}
-          {userAffinity && (
+          {userPreferences && (
             <div className="mt-4 bg-white bg-opacity-10 rounded-lg p-3">
               <div className="flex flex-wrap items-center gap-4 text-sm">
                 <div className="flex items-center space-x-2">
                   <Heart className="w-4 h-4" />
-                  <span>Interesses: {userAffinity.primary_interests.join(', ')}</span>
+                  <span>Interesses: {(userPreferences.interests || []).join(', ')}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Users className="w-4 h-4" />
-                  <span>Prefere: {userAffinity.group_size_preference}</span>
+                  <span>Nível Cultural: {userPreferences.culture_level}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <CheckCircle className="w-4 h-4" />
-                  <span>Estilo: {userAffinity.social_style}</span>
+                  <span>Localização: {userPreferences.location}</span>
                 </div>
               </div>
             </div>

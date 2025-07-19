@@ -8,7 +8,7 @@ interface ETicketProps {
   className?: string;
 }
 
-export function ETicket({ voucher, className = '' }: ETicketProps) {
+export default function ETicket({ voucher, className = '' }: ETicketProps) {
   const isUsed = voucher.status === 'used';
   const isExpired = voucher.status === 'expired' || new Date(voucher.expires_at) < new Date();
 

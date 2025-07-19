@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Shield, Eye, Database, Lock, Download, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export function PoliticaPrivacidade() {
+export default function PoliticaPrivacidade() {
   const navigate = useNavigate();
 
   return (

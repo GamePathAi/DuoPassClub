@@ -35,8 +35,27 @@ export class MembershipService {
           plan:subscription_plans(*)
         `)
         .eq('user_id', userId)
-        .eq('status', 'active')
+        .in('status', ['active', 'trialing'])
         .single();
+
+      // Lógica de transição do Trial para o Gratuito
+      if (subscription && subscription.status === 'trialing' && subscription.trial_end && new Date(subscription.trial_end) < new Date()) {
+        const { error: updateError } = await supabase
+          .from('user_subscriptions')
+          .update({ 
+            plan_id: 'free', // ID do plano gratuito
+            status: 'active', 
+            trial_end: null 
+          })
+          .eq('user_id', userId);
+
+        if (updateError) {
+          console.error('Erro ao atualizar trial para plano gratuito:', updateError);
+        } else {
+          // Recarrega os dados da assinatura para refletir o plano gratuito
+          return this.checkMembershipStatus(userId);
+        }
+      }
 
       if (!subscription) {
         return {
@@ -62,20 +81,38 @@ export class MembershipService {
         };
       }
 
-      // Contar resgates do mês atual
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      let redeemCount = 0;
+      let maxRedeems = plan.max_offers_per_month;
 
-      const { count: redeemCount } = await supabase
-        .from('vouchers')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .gte('created_at', startOfMonth.toISOString())
-        .lte('created_at', endOfMonth.toISOString());
+      if (subscription.status === 'trialing') {
+        // Lógica para Golden Week (Trial)
+        maxRedeems = 4; // 4 vouchers por semana
+        const now = new Date();
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-      const currentRedeems = redeemCount || 0;
-      const maxRedeems = plan.max_offers_per_month;
+        const { count } = await supabase
+          .from('vouchers')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .gte('created_at', oneWeekAgo.toISOString());
+        
+        redeemCount = count || 0;
+
+      } else {
+        // Lógica para planos normais (Freemium, etc.)
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        const { count } = await supabase
+          .from('vouchers')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .gte('created_at', startOfMonth.toISOString());
+
+        redeemCount = count || 0;
+      }
+
+      const currentRedeems = redeemCount;
       const canRedeem = maxRedeems === -1 || currentRedeems < maxRedeems;
       const remainingRedeems = maxRedeems === -1 ? -1 : Math.max(0, maxRedeems - currentRedeems);
 

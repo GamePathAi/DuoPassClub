@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Shield, Users, CreditCard, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export function TermosDeUso() {
+export default function TermosDeUso() {
   const navigate = useNavigate();
 
   return (
@@ -72,9 +72,9 @@ export function TermosDeUso() {
                 <div className="border-l-4 border-amber-500 pl-4">
                   <h3 className="font-semibold text-gray-800">2.1 Tipos de Planos</h3>
                   <ul className="list-disc list-inside text-gray-700 mt-2 space-y-1">
-                    <li><strong>Cultural Starter:</strong> CHF 19/mês - 3 experiências por mês</li>
-                    <li><strong>Cultural Explorer:</strong> CHF 39/mês - 8 experiências por mês</li>
-                    <li><strong>Cultural Ambassador:</strong> CHF 69/mês - Experiências ilimitadas</li>
+                    <li><strong>Cultural Starter:</strong> CHF 9/mês (ou CHF 8/mês anual) - 2 experiências por mês</li>
+                    <li><strong>Cultural Explorer:</strong> CHF 12/mês (ou CHF 10/mês anual) - 4 experiências por mês</li>
+                    <li><strong>Cultural Ambassador:</strong> CHF 18/mês (ou CHF 15/mês anual) - Experiências ilimitadas</li>
                   </ul>
                 </div>
                 

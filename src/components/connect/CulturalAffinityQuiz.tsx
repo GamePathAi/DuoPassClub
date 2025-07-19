@@ -16,26 +16,27 @@ import {
 import { supabase } from '../../lib/supabaseConfig';
 import { useAuth } from '../../contexts/AuthContext';
 
-interface UserAffinity {
+interface UserPreferences {
   id: string;
   user_id: string;
-  preferred_time: string;
-  cultural_frequency: string;
-  budget_range: string;
-  group_size_preference: string;
-  discovery_style: string;
-  primary_interests: string[];
-  preferred_location: string;
-  available_days: string[];
-  social_style: string;
-  experience_level: string;
+  culture_level: string;
+  interests: string[];
+  location: string;
   created_at: string;
   updated_at: string;
+  // Campos do quiz que não estão na tabela final, mas são usados no estado
+  preferred_time?: string;
+  cultural_frequency?: string;
+  budget_range?: string;
+  group_size_preference?: string;
+  discovery_style?: string;
+  available_days?: string[];
+  social_style?: string;
 }
 
 interface CulturalAffinityQuizProps {
-  onComplete: (affinity: UserAffinity) => void;
-  existingAffinity?: UserAffinity | null;
+  onComplete: (preferences: UserPreferences) => void;
+  existingPreferences?: UserPreferences | null;
   onCancel?: () => void;
 }
 
@@ -131,15 +132,16 @@ const questions: QuizQuestion[] = [
   {
     id: 'preferred_location',
     title: 'Onde você prefere suas experiências culturais?',
-    subtitle: 'Localização ideal',
+    subtitle: 'Selecione sua cidade principal na Suíça',
     icon: MapPin,
     type: 'single',
     options: [
-      { value: 'São Paulo - SP', label: 'São Paulo - SP', description: 'Centro cultural do país' },
-      { value: 'Rio de Janeiro - RJ', label: 'Rio de Janeiro - RJ', description: 'Cidade maravilhosa' },
-      { value: 'Belo Horizonte - MG', label: 'Belo Horizonte - MG', description: 'Capital mineira' },
-      { value: 'Porto Alegre - RS', label: 'Porto Alegre - RS', description: 'Sul do Brasil' },
-      { value: 'Outras', label: 'Outras cidades', description: 'Especificar depois' }
+      { value: 'Zurich', label: 'Zurich', description: 'Centro financeiro e cultural' },
+      { value: 'Geneva', label: 'Geneva', description: 'Cidade internacional' },
+      { value: 'Bern', label: 'Bern', description: 'Capital federal' },
+      { value: 'Basel', label: 'Basel', description: 'Centro artístico' },
+      { value: 'Lausanne', label: 'Lausanne', description: 'Cidade universitária' },
+      { value: 'Lucerne', label: 'Lucerne', description: 'Beleza alpina' }
     ]
   },
   {
@@ -185,26 +187,28 @@ const questions: QuizQuestion[] = [
   }
 ];
 
-export function CulturalAffinityQuiz({ onComplete, existingAffinity, onCancel }: CulturalAffinityQuizProps) {
+export default function CulturalAffinityQuiz({ onComplete, existingPreferences, onCancel }: CulturalAffinityQuizProps) {
   const { user } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>(() => {
-    if (existingAffinity) {
+    if (existingPreferences) {
       return {
-        preferred_time: existingAffinity.preferred_time,
-        cultural_frequency: existingAffinity.cultural_frequency,
-        budget_range: existingAffinity.budget_range,
-        group_size_preference: existingAffinity.group_size_preference,
-        discovery_style: existingAffinity.discovery_style,
-        primary_interests: existingAffinity.primary_interests,
-        preferred_location: existingAffinity.preferred_location,
-        available_days: existingAffinity.available_days,
-        social_style: existingAffinity.social_style,
-        experience_level: existingAffinity.experience_level
+        experience_level: existingPreferences.culture_level,
+        primary_interests: existingPreferences.interests,
+        preferred_location: existingPreferences.location,
+        // Manter outros campos do quiz se necessário para preenchimento
+        preferred_time: existingPreferences.preferred_time,
+        cultural_frequency: existingPreferences.cultural_frequency,
+        budget_range: existingPreferences.budget_range,
+        group_size_preference: existingPreferences.group_size_preference,
+        discovery_style: existingPreferences.discovery_style,
+        available_days: existingPreferences.available_days,
+        social_style: existingPreferences.social_style,
       };
     }
     return {};
   });
+
   const [loading, setLoading] = useState(false);
 
   const question = questions[currentQuestion];
@@ -260,34 +264,28 @@ export function CulturalAffinityQuiz({ onComplete, existingAffinity, onCancel }:
     
     setLoading(true);
     try {
-      const affinityData = {
+      const preferencesData = {
         user_id: user.id,
-        preferred_time: answers.preferred_time,
-        cultural_frequency: answers.cultural_frequency,
-        budget_range: answers.budget_range,
-        group_size_preference: answers.group_size_preference,
-        discovery_style: answers.discovery_style,
-        primary_interests: answers.primary_interests || [],
-        preferred_location: answers.preferred_location,
-        available_days: answers.available_days || [],
-        social_style: answers.social_style,
-        experience_level: answers.experience_level
+        culture_level: answers.experience_level as string,
+        interests: answers.primary_interests as string[],
+        location: answers.preferred_location as string,
+        updated_at: new Date().toISOString(),
       };
 
       let result;
-      if (existingAffinity) {
+      if (existingPreferences) {
         // Atualizar existente
         result = await supabase
-          .from('cultural_affinities')
-          .update(affinityData)
-          .eq('id', existingAffinity.id)
+          .from('preferences')
+          .update(preferencesData)
+          .eq('user_id', user.id) // Atualiza pela user_id
           .select()
           .single();
       } else {
         // Criar novo
         result = await supabase
-          .from('cultural_affinities')
-          .insert(affinityData)
+          .from('preferences')
+          .insert(preferencesData)
           .select()
           .single();
       }
@@ -298,7 +296,7 @@ export function CulturalAffinityQuiz({ onComplete, existingAffinity, onCancel }:
 
       onComplete(result.data);
     } catch (error) {
-      console.error('Erro ao salvar afinidades:', error);
+      console.error('Erro ao salvar preferências:', error);
       alert('Erro ao salvar suas preferências. Tente novamente.');
     } finally {
       setLoading(false);
@@ -320,7 +318,7 @@ export function CulturalAffinityQuiz({ onComplete, existingAffinity, onCancel }:
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
-                  {existingAffinity ? 'Atualizar Perfil Cultural' : 'Perfil Cultural'}
+                  {existingPreferences ? 'Atualizar Perfil Cultural' : 'Perfil Cultural'}
                 </h1>
                 <p className="text-sm text-gray-500">
                   Questão {currentQuestion + 1} de {questions.length}

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Mail, Loader2 } from 'lucide-react';
-import DuoPassLogo from '../../assets/duopass_logo.svg';
+import DuoPassLogo from '../../components/ui/DuoPassLogo';
 import { useAuth } from '../../contexts/AuthContext';
 import { Toast } from '../../components/Toast';
 
-export function EmailVerification() {
+export default function EmailVerification() {
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const { resendConfirmation, getResendCooldown } = useAuth();
@@ -81,7 +81,7 @@ export function EmailVerification() {
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white rounded-3xl shadow-2xl p-8 text-center animate-scale-in hover-lift">
           <div className="flex justify-center mb-6">
-            <DuoPassLogo className="h-20 w-auto" fill="currentColor" />
+            <DuoPassLogo height={80} className="w-auto" />
           </div>
           
           <div className="mb-8">

@@ -28,7 +28,7 @@ export interface UserSubscription {
   id: string;
   user_id: string;
   plan_id: string;
-  status: 'active' | 'inactive' | 'cancelled' | 'expired' | 'pending';
+  status: 'active' | 'inactive' | 'cancelled' | 'expired' | 'pending' | 'trialing';
   billing_cycle: 'monthly' | 'yearly';
   current_period_start: string;
   current_period_end: string;
@@ -36,6 +36,7 @@ export interface UserSubscription {
   created_at: string;
   updated_at: string;
   plan?: SubscriptionPlan;
+  trial_end?: string;
 }
 
 export interface PaymentTransaction {

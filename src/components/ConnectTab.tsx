@@ -5,8 +5,8 @@ import {
   Lock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { DuoPassConnect } from './connect/DuoPassConnect';
-import { CommunityChat } from './connect/CommunityChat';
+import DuoPassConnect from './connect/DuoPassConnect';
+import CommunityChat from './connect/CommunityChat';
 import { Community } from '../types/community';
 
 interface ConnectTabProps {
@@ -176,7 +176,7 @@ function UpgradePrompt({ currentTier }: { currentTier: string }) {
   );
 }
 
-export function ConnectTab({ userMembership }: ConnectTabProps) {
+export default function ConnectTab({ userMembership }: ConnectTabProps) {
   const [showFullConnect, setShowFullConnect] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState<LocalCommunity | null>(null);

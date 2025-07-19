@@ -2,7 +2,7 @@ import React from 'react';
 import { CheckCircle, Mail, MessageCircle, ArrowRight, Heart, Clock, Users, FileCheck } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
-export function PartnerSuccess() {
+export default function PartnerSuccess() {
   const location = useLocation();
   const contactName = location.state?.contactName || 'Parceiro';
   const businessName = location.state?.businessName;

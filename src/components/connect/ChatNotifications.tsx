@@ -54,7 +54,7 @@ const mockNotifications: ChatNotification[] = [
   }
 ];
 
-export function ChatNotifications({ onNotificationClick }: ChatNotificationsProps) {
+export default function ChatNotifications({ onNotificationClick }: ChatNotificationsProps) {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<ChatNotification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);

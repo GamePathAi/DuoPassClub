@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Trophy, Star, Target, TrendingUp, Award, Users, /* Calendar, */ Zap } from 'lucide-react';
+import { Trophy, Star, Target, TrendingUp, Award, Users, Zap } from 'lucide-react';
 import { GamificationService } from '../services/gamificationService';
-import { GamificationStats /* , UserAchievement */ } from '../types/gamification';
+import { GamificationStats } from '../types/gamification';
 import { useAuth } from '../contexts/AuthContext';
 
 interface GamificationPanelProps {
   compact?: boolean;
 }
 
-export function GamificationPanel({ compact = false }: GamificationPanelProps) {
+export default function GamificationPanel({ compact = false }: GamificationPanelProps) {
   const { user } = useAuth();
   const [stats, setStats] = useState<GamificationStats | null>(null);
   const [loading, setLoading] = useState(true);

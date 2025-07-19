@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import DuoPassLogo from '../../assets/duopass_logo.svg';
+import DuoPassLogo from '../../components/ui/DuoPassLogo';
+import GoogleSignInButton from '../../components/Auth/GoogleSignInButton';
 
-export function Login() {
+export default function Login() {
   const { signIn } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -27,15 +28,9 @@ export function Login() {
       const result = await signIn(formData.email, formData.password);
       console.log('✅ Login bem-sucedido:', result);
       
-      // Verifica se há um redirect URL nos parâmetros
-      const redirectUrl = searchParams.get('redirect');
-      if (redirectUrl) {
-        console.log('🚀 Redirecionando para:', redirectUrl);
-        navigate(decodeURIComponent(redirectUrl));
-      } else {
-        console.log('🚀 Navegando para home...');
-        navigate('/');
-      }
+      const from = location.state?.from || '/';
+      console.log('🚀 Redirecionando para:', from);
+      navigate(from, { replace: true });
     } catch (error: unknown) {
       console.error('❌ Erro no login:', error);
       if (error instanceof Error) {
@@ -64,7 +59,7 @@ export function Login() {
         <div className="bg-white rounded-3xl shadow-2xl p-8">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
-              <DuoPassLogo className="h-20 w-auto" fill="currentColor" />
+              <DuoPassLogo height={80} className="w-auto" />
             </div>
             <h2 className="text-3xl font-bold text-[#333333]">
               Bem-vindo de volta
@@ -72,6 +67,23 @@ export function Login() {
             <p className="text-gray-600 mt-3 text-lg">
               Entre na sua conta para continuar
             </p>
+          </div>
+
+          {/* Login Social */}
+          <div className="space-y-3">
+            <GoogleSignInButton />
+          </div>
+
+          {/* Divisor */}
+          <div className="mt-6 mb-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">ou</span>
+              </div>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -124,14 +136,6 @@ export function Login() {
               {loading ? 'Entrando...' : t('auth.signin')}
             </button>
           </form>
-
-          <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-            <h3 className="text-sm font-semibold text-blue-800 mb-2">🎯 Credenciais de Demonstração</h3>
-            <div className="text-sm text-blue-700">
-              <p><strong>Email:</strong> demo@duopass.com</p>
-              <p><strong>Senha:</strong> 123456</p>
-            </div>
-          </div>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">

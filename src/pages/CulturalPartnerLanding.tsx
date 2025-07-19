@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Users, Sparkles, MapPin, ArrowRight, CheckCircle, Star, Coffee, Palette, Music } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
-export function CulturalPartnerLanding() {
+export default function CulturalPartnerLanding() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);

@@ -5,7 +5,7 @@ import ContactModal from '../../components/ContactModal';
 import ContactButton from '../../components/ContactButton';
 import { useContactModal } from '../../hooks/useContactModal';
 
-export function HowItWorksPartners() {
+export default function HowItWorksPartners() {
   const { isOpen, openModal, closeModal } = useContactModal();
   
   const pillars = [

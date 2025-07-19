@@ -12,7 +12,7 @@ import {
   Shield
 } from 'lucide-react';
 
-export function TrialPage() {
+export default function TrialPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -59,7 +59,7 @@ export function TrialPage() {
       }));
       
       // Redirecionar para dashboard
-      navigate('/dashboard');
+      navigate('/customer-dashboard');
       
     } catch (error) {
       console.error('❌ Erro ao criar trial:', error);

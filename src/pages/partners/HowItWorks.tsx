@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowRight, CheckCircle, TrendingUp, Users, Heart, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export function HowItWorks() {
+export default function HowItWorks() {
   const benefits = [
     {
       icon: TrendingUp,

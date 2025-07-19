@@ -22,7 +22,7 @@ interface CategoryGridProps {
   onCategorySelect?: (category: string) => void;
 }
 
-export function CategoryGrid({ onCategorySelect }: CategoryGridProps) {
+function CategoryGrid({ onCategorySelect }: CategoryGridProps) {
   const { t } = useLanguage();
 
   return (
@@ -47,3 +47,5 @@ export function CategoryGrid({ onCategorySelect }: CategoryGridProps) {
     </div>
   );
 }
+
+export default CategoryGrid;

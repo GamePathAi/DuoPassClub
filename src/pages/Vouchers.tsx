@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { DashboardLayout } from '../components/Layout/DashboardLayout';
 
-export function Vouchers() {
+export default function Vouchers() {
   const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -91,9 +92,8 @@ export function Vouchers() {
   console.log('🖥️ Renderizando. Loading:', loading, 'Vouchers:', vouchers.length);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 pt-16">
+    <DashboardLayout title="Meus Vouchers">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Meus Vouchers</h1>
         
 
         
@@ -139,6 +139,6 @@ export function Vouchers() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

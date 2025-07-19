@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import DashboardLayout from '../components/Layout/DashboardLayout';
 import { 
   User, 
   Mail, 
@@ -49,7 +50,7 @@ interface Message {
   text: string;
 }
 
-export function Profile() {
+export default function Profile() {
   const { user, userProfile } = useAuth();
   
   // Estados principais
@@ -367,13 +368,8 @@ export function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F3EF] py-8 pt-16">
+    <DashboardLayout title="Meu Perfil">
       <div className="max-w-2xl mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#333333] mb-2">Meu Perfil</h1>
-          <p className="text-gray-600">Gerencie suas informações pessoais</p>
-        </div>
 
         {/* Profile Card */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -934,8 +930,6 @@ export function Profile() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
-
-export default Profile;

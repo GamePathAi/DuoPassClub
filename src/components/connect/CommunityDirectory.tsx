@@ -16,19 +16,12 @@ import {
 import { supabase } from '../../lib/supabaseConfig';
 import { useAuth } from '../../contexts/AuthContext';
 
-interface UserAffinity {
+interface UserPreferences {
   id: string;
   user_id: string;
-  preferred_time: string;
-  cultural_frequency: string;
-  budget_range: string;
-  group_size_preference: string;
-  discovery_style: string;
-  primary_interests: string[];
-  preferred_location: string;
-  available_days: string[];
-  social_style: string;
-  experience_level: string;
+  culture_level: string;
+  interests: string[];
+  location: string;
   created_at: string;
   updated_at: string;
 }
@@ -46,7 +39,7 @@ interface Community {
 
 
 interface CommunityDirectoryProps {
-  userAffinity: UserAffinity | null;
+  userPreferences: UserPreferences | null;
 }
 
 const communityIcons: Record<string, React.ComponentType<{ className?: string; size?: number }>> = {
@@ -65,7 +58,7 @@ const communityColors: Record<string, { bg: string; text: string; border: string
   'cultura': { bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-200' }
 };
 
-export function CommunityDirectory({ userAffinity }: CommunityDirectoryProps) {
+export default function CommunityDirectory({ userPreferences }: CommunityDirectoryProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [communities, setCommunities] = useState<Community[]>([]);
@@ -132,16 +125,55 @@ export function CommunityDirectory({ userAffinity }: CommunityDirectoryProps) {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('cultural_communities')
-        .select('*')
-        .order('member_count', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-
-      setCommunities(data || []);
+      // Using mock data directly to avoid DB call
+      const mockCommunities: Community[] = [
+        {
+          id: 'arte-design',
+          name: 'Arte & Design',
+          description: 'Explore museus, galerias e exposições com pessoas que compartilham sua paixão pela arte visual e design contemporâneo.',
+          category: 'arte',
+          member_count: 1247,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'gastronomia-gourmet',
+          name: 'Gastronomia Gourmet',
+          description: 'Descubra novos sabores, restaurantes exclusivos e experiências culinárias únicas com outros food lovers.',
+          category: 'gastronomia',
+          member_count: 892,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'musica-concertos',
+          name: 'Música & Concertos',
+          description: 'Compartilhe shows, concertos e festivais musicais com melômanos que adoram descobrir novos artistas.',
+          category: 'musica',
+          member_count: 1534,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'bem-estar-mindful',
+          name: 'Bem-estar & Mindfulness',
+          description: 'Conecte-se com pessoas que valorizam o autocuidado, spas, retiros e práticas de bem-estar.',
+          category: 'bem-estar',
+          member_count: 678,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'cultura-patrimonio',
+          name: 'Cultura & Patrimônio',
+          description: 'Explore a história local, tradições culturais e patrimônio histórico com outros entusiastas da cultura.',
+          category: 'cultura',
+          member_count: 945,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      setCommunities(mockCommunities);
     } catch (error) {
       console.error('Erro ao carregar comunidades:', error);
     } finally {
@@ -276,10 +308,10 @@ export function CommunityDirectory({ userAffinity }: CommunityDirectoryProps) {
   });
 
   const getRecommendedCommunities = () => {
-    if (!userAffinity?.primary_interests) return [];
-    
+    if (!userPreferences?.interests) return [];
+
     return filteredCommunities.filter(community => 
-      userAffinity.primary_interests.includes(community.category)
+      userPreferences.interests.includes(community.category)
     );
   };
 

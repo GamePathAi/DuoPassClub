@@ -48,7 +48,7 @@ interface Conversation {
   unreadCount: number;
 }
 
-export function MemberChat() {
+export default function MemberChat() {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);

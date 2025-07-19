@@ -3,11 +3,12 @@ import { Plus, Edit2, Eye, QrCode, BarChart3, Users } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Offer, Voucher, UsageReport } from '../../types';
 import { supabase } from '../../lib/supabase';
-import DuoPassLogo from '../../assets/duopass_logo.svg';
+import DuoPassLogo from '../../components/ui/DuoPassLogo';
 import { QRScanner } from '../../components/QRScanner';
 import { VoucherService } from '../../lib/voucherService';
+import DashboardLayout from '../../components/Layout/DashboardLayout';
 
-export function MerchantDashboard() {
+export default function MerchantDashboard() {
   const { user } = useAuth();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -155,7 +156,7 @@ export function MerchantDashboard() {
       <div className="min-h-screen bg-[#F5F3EF] flex items-center justify-center pt-16">
         <div className="text-center">
           <div className="flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <DuoPassLogo className="h-16 w-auto" fill="currentColor" />
+            <DuoPassLogo height={64} className="w-auto" />
           </div>
           <p className="text-[#333333] font-medium">Carregando dashboard...</p>
         </div>
@@ -164,30 +165,29 @@ export function MerchantDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F3EF] pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-[#333333]">Dashboard do Comerciante</h1>
-            <p className="text-gray-600 mt-2 text-lg">Gerencie ofertas, valide vouchers e visualize relatórios</p>
-          </div>
-          <div className="flex gap-4">
-            <button
-              onClick={() => setShowQRScanner(true)}
-              className="flex items-center space-x-2 bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-600 transition-all"
-            >
-              <QrCode className="w-5 h-5" />
-              <span>Escanear QR</span>
-            </button>
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="flex items-center space-x-2 bg-gradient-to-r from-[#F6C100] to-[#C91F1F] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Nova Oferta</span>
-            </button>
-          </div>
+    <DashboardLayout 
+      title="Dashboard do Comerciante"
+      subtitle="Gerencie ofertas, valide vouchers e visualize relatórios"
+      actions={
+        <div className="flex gap-4">
+          <button
+            onClick={() => setShowQRScanner(true)}
+            className="flex items-center space-x-2 bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-600 transition-all"
+          >
+            <QrCode className="w-5 h-5" />
+            <span>Escanear QR</span>
+          </button>
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="flex items-center space-x-2 bg-gradient-to-r from-[#F6C100] to-[#C91F1F] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Nova Oferta</span>
+          </button>
         </div>
+      }
+    >
+      <div className="space-y-8">
 
         {/* Navigation Tabs */}
         <div className="flex space-x-1 mb-8">
@@ -403,7 +403,7 @@ export function MerchantDashboard() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

@@ -1,100 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Check, CheckCheck, Trash2, /* Filter, */ Search } from 'lucide-react';
+import { Bell, CheckCheck, Trash2, Search, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-// import { useNotifications } from '../hooks/useNotifications';
+import DashboardLayout from '../components/Layout/DashboardLayout';
+import { notificationService } from '../lib/notificationService';
+import { Notification } from '../types';
+import { Button } from '@/components/ui/Button';
+import { useNavigate } from 'react-router-dom';
+import NotificationList from '@/components/NotificationList';
 
-import { NotificationDemo } from '../components/NotificationDemo';
-// import { Notification } from '../types/notification';
-
-const getNotificationIcon = (type: string) => {
-  const iconMap: { [key: string]: string } = {
-    'experience_invite': '🤝',
-    'voucher_expiring': '⏰',
-    'new_experience': '🎭',
-    'offer_new': '🎁',
-    'offer_expiring': '⏰',
-    'voucher_redeemed': '💰',
-    'voucher_available': '🎫',
-    'achievement_unlocked': '🏆',
-    'level_up': '⭐',
-    'goal_reached': '🎯',
-    'system_update': '📱',
-    'profile_reminder': '👤',
-    'business_performance': '📊',
-    'offer_management': '💼',
-    'business_opportunity': '🎯',
-    'system_merchant': '⚙️',
-    'payment_processed': '💳'
-  };
-  return iconMap[type] || '📢';
-};
-
-
-
-// Mock data para consumidor cultural
-const mockNotifications = [
-  {
-    id: '1',
-    type: 'experience_invite',
-    title: '🤝 Convite para experiência',
-    message: 'Ana Silva te convidou para "Arte Contemporânea"',
-    created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2h atrás
-    is_read: false,
-    action_url: '/dashboard?tab=connect',
-    action_text: 'Ver Convite'
-  },
-  {
-    id: '2',
-    type: 'voucher_expiring',
-    title: '⏰ Voucher expirando',
-    message: 'Teatro Experimental expira em 24h',
-    created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5h atrás
-    is_read: false,
-    action_url: '/vouchers',
-    action_text: 'Usar Voucher'
-  },
-  {
-    id: '3',
-    type: 'new_experience',
-    title: '🎭 Nova experiência',
-    message: 'Concerto de Piano disponível',
-    created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 dia atrás
-    is_read: true,
-    action_url: '/ofertas',
-    action_text: 'Ver Experiência'
-  }
-];
-
-export function NotificationsPage() {
+export default function NotificationsPage() {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const navigate = useNavigate();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'unread'>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Calcular notificações não lidas
-  const unreadCount = notifications.filter(n => !n.is_read).length;
-  
-  // Marcar como lida
-  const markAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+
+  const fetchNotifications = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      const data = await notificationService.getNotifications(user.id, 50);
+      setNotifications(data);
+      setError(null);
+    } catch (err) {
+      setError('Falha ao carregar as notificações.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
-  
-  // Marcar todas como lidas
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [user]);
+
+  const handleNotificationClick = async (notification: Notification) => {
+    if (!notification.is_read) {
+      try {
+        await notificationService.markAsRead(notification.id);
+        fetchNotifications(); // Refresh list
+      } catch (error) {
+        console.error('Failed to mark notification as read', error);
+      }
+    }
+    if (notification.action_url) {
+      navigate(notification.action_url);
+    }
   };
-  
-  // Limpar todas as notificações
-  const clearAllNotifications = () => {
+
+  const handleMarkAllAsRead = async () => {
+    if (!user || unreadCount === 0) return;
+    try {
+      await notificationService.markAllAsRead(user.id);
+      fetchNotifications();
+    } catch (error) {
+      console.error('Failed to mark all as read', error);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    // Implementar a exclusão no service se necessário, por enquanto limpa localmente
     setNotifications([]);
   };
-  
-  // Carregar dados mock
-  useEffect(() => {
-    setNotifications(mockNotifications);
-    setLoading(false);
-  }, []);
 
   if (!user) {
     return (
@@ -108,183 +80,74 @@ export function NotificationsPage() {
     );
   }
 
-  // Filter notifications based on current filter and search term
-  const filteredNotifications = notifications.filter(notification => {
-    const matchesFilter = 
-      filter === 'all' || 
-      (filter === 'unread' && !notification.is_read) ||
-      (filter === 'read' && notification.is_read);
-    
-    const matchesSearch = 
-      searchTerm === '' ||
-      notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      notification.message.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesFilter && matchesSearch;
-  });
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
+  const filteredNotifications = notifications
+    .filter(notification => {
+      if (filter === 'unread') {
+        return !notification.is_read;
+      }
+      return true; // 'all'
+    })
+    .filter(notification => {
+      const search = searchTerm.toLowerCase();
+      return (
+        notification.title.toLowerCase().includes(search) ||
+        notification.message.toLowerCase().includes(search)
+      );
+    });
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <Bell className="w-8 h-8 text-[#C91F1F]" />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Notificações</h1>
-              <p className="text-gray-600">
-                {notifications.length === 0 
-                  ? 'Nenhuma notificação encontrada'
-                  : `${unreadCount} não lidas de ${notifications.length} total`
-                }
-              </p>
+    <DashboardLayout>
+      <div className="container mx-auto max-w-4xl py-8 px-4">
+        <div className="flex items-center justify-between mb-6 pb-4 border-b">
+            <div className='flex items-center gap-3'>
+                <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <h1 className="text-3xl font-bold text-gray-800">Notificações</h1>
             </div>
-          </div>
+            <div className="flex items-center gap-2">
+                <Button onClick={handleMarkAllAsRead} disabled={unreadCount === 0}>
+                    <CheckCheck className="w-4 h-4 mr-2" />
+                    Marcar todas como lidas
+                </Button>
+                <Button variant="destructive" onClick={handleDeleteAll} disabled={notifications.length === 0}>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Limpar Todas
+                </Button>
+            </div>
+        </div>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative">
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
-                  type="text"
-                  placeholder="Buscar notificações..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C91F1F] focus:border-transparent"
+                    type="text"
+                    placeholder="Buscar por título ou mensagem..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
-              </div>
             </div>
-            
-            <div className="flex gap-2">
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value as 'all' | 'unread' | 'read')}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C91F1F] focus:border-transparent"
-              >
-                <option value="all">Todas</option>
-                <option value="unread">Não lidas</option>
-                <option value="read">Lidas</option>
-              </select>
+            <div className="flex items-center space-x-2 rounded-lg bg-gray-100 p-1">
+                <Button variant={filter === 'all' ? 'primary' : 'ghost'} onClick={() => setFilter('all')} className='flex-1 justify-center'>Todas</Button>
+                <Button variant={filter === 'unread' ? 'primary' : 'ghost'} onClick={() => setFilter('unread')} className='flex-1 justify-center'>Não Lidas</Button>
             </div>
-          </div>
-
-          {/* Actions */}
-          {notifications.length > 0 && (
-            <div className="flex gap-3">
-              <button
-                onClick={markAllAsRead}
-                disabled={unreadCount === 0}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                <CheckCheck className="w-4 h-4" />
-                Marcar todas como lidas
-              </button>
-              
-              <button
-                onClick={clearAllNotifications}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                <Trash2 className="w-4 h-4" />
-                Limpar todas
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#C91F1F] mx-auto"></div>
-            <p className="mt-2 text-gray-600">Carregando notificações...</p>
-          </div>
+        {loading && <p>Carregando...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+        {!loading && !error && (
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <NotificationList 
+                    notifications={filteredNotifications} 
+                    onNotificationClick={handleNotificationClick} 
+                />
+            </div>
         )}
-
-        {/* Notifications List */}
-        {!loading && (
-          <div className="space-y-4 mb-8">
-            {filteredNotifications.length === 0 ? (
-              <div className="text-center py-12">
-                <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {searchTerm || filter !== 'all' ? 'Nenhuma notificação encontrada' : 'Nenhuma notificação'}
-                </h3>
-                <p className="text-gray-600">
-                  {searchTerm || filter !== 'all' 
-                    ? 'Tente ajustar os filtros ou termo de busca.'
-                    : 'Você não tem notificações no momento.'
-                  }
-                </p>
-              </div>
-            ) : (
-              filteredNotifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`p-4 rounded-lg border transition-all ${
-                    notification.is_read
-                      ? 'bg-white border-gray-200'
-                      : 'bg-blue-50 border-blue-200 shadow-sm'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0">
-                      {getNotificationIcon(notification.type)}
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className={`text-sm font-medium ${
-                            notification.is_read ? 'text-gray-900' : 'text-gray-900 font-semibold'
-                          }`}>
-                            {notification.title}
-                          </h3>
-                          <p className={`mt-1 text-sm ${
-                            notification.is_read ? 'text-gray-600' : 'text-gray-700'
-                          }`}>
-                            {notification.message}
-                          </p>
-                          <p className="mt-2 text-xs text-gray-500">
-                            {new Date(notification.created_at).toLocaleString('pt-BR')}
-                          </p>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 ml-4">
-                          {!notification.is_read && (
-                            <button
-                              onClick={() => markAsRead(notification.id)}
-                              className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
-                              title="Marcar como lida"
-                            >
-                              <Check className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {notification.action_url && notification.action_text && (
-                        <div className="mt-3">
-                          <a
-                            href={notification.action_url}
-                            className="inline-flex items-center px-3 py-1 text-sm font-medium text-[#C91F1F] bg-red-50 rounded-md hover:bg-red-100 transition-colors"
-                          >
-                            {notification.action_text}
-                          </a>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* Demo Section */}
-        <div className="border-t pt-8">
-          <NotificationDemo />
-        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

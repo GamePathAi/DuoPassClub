@@ -4,7 +4,7 @@ import { ArrowLeft, MapPin, Users, Heart, Share2, Sparkles, Gift, CheckCircle } 
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { VoucherService } from '../lib/voucherService';
-import { PaywallModal } from '../components/PaywallModal';
+import PaywallModal from '../components/PaywallModal';
 import { PAYWALL_CONFIG } from '../types/membership';
 
 interface CulturalExperience {
@@ -32,7 +32,7 @@ interface CulturalExperience {
   };
 }
 
-export function ExperienceDetails() {
+export default function ExperienceDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();

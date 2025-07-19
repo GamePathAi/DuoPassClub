@@ -26,7 +26,7 @@ interface VoucherDetails {
   };
 }
 
-export function ActiveVoucherSuccess() {
+export default function ActiveVoucherSuccess() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

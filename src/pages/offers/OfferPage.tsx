@@ -38,7 +38,7 @@ interface Gallery {
   caption?: string;
 }
 
-export function OfferPage() {
+export default function OfferPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -621,7 +621,7 @@ export function OfferPage() {
               </p>
               <div className="space-y-3">
                 <button
-                  onClick={() => navigate('/dashboard?tab=subscription')}
+                  onClick={() => navigate('/customer-dashboard?tab=subscription')}
                   className="w-full bg-gradient-to-r from-[#C91F1F] to-[#8B1538] text-white py-3 rounded-lg font-semibold hover:from-[#B01B1B] hover:to-[#7A1230] transition-colors"
                 >
                   Ver Planos

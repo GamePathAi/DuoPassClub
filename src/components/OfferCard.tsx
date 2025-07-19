@@ -10,58 +10,71 @@ interface OfferCardProps {
   offer: Offer;
   onActivate?: (offer: Offer) => void;
   showActivateButton?: boolean;
+  isPublic?: boolean;
 }
 
-export function OfferCard({ offer, onActivate, showActivateButton = true }: OfferCardProps) {
+export default function OfferCard({ offer, onActivate, showActivateButton = true, isPublic = false }: OfferCardProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, trialStatus, tier } = useAuth();
   const [showPaywallModal, setShowPaywallModal] = useState(false);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  // 🎯 FUNÇÃO HÍBRIDA - Bypass para demo + Paywall para usuários reais
   const handleResgateOferta = async (offerId: string) => {
     try {
-      console.log('🎯 Resgatando oferta:', offerId);
-      
-      // Verificar se usuário está logado
       if (!user) {
-        console.error('❌ Usuário não logado');
         navigate('/login');
-        return false;
+        return;
       }
-      
-      // 🚀 LÓGICA HÍBRIDA: Bypass para demo@duopass.com
-      const isDemoUser = user?.email === 'demo@duopass.com';
-      
-      if (!isDemoUser) {
-        // Verificar membership apenas para usuários reais
-        const membershipStatus = await MembershipService.checkMembershipStatus(user.id);
-        
-        if (!membershipStatus.isActive) {
-          console.log('💳 Usuário real sem membership - Mostrar paywall');
+
+      // Bypass para usuários com assinatura paga ou demo
+      if (tier === 'premium' || tier === 'golden' || user.email === 'demo@duopass.com') {
+        await criarVoucher(offerId);
+        return;
+      }
+
+      // Contar vouchers existentes do usuário
+      const { count, error: countError } = await supabase
+        .from('vouchers')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      if (countError) {
+        console.error('Erro ao contar vouchers:', countError);
+        return;
+      }
+
+      const voucherCount = count ?? 0;
+
+      // Lógica de limite para Golden Week (trial)
+      if (trialStatus === 'active') {
+        if (voucherCount < 4) {
+          await criarVoucher(offerId);
+        } else {
+          alert('Você atingiu o limite de 4 resgates da Golden Week. Faça upgrade para continuar!');
           setShowPaywallModal(true);
-          return false;
         }
-        
-        if (!membershipStatus.canRedeem) {
-          console.error('❌ Limite de resgates atingido');
-          alert('Limite de resgates mensais atingido!');
-          return false;
-        }
-      } else {
-        console.log('🎭 Demo user detectado - Bypass ativado!');
+        return;
       }
-      
-      // 🎫 Criar voucher (demo user OU membership ativo)
-      await criarVoucher(offerId);
-      return true;
-      
+
+      // Lógica de limite para Freemium
+      if (tier === 'freemium') {
+        if (voucherCount < 1) {
+          await criarVoucher(offerId);
+        } else {
+          alert('Você atingiu seu limite de resgate Freemium. Faça upgrade para resgatar mais!');
+          setShowPaywallModal(true);
+        }
+        return;
+      }
+
+      // Se não for trial, nem freemium, nem pago, mostrar paywall
+      setShowPaywallModal(true);
+
     } catch (error) {
-      console.error('❌ Erro ao resgatar oferta:', error);
-      return false;
+      console.error('Erro ao resgatar oferta:', error);
     }
   };
 
@@ -313,12 +326,17 @@ export function OfferCard({ offer, onActivate, showActivateButton = true }: Offe
         {/* Botões de ação */}
         <div className="space-y-3">
           {/* Botão Ver Detalhes */}
-          <ViewDetailsButton offerId={offer.id} />
+          <ViewDetailsButton offerId={offer.id} isPublic={isPublic} />
           
           {/* Botão Resgatar (se aplicável) */}
           {showActivateButton && (
             <button
-              onClick={async () => {
+              onClick={async (e) => {
+                e.stopPropagation();
+                if (isPublic) {
+                  navigate('/login?redirect=/experiencias');
+                  return;
+                }
                 const button = document.activeElement as HTMLButtonElement;
                 if (button) {
                   // Mostrar loading
@@ -354,7 +372,7 @@ export function OfferCard({ offer, onActivate, showActivateButton = true }: Offe
               }}
               className="w-full bg-gradient-to-r from-[#F6C100] to-[#C91F1F] text-white py-3 px-4 rounded-full font-semibold hover:shadow-lg transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95"
             >
-              🎯 RESGATAR VOUCHER
+              {isPublic ? 'DESBLOQUEAR OFERTA' : 'RESGATAR VOUCHER'}
             </button>
           )}
         </div>
@@ -365,12 +383,15 @@ export function OfferCard({ offer, onActivate, showActivateButton = true }: Offe
 }
 
 // Componente separado para o botão "Ver Detalhes"
-function ViewDetailsButton({ offerId }: { offerId: string }) {
+function ViewDetailsButton({ offerId, isPublic }: { offerId: string; isPublic: boolean; }) {
   const navigate = useNavigate();
   
   const handleViewDetails = () => {
-    // Navegação direta para página de detalhes usando mock data
-    navigate(`/offer/${offerId}`);
+    if (isPublic) {
+      navigate('/login?redirect=/experiencias');
+    } else {
+      navigate(`/ofertas/${offerId}`);
+    }
   };
   
   return (

@@ -1,5 +1,3 @@
-// import { supabase } from '../lib/supabaseConfig';
-
 export interface UserAnalytics {
   user_id: string;
   total_sessions: number;
@@ -781,5 +779,9 @@ export class AnalyticsService {
       console.error('Erro ao buscar dados de benchmark:', error);
       throw error;
     }
+  }
+  static trackFunnelStep(funnelType: string, step: string) {
+    console.log(`Tracking funnel step: ${funnelType} - ${step}`);
+    // TODO: Implement actual tracking, e.g., send to analytics backend
   }
 }

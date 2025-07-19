@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CreditCard, Smartphone, /* Building2, */ Check, AlertCircle, Loader2 } from 'lucide-react';
+import { X, CreditCard, Smartphone, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { PaymentService } from '../services/paymentService';
 import { useAuth } from '../contexts/AuthContext';
 import { PaymentFormData, PaymentValidation, SubscriptionPlan, BillingCycle } from '../types/payment';

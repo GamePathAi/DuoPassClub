@@ -23,7 +23,15 @@ import {
 } from 'lucide-react';
 import { MEMBERSHIP_PLANS } from '../types/membership';
 import { useAuth } from '../contexts/AuthContext';
-import { ConnectTab } from '../components/ConnectTab';
+import ConnectTab from '../components/ConnectTab';
+import DashboardLayout from '../components/Layout/DashboardLayout';
+import { PaymentMethodModal } from '../components/PaymentMethodModal';
+import { PaymentMethodService, PaymentMethod, PaymentMethodData } from '../services/paymentMethodService';
+import TrialCountdown from '../components/TrialCountdown';
+import GoldenWeekSection from '../components/GoldenWeekSection';
+import FreemiumTransition from '../components/FreemiumTransition';
+import UpgradeCTA from '../components/UpgradeCTA';
+import UserTierStatus from '../components/UserTierStatus';
 
 interface UserSubscription {
   id: string;
@@ -44,13 +52,16 @@ interface ExperienceHistory {
   voucher_code: string;
 }
 
-export function Dashboard() {
+export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, trialStatus } = useAuth();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [currentPaymentMethod, setCurrentPaymentMethod] = useState<PaymentMethod | null>(null);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
   
   // Mock subscription data
   const [subscription] = useState<UserSubscription>({
@@ -99,6 +110,11 @@ export function Dashboard() {
       return;
     }
 
+    // Verificar se a rota é /connect
+    if (location.pathname === '/connect') {
+      setActiveTab('connect');
+    }
+
     // Verificar parâmetro tab na URL
     const urlParams = new URLSearchParams(location.search);
     const tabParam = urlParams.get('tab');
@@ -114,7 +130,37 @@ export function Dashboard() {
       newSearchParams.delete('welcome');
       navigate({ search: newSearchParams.toString() }, { replace: true });
     }
+
+    // Carregar método de pagamento atual
+    loadCurrentPaymentMethod();
   }, [user, navigate, searchParams, location]);
+
+  const loadCurrentPaymentMethod = async () => {
+    try {
+      const paymentMethod = await PaymentMethodService.getCurrentPaymentMethod();
+      setCurrentPaymentMethod(paymentMethod);
+    } catch (error) {
+      console.error('Erro ao carregar método de pagamento:', error);
+    }
+  };
+
+  const handleUpdatePaymentMethod = async (paymentData: PaymentMethodData) => {
+    setIsLoadingPayment(true);
+    try {
+      const updatedPaymentMethod = await PaymentMethodService.updatePaymentMethod(paymentData);
+      setCurrentPaymentMethod(updatedPaymentMethod);
+      console.log('Método de pagamento atualizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao atualizar método de pagamento:', error);
+      throw error; // Re-throw para o modal tratar
+    } finally {
+      setIsLoadingPayment(false);
+    }
+  };
+
+  const handleOpenPaymentModal = () => {
+    setShowPaymentModal(true);
+  };
 
   const getPlanIcon = (tier: string) => {
     switch (tier) {
@@ -166,7 +212,13 @@ export function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <DashboardLayout title="Dashboard">
+      <GoldenWeekSection />
+        <FreemiumTransition />
+        <TrialCountdown />
+        <div className="p-4 sm:p-6 lg:p-8">
+          <UserTierStatus />
+          <UpgradeCTA />
       {/* Welcome Modal */}
       {showWelcome && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -193,36 +245,7 @@ export function Dashboard() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-purple-600 bg-clip-text text-transparent">
-              DUO PASS
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className={`rounded-full p-1 ${
-                  currentPlan.tier === 'starter' ? 'bg-amber-100 text-amber-600' :
-                  currentPlan.tier === 'explorer' ? 'bg-purple-100 text-purple-600' :
-                  'bg-rose-100 text-rose-600'
-                }`}>
-                  {getPlanIcon(currentPlan.tier)}
-                </div>
-                <span className="font-medium text-gray-700">{currentPlan.name}</span>
-              </div>
-              <button
-                onClick={logout}
-                className="text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                Sair
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
         {/* Navigation Tabs */}
         <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 mb-8">
           {[
@@ -561,18 +584,47 @@ export function Dashboard() {
               className="bg-white rounded-xl shadow-sm p-6"
             >
               <h3 className="text-lg font-semibold text-gray-800 mb-6">Método de Pagamento</h3>
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">VISA</span>
+              {currentPaymentMethod ? (
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">
+                      {currentPaymentMethod.card.brand.toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-800">
+                      •••• •••• •••• {currentPaymentMethod.card.last4}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Expira em {currentPaymentMethod.card.exp_month.toString().padStart(2, '0')}/{currentPaymentMethod.card.exp_year}
+                    </div>
+                  </div>
+                  <button 
+                    onClick={handleOpenPaymentModal}
+                    disabled={isLoadingPayment}
+                    className="ml-auto text-purple-600 hover:text-purple-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+                  >
+                    {isLoadingPayment ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600" />
+                    ) : (
+                      <span>Alterar</span>
+                    )}
+                  </button>
                 </div>
-                <div>
-                  <div className="font-medium text-gray-800">•••• •••• •••• 4242</div>
-                  <div className="text-sm text-gray-600">Expira em 12/25</div>
+              ) : (
+                <div className="flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                  <div className="text-gray-600">
+                    <div className="font-medium">Nenhum método de pagamento</div>
+                    <div className="text-sm">Adicione um cartão para continuar</div>
+                  </div>
+                  <button 
+                    onClick={handleOpenPaymentModal}
+                    className="bg-gradient-to-r from-amber-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all"
+                  >
+                    Adicionar Cartão
+                  </button>
                 </div>
-                <button className="ml-auto text-purple-600 hover:text-purple-700 font-medium">
-                  Alterar
-                </button>
-              </div>
+              )}
               
               <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <div className="flex items-center space-x-2">
@@ -836,7 +888,20 @@ export function Dashboard() {
             </motion.div>
           </div>
         )}
-      </div>
-    </div>
+</div>
+
+      {/* Payment Method Modal */}
+      <PaymentMethodModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onSave={handleUpdatePaymentMethod}
+        currentCard={currentPaymentMethod ? {
+          last4: currentPaymentMethod.card.last4,
+          brand: currentPaymentMethod.card.brand.toUpperCase(),
+          expMonth: currentPaymentMethod.card.exp_month,
+          expYear: currentPaymentMethod.card.exp_year
+        } : undefined}
+      />
+    </DashboardLayout>
   );
 }

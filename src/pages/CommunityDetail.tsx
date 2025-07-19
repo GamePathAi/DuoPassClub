@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Community, CommunityMember, CommunityActivity } from '../types/community';
-import { CommunityChat } from '../components/connect/CommunityChat';
+import CommunityChat from '../components/connect/CommunityChat';
 
 // Mock data para demonstração
 const createMockCommunity = (id: string): Community => ({
@@ -116,7 +116,7 @@ const createMockCommunity = (id: string): Community => ({
   updated_at: new Date().toISOString()
 });
 
-export function CommunityDetail() {
+export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -205,7 +205,7 @@ export function CommunityDetail() {
 
   const handleStartChat = (member: CommunityMember) => {
     // Navegar para o chat com o membro
-    navigate('/dashboard?tab=connect&chat=' + member.user_id);
+    navigate('/customer-dashboard?tab=connect&chat=' + member.user_id);
   };
 
   const getActivityIcon = (type: CommunityActivity['type']) => {
@@ -240,7 +240,7 @@ export function CommunityDetail() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Comunidade não encontrada</h1>
           <button
-            onClick={() => navigate('/dashboard?tab=connect')}
+            onClick={() => navigate('/customer-dashboard?tab=connect')}
             className="text-[#C91F1F] hover:underline"
           >
             Voltar às comunidades
@@ -263,7 +263,7 @@ export function CommunityDetail() {
         
         <div className="absolute top-4 left-4">
           <button
-            onClick={() => navigate('/dashboard?tab=connect')}
+            onClick={() => navigate('/customer-dashboard?tab=connect')}
             className="flex items-center space-x-2 bg-white bg-opacity-90 text-gray-900 px-4 py-2 rounded-lg hover:bg-opacity-100 transition-all"
           >
             <ArrowLeft className="w-4 h-4" />

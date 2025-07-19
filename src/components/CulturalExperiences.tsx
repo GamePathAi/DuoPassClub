@@ -1,37 +1,17 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Sparkles, MapPin, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabaseConfig';
-
-interface CulturalExperience {
-  id: string;
-  experience_name: string;
-  story_behind: string;
-  cultural_value: string;
-  duo_benefit: string;
-  original_price: number;
-  duo_price: number;
-  ambiance_notes: string;
-  best_for: string[];
-  cultural_tags: string[];
-  emotion_tags: string[];
-  active: boolean;
-  cultural_partners: {
-    business_name: string;
-    business_type: string;
-    cultural_category: string;
-    ambiance_description: string;
-  };
-}
+import { useExperiences } from '../hooks/useExperiences';
+import { Offer } from '../types';
 
 interface CulturalExperiencesProps {
   limit?: number;
   showHeader?: boolean;
+  isLandingPage?: boolean;
 }
 
-const CulturalExperiencesComponent = function CulturalExperiences({ limit = 6, showHeader = true }: CulturalExperiencesProps) {
-  const [experiences, setExperiences] = useState<CulturalExperience[]>([]);
-  const [loading, setLoading] = useState(true);
+const CulturalExperiences: React.FC<CulturalExperiencesProps> = ({ limit = 6, showHeader = true, isLandingPage = false }) => {
+  const { experiences: allExperiences, loading, error } = useExperiences();
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
 
   const emotionCategories = useMemo(() => [
@@ -43,127 +23,18 @@ const CulturalExperiencesComponent = function CulturalExperiences({ limit = 6, s
     { id: 'inspiracao', label: 'Inspiração', icon: '✨', description: 'Para despertar criatividade' }
   ], []);
 
-  const getDemoExperiences = useCallback((): CulturalExperience[] => [
-    {
-      id: 'sarau-literario',
-      experience_name: 'Sarau Literário com Café Especial',
-      story_behind: 'Uma noite especial onde poesia e café se encontram, criando um ambiente mágico para compartilhar histórias.',
-      cultural_value: 'Promove a literatura local e cria um espaço de expressão artística acessível.',
-      duo_benefit: 'Duas pessoas participam do sarau e degustam cafés especiais pelo preço de uma.',
-      original_price: 60.00,
-      duo_price: 30.00,
-      ambiance_notes: 'Luzes suaves, música acústica ao vivo e um ambiente que convida à contemplação.',
-      best_for: ['primeiro_encontro', 'amigos_arte', 'descoberta_cultural'],
-      cultural_tags: ['literatura', 'poesia', 'musica_acustica'],
-      emotion_tags: ['inspiracao', 'conexao', 'descoberta'],
-      active: true,
-      cultural_partners: {
-        business_name: 'Café das Letras',
-        business_type: 'cafe_cultural',
-        cultural_category: 'literatura_cafe',
-        ambiance_description: 'Um ambiente acolhedor com estantes repletas de livros e música suave.'
-      }
-    },
-    {
-      id: 'jantar-velas',
-      experience_name: 'Jantar à Luz de Velas com Música ao Vivo',
-      story_behind: 'Uma experiência gastronômica que celebra receitas familiares em um ambiente romântico.',
-      cultural_value: 'Preserva tradições culinárias familiares e promove conexões genuínas.',
-      duo_benefit: 'Jantar completo para duas pessoas com música ao vivo incluída.',
-      original_price: 120.00,
-      duo_price: 60.00,
-      ambiance_notes: 'Ambiente íntimo com velas, música acústica e decoração que conta histórias.',
-      best_for: ['momento_romantico', 'celebracao_especial'],
-      cultural_tags: ['gastronomia_familiar', 'musica_ao_vivo', 'ambiente_romantico'],
-      emotion_tags: ['romance', 'celebracao', 'conexao'],
-      active: true,
-      cultural_partners: {
-        business_name: 'Restaurante da Nonna',
-        business_type: 'restaurante_familia',
-        cultural_category: 'gastronomia_autoral',
-        ambiance_description: 'Restaurante familiar que preserva receitas tradicionais italianas.'
-      }
-    },
-    {
-      id: 'oficina-ceramica',
-      experience_name: 'Oficina de Cerâmica e Chá da Tarde',
-      story_behind: 'Conecte-se com a arte milenar da cerâmica enquanto saboreia chás especiais.',
-      cultural_value: 'Preserva técnicas artesanais e promove mindfulness através da arte.',
-      duo_benefit: 'Duas pessoas criam suas peças únicas e levam para casa.',
-      original_price: 80.00,
-      duo_price: 40.00,
-      ambiance_notes: 'Ateliê com luz natural, plantas e o som suave da roda de oleiro.',
-      best_for: ['reflexao_pessoal', 'amigos_arte', 'descoberta_cultural'],
-      cultural_tags: ['artesanato', 'ceramica', 'mindfulness'],
-      emotion_tags: ['reflexao', 'tranquilidade', 'descoberta'],
-      active: true,
-      cultural_partners: {
-        business_name: 'Ateliê Terra & Alma',
-        business_type: 'atelier_arte',
-        cultural_category: 'artesanato_local',
-        ambiance_description: 'Espaço criativo dedicado à cerâmica e bem-estar.'
-      }
+  const experiences = useMemo(() => {
+    let filtered = allExperiences;
+
+    if (selectedEmotion) {
+      // @ts-ignore
+      filtered = allExperiences.filter(exp => exp.emotion_tags?.includes(selectedEmotion));
     }
-  ], []);
 
-  const loadExperiences = useCallback(async () => {
-    try {
-      setLoading(true);
-      
-      // Teste básico de conectividade primeiro
-      const connectivityTest = Promise.race([
-        supabase.from('cultural_experiences').select('count').limit(1),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout de conectividade experiências (5s)')), 5000)
-        )
-      ]);
-      
-      await connectivityTest;
+    return limit ? filtered.slice(0, limit) : filtered;
+  }, [allExperiences, selectedEmotion, limit]);
 
-      let query = supabase
-        .from('cultural_experiences')
-        .select(`
-          *,
-          cultural_partners (
-            business_name,
-            business_type,
-            cultural_category,
-            ambiance_description
-          )
-        `)
-        .eq('active', true)
-        .limit(limit);
 
-      if (selectedEmotion) {
-        query = query.contains('emotion_tags', [selectedEmotion]);
-      }
-
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout da query experiências (10s)')), 10000)
-      );
-      
-      const { data, error } = await Promise.race([query, timeoutPromise]);
-
-      if (error) {
-        setExperiences(getDemoExperiences());
-      } else {
-        if (!data || data.length === 0) {
-          setExperiences(getDemoExperiences());
-        } else {
-          setExperiences(data);
-        }
-      }
-    } catch {
-       // Usar dados mock em caso de erro
-       setExperiences(getDemoExperiences());
-     } finally {
-       setLoading(false);
-     }
-  }, [selectedEmotion, limit, getDemoExperiences]);
-
-  useEffect(() => {
-    loadExperiences();
-  }, [loadExperiences]);
 
   const getEmotionIcon = useCallback((emotion: string) => {
     const category = emotionCategories.find(cat => cat.id === emotion);
@@ -250,74 +121,84 @@ const CulturalExperiencesComponent = function CulturalExperiences({ limit = 6, s
 
           </div>
         ) : (
-          experiences.map(experience => (
-              <div key={experience.id} className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
-            {/* Header da Experiência */}
-            <div className="p-6 pb-4">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-amber-600 transition-colors">
-                    {experience.experience_name}
-                  </h3>
-                  <div className="flex items-center space-x-2 text-sm text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span>{experience.cultural_partners.business_name}</span>
+          experiences.map((exp: Offer) => (
+            <div key={exp.id} className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group flex flex-col">
+              {/* Header da Experiência */}
+              <div className="p-6 pb-4 flex-grow">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-amber-600 transition-colors">
+                      {exp.title}
+                    </h3>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600 mb-3">
+                      <MapPin className="w-4 h-4" />
+                      <span>{exp.merchant?.business_name || 'Parceiro Cultural'}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    {/* @ts-ignore */}
+                    {exp.emotion_tags?.slice(0, 2).map(emotion => (
+                      <span key={emotion} className="text-lg">
+                        {getEmotionIcon(emotion)}
+                      </span>
+                    ))}
                   </div>
                 </div>
-                <div className="flex items-center space-x-1">
-                  {experience.emotion_tags.slice(0, 2).map(emotion => (
-                    <span key={emotion} className="text-lg">
-                      {getEmotionIcon(emotion)}
-                    </span>
-                  ))}
+
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow">
+                  {exp.description}
+                </p>
+
+                {/* Tags de Melhor Para */}
+                {/* @ts-ignore */}
+                {exp.best_for && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {/* @ts-ignore */}
+                    {exp.best_for.slice(0, 2).map(tag => (
+                      <span key={tag} className="px-2 py-1 bg-amber-50 text-amber-700 text-xs rounded-full">
+                        {getBestForLabel(tag)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Preços e Benefício DUO */}
+              <div className="px-6 pb-4">
+                <div className="bg-gradient-to-r from-amber-50 to-rose-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600">Valor Original</span>
+                    <span className="text-sm text-gray-500 line-through">CHF {exp.original_value.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-amber-700">DUO PASS</span>
+                    <span className="text-xl font-bold text-green-600">CHF {(exp.original_value / 2).toFixed(2)}</span>
+                  </div>
+                  {/* @ts-ignore */}
+                  <p className="text-xs text-gray-600 mt-2">{exp.duo_benefit}</p>
                 </div>
               </div>
 
-              <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                {experience.story_behind}
-              </p>
+              {/* Ambiente e CTA */}
+              <div className="px-6 pb-6">
+                {/* @ts-ignore */}
+                {exp.ambiance_notes && (
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    {/* @ts-ignore */}
+                    <span className="line-clamp-1">{exp.ambiance_notes}</span>
+                  </div>
+                )}
 
-              {/* Tags de Melhor Para */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {experience.best_for.slice(0, 2).map(tag => (
-                  <span key={tag} className="px-2 py-1 bg-amber-50 text-amber-700 text-xs rounded-full">
-                    {getBestForLabel(tag)}
-                  </span>
-                ))}
+                <Link
+                  to={isLandingPage ? '/login' : `/ofertas/${exp.id}`}
+                  className="w-full bg-gradient-to-r from-amber-500 to-rose-500 text-white py-3 rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center space-x-2 group"
+                >
+                  <span>Viver Esta Experiência</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
               </div>
             </div>
-
-            {/* Preços e Benefício DUO */}
-            <div className="px-6 pb-4">
-              <div className="bg-gradient-to-r from-amber-50 to-rose-50 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600">Experiência Individual</span>
-                  <span className="text-sm text-gray-500 line-through">CHF {(experience.original_price * 0.18).toFixed(2)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-amber-700">DUO PASS</span>
-                  <span className="text-xl font-bold text-green-600">CHF {(experience.duo_price * 0.18).toFixed(2)}</span>
-                </div>
-                <p className="text-xs text-gray-600 mt-2">{experience.duo_benefit}</p>
-              </div>
-            </div>
-
-            {/* Ambiente e CTA */}
-            <div className="px-6 pb-6">
-              <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span className="line-clamp-1">{experience.ambiance_notes}</span>
-              </div>
-
-              <Link
-                to={`/experiencia/${experience.id}`}
-                className="w-full bg-gradient-to-r from-amber-500 to-rose-500 text-white py-3 rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center space-x-2 group"
-              >
-                <span>Viver Esta Experiência</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
           ))
         )}
       </div>
@@ -338,8 +219,4 @@ const CulturalExperiencesComponent = function CulturalExperiences({ limit = 6, s
   );
 };
 
-// Adicionar displayName para evitar erro de React DevTools
-CulturalExperiencesComponent.displayName = 'CulturalExperiences';
-
-// Exportar com React.memo
-export const CulturalExperiences = React.memo(CulturalExperiencesComponent);
+export default React.memo(CulturalExperiences);

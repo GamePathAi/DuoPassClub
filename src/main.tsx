@@ -4,35 +4,24 @@ import App from './App.tsx';
 import './index.css';
 import './styles/animations.css';
 
-// Sistemas de produção
-// import { analytics, errorTracking } from './lib/analytics'; // Não utilizados
 import { initializePerformanceOptimizations } from './lib/performance';
 import { initializeSEO } from './lib/seo';
 import { monitoring, logger } from './lib/monitoring';
 
-// Inicializar sistemas de produção
 if (import.meta.env.PROD) {
-  // Inicializar SEO
   initializeSEO();
-  
-  // Inicializar otimizações de performance
   initializePerformanceOptimizations();
-  
-  // Log de inicialização
   logger.info('DuoPass Production Systems Initialized', {
     version: import.meta.env.VITE_APP_VERSION || '1.0.0',
     environment: import.meta.env.MODE,
     timestamp: new Date().toISOString()
   });
-  
-  // Rastrear carregamento da aplicação
   monitoring.trackEvent('app_loaded', 'system', {
     loadTime: performance.now(),
     userAgent: navigator.userAgent
   });
 }
 
-// Error Boundary para capturar erros do React
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean }

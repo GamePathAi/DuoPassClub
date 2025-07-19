@@ -19,61 +19,53 @@ interface PricingPlan {
 
 const pricingPlans: PricingPlan[] = [
   {
-    id: 'starter',
-    name: 'Cultural Starter',
-    icon: <Star className="w-6 h-6" />,
-    badge: 'Ideal para iniciantes',
-    badgeColor: 'bg-blue-100 text-blue-800',
-    monthlyPrice: 9,
-    yearlyPrice: 86,
-    description: 'Perfeito para descobrir a cultura suíça',
+    id: 'freemium',
+    name: 'Freemium',
+    icon: <Star className="w-6 h-6 text-gray-500" />,
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    description: 'Continue a descobrir após sua Golden Week.',
     features: [
-      '2 experiências culturais/mês',
-      'Acesso a cafés e experiências básicas',
-      'Newsletter cultural semanal',
-      'Comunidade DUO PASS Connect',
-      'Suporte por email'
+      '1 Experiência Freemium por mês',
+      'Acesso a parceiros selecionados',
+      'Newsletter com destaques culturais',
+      'Funcionalidades básicas do app'
     ],
-    cta: 'Experimentar grátis'
+    cta: 'Continue Grátis'
   },
   {
-    id: 'explorer',
-    name: 'Cultural Explorer',
-    icon: <Crown className="w-6 h-6" />,
-    badge: 'Mais popular',
+    id: 'golden_yearly',
+    name: 'Golden Member',
+    icon: <Crown className="w-8 h-8 text-yellow-400" />,
+    badge: 'Economize 2 meses',
     badgeColor: 'bg-gradient-to-r from-orange-500 to-purple-600 text-white',
     monthlyPrice: 12,
-    yearlyPrice: 115,
-    description: 'A escolha ideal para exploradores culturais',
+    yearlyPrice: 120, // Exemplo: 10 * 12
+    description: 'Acesso total. A melhor experiência cultural.',
     features: [
-      '4 experiências culturais/mês',
-      'Acesso completo: restaurantes, spas, arte',
-      'Eventos exclusivos mensais',
-      'Curadoria personalizada',
-      'Prioridade no atendimento',
-      'Comunidades premium'
+      'Inicia com 7 dias de Golden Week Trial',
+      '4 Golden Vouchers por mês',
+      'Acesso a TODAS as experiências (Golden & Premium)',
+      'Eventos exclusivos para membros',
+      'Curadoria de IA personalizada',
+      'Suporte prioritário'
     ],
     popular: true,
-    cta: 'Escolher plano'
+    cta: 'Começar minha Golden Week'
   },
   {
-    id: 'ambassador',
-    name: 'Cultural Ambassador',
-    icon: <Trophy className="w-6 h-6" />,
-    badge: 'Para especialistas',
-    badgeColor: 'bg-yellow-100 text-yellow-800',
-    monthlyPrice: 18,
-    yearlyPrice: 173,
-    description: 'Experiência cultural completa e exclusiva',
+    id: 'golden_monthly',
+    name: 'Golden Member',
+    icon: <Crown className="w-6 h-6 text-yellow-400" />,
+    monthlyPrice: 15,
+    yearlyPrice: 180,
+    description: 'Flexibilidade total para o explorador moderno.',
     features: [
-      'Experiências ilimitadas',
-      'Acesso VIP a eventos especiais',
-      'Convidados extras (+2 pessoas)',
-      'Concierge cultural personalizado',
-      'Acesso beta a novas experiências',
-      'Mentoria cultural'
+      'Todos os benefícios do plano Golden',
+      'Pague mês a mês',
+      'Cancele quando quiser'
     ],
-    cta: 'Escolher plano'
+    cta: 'Assinar Plano Mensal'
   }
 ];
 
@@ -144,7 +136,7 @@ const faqs = [
   }
 ];
 
-export const Pricing: React.FC = () => {
+export default function Pricing() {
   const [isYearly, setIsYearly] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const navigate = useNavigate();
@@ -152,7 +144,15 @@ export const Pricing: React.FC = () => {
 
   const handlePlanSelect = (planId: string) => {
     if (!user) {
-      navigate('/login');
+      navigate('/login?redirect=/pricing');
+      return;
+    }
+
+    if (planId === 'free') {
+      // Lógica para ativar o plano gratuito diretamente
+      // Aqui você chamaria uma função para atualizar o status do usuário no backend
+      alert('Plano gratuito ativado com sucesso!');
+      navigate('/customer-dashboard');
       return;
     }
     
@@ -172,50 +172,49 @@ export const Pricing: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-purple-50">
+    <>
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-orange-500 to-purple-600 text-white">
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Experiências Culturais Autênticas
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
-              Conecte-se com a cultura suíça através de experiências únicas para viver em dupla
-            </p>
+        <div className="relative max-w-4xl mx-auto text-center py-24 px-4">
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight">
+            7 Dias de Acesso Golden Grátis.
+            <span className="block text-yellow-300">Depois, continue no Freemium para sempre.</span>
+          </h1>
+          <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto">
+            Experimente o melhor do DuoPass com a Golden Week: acesso ilimitado a todas as experiências. Após o trial, continue descobrindo a cultura local com nosso plano Freemium.
+          </p>
             
-            {/* Billing Toggle */}
+            <div className="mt-8 flex justify-center">
+              <button onClick={() => handlePlanSelect('golden_yearly')} className="bg-white text-orange-600 font-bold py-4 px-10 rounded-full text-xl hover:bg-orange-50 transition-transform transform hover:scale-105 shadow-lg">
+                Começar minha Golden Week
+              </button>
+            </div>
+          </div>
+        </div>
+
+      
+      <div id="pricing-table" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-8">
-              <span className={`mr-3 ${!isYearly ? 'text-white' : 'text-white/70'}`}>Mensal</span>
+              <span className={`mr-3 font-semibold ${!isYearly ? 'text-purple-700' : 'text-gray-500'}`}>Faturamento Mensal</span>
               <button
                 onClick={() => setIsYearly(!isYearly)}
-                className="relative inline-flex h-6 w-11 items-center rounded-full bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
+                className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    isYearly ? 'translate-x-6' : 'translate-x-1'
-                  }`}
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isYearly ? 'translate-x-6' : 'translate-x-1'}`}
                 />
               </button>
-              <span className={`ml-3 ${isYearly ? 'text-white' : 'text-white/70'}`}>Anual</span>
+              <span className={`ml-3 font-semibold ${isYearly ? 'text-purple-700' : 'text-gray-500'}`}>Faturamento Anual</span>
               {isYearly && (
-                <span className="ml-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-sm font-semibold">
-                  Economize 20%
+                <span className="ml-4 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-bold">
+                  Economize 2 meses!
                 </span>
               )}
             </div>
-            
-            <p className="text-lg opacity-90">
-              🎭 Mais de 500 experiências culturais curadas
-            </p>
-          </div>
         </div>
-      </div>
-
-      {/* Pricing Cards */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-8 items-start">
           {pricingPlans.map((plan) => {
             const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
             const savings = isYearly ? calculateSavings(plan.monthlyPrice, plan.yearlyPrice) : null;
@@ -246,14 +245,23 @@ export const Pricing: React.FC = () => {
                   </div>
                   
                   {/* Pricing */}
-                  <div className="text-center mb-6">
+                  <div className="text-center mb-6 h-24">
                     <div className="flex items-baseline justify-center">
-                      <span className="text-4xl font-bold text-gray-900">CHF {price}</span>
-                      <span className="text-gray-500 ml-1">/{isYearly ? 'ano' : 'mês'}</span>
+                      <span className="text-4xl font-bold text-gray-900">
+                        {plan.id === 'freemium' ? 'Grátis' : `CHF ${isYearly && plan.id === 'golden_yearly' ? (plan.yearlyPrice / 12).toFixed(0) : plan.monthlyPrice}`}
+                      </span>
+                      <span className="text-gray-500 ml-1">
+                        {plan.id !== 'freemium' ? '/mês' : ''}
+                      </span>
                     </div>
-                    {isYearly && savings && (
+                    {plan.id === 'golden_yearly' && isYearly && (
                       <p className="text-green-600 text-sm mt-1">
-                        Economize CHF {savings.savings}/ano ({savings.percentage}%)
+                        Total: CHF {plan.yearlyPrice}/ano
+                      </p>
+                    )}
+                     {plan.id === 'golden_monthly' && (
+                      <p className="text-sm mt-1 text-gray-500">
+                        Plano flexível
                       </p>
                     )}
                     <p className="text-gray-600 mt-2">{plan.description}</p>
@@ -271,11 +279,14 @@ export const Pricing: React.FC = () => {
                   
                   {/* CTA Button */}
                   <button
-                    onClick={() => handlePlanSelect(plan.id)}
-                    className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 ${
+                    onClick={() => handlePlanSelect(plan.id === 'golden_monthly' ? 'golden_monthly' : 'golden_yearly')}
+                    disabled={plan.id === 'freemium'}
+                    className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 ${ 
                       plan.popular
                         ? 'bg-gradient-to-r from-orange-500 to-purple-600 text-white hover:from-orange-600 hover:to-purple-700 shadow-lg'
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                        : plan.id === 'freemium'
+                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                          : 'bg-white text-orange-600 border-2 border-orange-500 hover:bg-orange-50'
                     }`}
                   >
                     {plan.cta}
@@ -389,6 +400,6 @@ export const Pricing: React.FC = () => {
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 };

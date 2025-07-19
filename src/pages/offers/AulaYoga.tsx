@@ -1,6 +1,6 @@
 import React from 'react';
-import { OfferPage } from './OfferPage';
+import OfferPage from './OfferPage';
 
-export function AulaYoga() {
+export default function AulaYoga() {
   return <OfferPage />;
 }

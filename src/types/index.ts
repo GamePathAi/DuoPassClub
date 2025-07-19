@@ -5,6 +5,8 @@ export interface User {
   email: string;
   created_at?: string;
   updated_at?: string;
+  cultural_interests?: string[];
+  onboarding_completed?: boolean;
   // Outros campos do usuário conforme necessário
 }
 
@@ -39,6 +41,7 @@ export interface Offer {
   updated_at?: string;
   // Relacionamento com merchant
   merchant?: Merchant;
+  tier?: 'Golden' | 'Premium' | 'Freemium'; // Nível da oferta para a estratégia Trial -> Freemium
 }
 
 export interface Voucher {
@@ -64,6 +67,22 @@ export interface Voucher {
 
 export interface VoucherWithOffer extends Voucher {
   offer: Offer;
+}
+
+export type NotificationType = 'offer_new' | 'offer_expiring' | 'voucher_redeemed' | 'voucher_available' | 'voucher_expiring' | 'achievement_unlocked' | 'level_up' | 'goal_reached' | 'system_update' | 'profile_reminder' | 'business_performance' | 'offer_management' | 'business_opportunity' | 'system_merchant' | 'payment_processed';
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  icon?: string;
+  action_url?: string;
+  action_text?: string;
+  is_read: boolean;
+  created_at: string;
+  updated_at?: string;
 }
 
 // Tipos para estatísticas
@@ -199,6 +218,9 @@ export function getVoucherStatusText(status: VoucherStatus): string {
 export function formatPrice(price: number): string {
   return `CHF ${price.toFixed(2)}`;
 }
+
+// Tipos para internacionalização
+export type Language = 'pt' | 'en' | 'fr' | 'de' | 'it' | 'es';
 
 export function calculateDiscount(originalPrice: number, discountedPrice: number): number {
   return Math.round((1 - discountedPrice / originalPrice) * 100);

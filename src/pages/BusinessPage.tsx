@@ -13,7 +13,7 @@ import {
   Mail
 } from 'lucide-react';
 
-export function BusinessPage() {
+export default function BusinessPage() {
   const [formData, setFormData] = useState({
     company: '',
     name: '',

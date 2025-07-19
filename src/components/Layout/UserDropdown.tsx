@@ -9,12 +9,14 @@ import {
   BarChart3,
   ChevronDown,
   Store,
-  Users
+  Users,
+  Sparkles,
+  TrendingUp
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 
-export function UserDropdown() {
+export default function UserDropdown() {
   const { user, userProfile, signOut } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -54,7 +56,8 @@ export function UserDropdown() {
   if (!user || !userProfile) return null;
 
   const isMerchant = userProfile.user_type === 'merchant';
-  const dashboardPath = isMerchant ? '/merchant/dashboard' : '/dashboard';
+  const isAdmin = userProfile.user_type === 'admin';
+  const dashboardPath = isMerchant ? '/merchant/dashboard' : '/customer-dashboard';
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -131,6 +134,14 @@ export function UserDropdown() {
             ) : (
               <>
                 <Link
+                  to="/recommendations"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Sparkles className="w-4 h-4 mr-3 text-orange-500" />
+                  Recomendações IA
+                </Link>
+                <Link
                   to="/meus-vouchers"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -147,7 +158,7 @@ export function UserDropdown() {
                   Histórico
                 </Link>
                 <Link
-                  to="/dashboard?tab=connect"
+                  to="/connect"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
@@ -155,6 +166,18 @@ export function UserDropdown() {
                   🤝 Connect
                 </Link>
               </>
+            )}
+
+            {/* Admin Analytics Link */}
+            {isAdmin && (
+              <Link
+                to="/analytics"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <TrendingUp className="w-4 h-4 mr-3 text-purple-500" />
+                Analytics BI
+              </Link>
             )}
 
             <Link

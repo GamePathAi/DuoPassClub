@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Store, Users, Shield, AlertTriangle, CheckCircle, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export function ExperienciasTermos() {
+export default function ExperienciasTermos() {
   const navigate = useNavigate();
 
   return (

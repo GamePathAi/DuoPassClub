@@ -1,198 +1,117 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Calendar, Clock, Star, Users, Zap, ArrowLeft, Share2, Heart, Shield } from 'lucide-react';
+import { MapPin, Calendar, Clock, Star, Users, Zap, ArrowLeft, Share2, Heart, Shield, AlertTriangle } from 'lucide-react';
 import { Offer } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
-
-export function OfferDetails() {
+export default function OfferDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, loginDemo } = useAuth();
+  const { user } = useAuth();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [showRedeemModal, setShowRedeemModal] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchOfferDetails = useCallback(async () => {
+    if (!id) {
+      setError("ID da oferta não encontrado.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase
+        .from('offers')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao buscar detalhes da oferta:', error);
+        setError('Não foi possível carregar os detalhes da oferta. Tente novamente mais tarde.');
+        setOffer(null);
+      } else {
+        setOffer(data);
+      }
+    } catch (err) {
+      console.error('💥 Erro crítico ao buscar detalhes da oferta:', err);
+      setError('Ocorreu um erro inesperado. Por favor, contate o suporte.');
+      setOffer(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
   useEffect(() => {
-    if (!id) return;
-    
-    setLoading(true);
-    
-    // Mock offer details direto aqui - SINCRONIZADO COM OFFERS.TSX
-    const offerDetails = {
-      'demo-1': {
-        id: 'demo-1',
-        merchant_id: 'demo-merchant-1',
-        title: '🍕 Pizza Margherita + Bebida GRÁTIS',
-        description: 'Deliciosa pizza artesanal com molho especial da casa, mussarela fresca e manjericão. Acompanha refrigerante ou suco natural à sua escolha!',
-        original_value: 45.90,
-        category: 'gastronomy',
-        location: 'Zürich',
-        city: 'Zürich',
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=800&h=600&fit=crop',
-        terms_conditions: 'Válido de segunda a quinta-feira. Não cumulativo com outras promoções.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'Pizzaria Bella Vista',
-          contact_info: '+41 44 123 4567'
-        }
-      },
-      'demo-2': {
-        id: 'demo-2',
-        merchant_id: 'demo-merchant-2',
-        title: '💄 Maquiagem Completa - 50% OFF',
-        description: 'Transformação completa com maquiagem profissional para qualquer ocasião. Inclui limpeza de pele, base, contorno, olhos e batom de longa duração.',
-        original_value: 120.00,
-        category: 'beauty',
-        location: 'Genève',
-        city: 'Genève',
-        expires_at: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800&h=600&fit=crop',
-        terms_conditions: 'Agendamento obrigatório. Válido até o final do mês.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'Studio Glamour',
-          contact_info: '+41 22 987 6543'
-        }
-      },
-      'demo-3': {
-        id: 'demo-3',
-        merchant_id: 'demo-merchant-3',
-        title: '🎬 Cinema 2x1 + Pipoca Gigante',
-        description: 'Ingresso duplo para qualquer sessão + pipoca gigante doce ou salgada para compartilhar. Válido para todos os filmes em cartaz!',
-        original_value: 38.00,
-        category: 'leisure',
-        location: 'Basel',
-        city: 'Basel',
-        expires_at: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1489185078254-c3365d6e359f?w=800&h=600&fit=crop',
-        terms_conditions: 'Não válido para pré-estreias e sessões especiais.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'CineMax Basel',
-          contact_info: '+41 61 456 7890'
-        }
-      },
-      'demo-4': {
-        id: 'demo-4',
-        merchant_id: 'demo-merchant-4',
-        title: '💪 1 Mês de Academia + Personal',
-        description: 'Acesso completo à academia por 30 dias + 2 sessões de personal trainer. Inclui avaliação física e plano de treino personalizado.',
-        original_value: 180.00,
-        category: 'fitness',
-        location: 'Bern',
-        city: 'Bern',
-        expires_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
-        terms_conditions: 'Válido apenas para novos alunos. Documentos obrigatórios.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'FitZone Bern',
-          contact_info: '+41 31 234 5678'
-        }
-      },
-      'demo-5': {
-        id: 'demo-5',
-        merchant_id: 'demo-merchant-5',
-        title: '📱 iPhone 15 - Cashback CHF 36.-',
-        description: 'iPhone 15 128GB com cashback exclusivo de CHF 36.- + película de vidro e capinha premium inclusos. Parcelamento em até 12x sem juros!',
-        original_value: 1299.00,
-        category: 'shopping',
-        location: 'Lausanne',
-        city: 'Lausanne',
-        expires_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&h=600&fit=crop',
-        terms_conditions: 'Cashback creditado em até 30 dias. Estoque limitado.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'TechStore Lausanne',
-          contact_info: '+41 21 345 6789'
-        }
-      },
-      'demo-6': {
-        id: 'demo-6',
-        merchant_id: 'demo-merchant-6',
-        title: '🏠 Limpeza Residencial Completa',
-        description: 'Limpeza profunda de casa ou apartamento até 100m². Inclui todos os cômodos, janelas, eletrodomésticos e organização básica.',
-        original_value: 150.00,
-        category: 'services',
-        location: 'Winterthur',
-        city: 'Winterthur',
-        expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-        terms_conditions: 'Agendamento com 48h de antecedência. Produtos inclusos.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'CleanPro Services',
-          contact_info: '+41 52 678 9012'
-        }
-      }
-    };
-    
-    const selectedOffer = offerDetails[id as keyof typeof offerDetails];
-    setOffer(selectedOffer || null);
-    setLoading(false);
-  }, [id]);
+    fetchOfferDetails();
+  }, [fetchOfferDetails]);
 
 
 
   const handleRedeemVoucher = async () => {
-    // Check if user is logged in, if not, do demo login
-    if (!user) {
-      console.log('🎭 Usuário não logado, fazendo login demo...');
-      await loginDemo();
-      // Wait a bit for the auth state to update
-      await new Promise(resolve => setTimeout(resolve, 500));
+    if (!user || !offer) {
+      alert('Você precisa estar logado para resgatar uma oferta.');
+      navigate('/login');
+      return;
     }
-    
+
     setIsRedeeming(true);
-    
+    setError(null);
+
     try {
-      // Sistema mock para demo - criar voucher único
-      const voucherId = `voucher-${Date.now()}`;
+      // 1. Gerar um código de voucher único
       const voucherCode = `DUO${Date.now().toString().slice(-6)}`;
-      
-      // Simular delay de processamento
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Criar dados do voucher mock
-      const newVoucher = {
-        id: voucherId,
-        offer_id: offer?.id,
-        status: 'active',
+
+      // 2. Preparar os dados para inserção na tabela 'vouchers'
+      const newVoucherData = {
+        user_id: user.id,
+        offer_id: offer.id,
         code: voucherCode,
-        qr_code: `{"voucher_id":"${voucherId}","code":"${voucherCode}","offer_id":"${offer?.id}"}`,
-        redeemed_at: new Date().toISOString(),
-        expires_at: offer?.expires_at,
-        offer_details: {
-          title: offer?.title,
-          business_name: offer?.merchant?.business_name,
-          original_price: offer?.original_value,
-          duo_price: offer?.original_value ? offer.original_value * 0.5 : 0
-        }
+        status: 'active',
+        expires_at: offer.expires_at, 
+        title: offer.title,
+        description: offer.description,
+        image_url: offer.image_url,
+        terms_conditions: offer.terms_conditions,
+        original_price: offer.original_value,
+        // O nome do negócio pode vir da oferta ou de uma tabela de merchants relacionada
+        business_name: offer.merchant?.business_name || 'Parceiro DuoPass',
       };
-      
-      // Salvar no localStorage para demo
-      localStorage.setItem(`voucher-${voucherId}`, JSON.stringify(newVoucher));
-      
-      // Redirecionar para página do voucher ativo
-      navigate(`/voucher/${voucherId}/active?code=${voucherCode}`);
-    } catch (error) {
-      console.error('Erro ao resgatar voucher:', error);
-      alert('Erro ao resgatar voucher. Tente novamente.');
+
+      // 3. Inserir o novo voucher no Supabase
+      const { data, error } = await supabase
+        .from('vouchers')
+        .insert(newVoucherData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao criar voucher no Supabase:', error);
+        setError('Não foi possível resgatar o voucher. Tente novamente.');
+        setIsRedeeming(false);
+        return;
+      }
+
+      console.log('✅ Voucher criado com sucesso:', data);
+
+      // 4. Redirecionar para o dashboard do cliente, na aba de vouchers
+      alert('Voucher resgatado com sucesso! Você será redirecionado para seus vouchers.');
+      navigate('/dashboard/customer?tab=vouchers');
+
+    } catch (err) {
+      console.error('💥 Erro crítico ao resgatar voucher:', err);
+      setError('Ocorreu um erro inesperado. Por favor, contate o suporte.');
+    } finally {
+      setIsRedeeming(false);
+      setShowRedeemModal(false);
     }
-    
-    setIsRedeeming(false);
-    setShowRedeemModal(false);
   };
 
   const toggleSaveOffer = () => {

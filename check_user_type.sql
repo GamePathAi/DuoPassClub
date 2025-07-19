@@ -1,0 +1,1 @@
+SELECT id, email, user_type, subscription_status FROM public.users WHERE email = 'igor.bonafe@gmail.com';

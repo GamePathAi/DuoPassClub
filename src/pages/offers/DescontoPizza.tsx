@@ -1,6 +1,6 @@
 import React from 'react';
-import { OfferPage } from './OfferPage';
+import OfferPage from './OfferPage';
 
-export function DescontoPizza() {
+export default function DescontoPizza() {
   return <OfferPage />;
 }

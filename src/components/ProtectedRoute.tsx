@@ -17,6 +17,14 @@ export function ProtectedRoute({
   const { user, userProfile, loading } = useAuth();
   const location = useLocation();
 
+  console.log('--- ProtectedRoute Check ---');
+  console.log('Location:', location.pathname);
+  console.log('Loading:', loading);
+  console.log('User:', user ? user.email : 'No User');
+  console.log('User Profile:', userProfile);
+  console.log('Required Role:', requiredRole);
+
+
   // Show loading while checking authentication
   if (loading) {
     return (
@@ -31,25 +39,31 @@ export function ProtectedRoute({
 
   // Redirect to login if not authenticated
   if (!user) {
+    console.log('Redirecting to login: User not found.');
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
   // Redirect to email verification if email not confirmed
-  if (!user.email_confirmed_at) {
-    return <Navigate to="/email-verification" replace />;
-  }
+  // if (!user.email_confirmed_at) {
+  //   console.log('Redirecting to email verification: Email not confirmed.');
+  //   return <Navigate to="/email-verification" replace />;
+  // }
 
   // Check role-based access
-  if (requiredRole && userProfile?.user_type !== requiredRole) {
-    // Redirect to appropriate dashboard based on user type
-    let dashboardPath = '/dashboard';
-    if (userProfile?.user_type === 'merchant') {
-      dashboardPath = '/merchant/dashboard';
-    } else if (userProfile?.user_type === 'partner') {
-      dashboardPath = '/dashboard-parceiro';
-    }
-    return <Navigate to={dashboardPath} replace />;
-  }
+  // if (requiredRole && userProfile?.user_type !== requiredRole) {
+  //   console.log(`Redirecting: Role mismatch. Required: ${requiredRole}, User has: ${userProfile?.user_type}`);
+  //   // Redirecionar para o dashboard apropriado baseado no tipo de usuário
+  //   // NUNCA redirecionar para rotas admin através do ProtectedRoute
+  //   let dashboardPath = '/customer-dashboard'; // Default para customer
+  //   if (userProfile?.user_type === 'merchant') {
+  //     dashboardPath = '/merchant/dashboard';
+  //   } else if (userProfile?.user_type === 'partner') {
+  //     dashboardPath = '/dashboard-parceiro';
+  //   }
+  //   // Removida a verificação de admin para evitar redirecionamento para rotas administrativas
+  //   return <Navigate to={dashboardPath} replace />;
+  // }
+
 
   return <>{children}</>;
 }

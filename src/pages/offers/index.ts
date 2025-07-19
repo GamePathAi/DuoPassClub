@@ -1,5 +1,5 @@
-export { OfferPage } from './OfferPage';
-export { DescontoPizza } from './DescontoPizza';
-export { MassagemRelaxante } from './MassagemRelaxante';
-export { CorteBarba } from './CorteBarba';
-export { AulaYoga } from './AulaYoga';
+export { default as OfferPage } from './OfferPage';
+export { default as DescontoPizza } from './DescontoPizza';
+export { default as MassagemRelaxante } from './MassagemRelaxante';
+export { default as CorteBarba } from './CorteBarba';
+export { default as AulaYoga } from './AulaYoga';

@@ -1,157 +1,127 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { Layout } from './components/Layout/Layout';
-import { ProtectedRoute, CustomerRoute, MerchantRoute, PartnerRoute } from './components/ProtectedRoute';
-import { AuthProvider } from './contexts/AuthContext';
-import { LanguageProvider } from './contexts/LanguageContext';
-import { Home } from './pages/Home';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { AdminAuthProvider } from '@/contexts/AdminAuthContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import supabase from '@/lib/supabaseConfig';
 
-import { Vouchers } from './pages/Vouchers';
-import { History } from './pages/History';
-import { Profile } from './pages/Profile';
-import { Settings } from './pages/Settings';
-import { Login } from './pages/Auth/Login';
-import { SignUp } from './pages/Auth/SignUp';
-import { EmailVerification } from './pages/Auth/EmailVerification';
-import { ConfirmEmail } from './pages/Auth/ConfirmEmail';
-import { MerchantDashboard } from './pages/Dashboard/MerchantDashboard';
-import { CustomerDashboard } from './pages/Dashboard/CustomerDashboard';
-import { NotificationsPage } from './pages/NotificationsPage';
-import { OfferDetails } from './pages/OfferDetails';
-import { MyVouchers } from './pages/MyVouchers';
-import { VoucherDetails } from './pages/VoucherDetails';
-import { VoucherActive } from './pages/VoucherActive';
-import { ActiveVoucherSuccess } from './pages/ActiveVoucherSuccess';
-import { CulturalPartnerPortal } from './pages/CulturalPartnerPortal';
+// Layouts
+import Layout from '@/components/Layout/Layout';
+import DashboardLayout from '@/components/Layout/DashboardLayout';
 
-import { PartnerDashboard } from './components/PartnerDashboard';
-import { CulturalPartnerLanding } from './pages/CulturalPartnerLanding';
-import { PartnerSignup, PartnerSuccess } from './pages/partners';
-import { HowItWorksPartners } from './pages/partners/HowItWorksPartners';
+// Page Components
+import Home from '@/pages/Home';
+import DemoShowcase from '@/pages/DemoShowcase';
+import ExperienciasLanding from '@/pages/ExperienciasLanding';
+import ExperienciasPage from '@/pages/ExperienciasPage';
+import ExperienceDetails from '@/pages/ExperienceDetails';
 
-import { ExperienceDetails } from './pages/ExperienceDetails';
-import { CommunityDetail } from './pages/CommunityDetail';
-import { OfferPage, DescontoPizza, MassagemRelaxante, CorteBarba, AulaYoga } from './pages/offers/index';
-import { Memberships } from './pages/Memberships';
-import { Checkout } from './pages/Checkout';
-import { Dashboard } from './pages/Dashboard';
-import { Pricing } from './pages/Pricing';
-import { BusinessPage } from './pages/BusinessPage';
-import { TrialPage } from './pages/TrialPage';
-import { ExperienciasPage } from './pages/ExperienciasPage';
-import { OfertasPage } from './pages/OfertasPage';
+
+import Login from '@/pages/Auth/Login';
+import Signup from '@/pages/Auth/SignUp';
+import Callback from '@/pages/Auth/Callback';
+import ConfirmEmail from '@/pages/Auth/ConfirmEmail';
+import EmailVerification from '@/pages/Auth/EmailVerification';
+import AuthCallback from '@/pages/Auth/AuthCallback';
+
+
+import Dashboard from '@/pages/Dashboard';
+import CustomerDashboard from '@/pages/Dashboard/CustomerDashboard';
+import MyVouchers from '@/pages/MyVouchers';
+import History from '@/pages/History';
+import Connect from '@/pages/Connect';
+import Recommendations from '@/pages/Recommendations';
+import Profile from '@/pages/Profile';
+import Settings from '@/pages/Settings';
+import Memberships from '@/pages/Memberships';
+import Pricing from '@/pages/Pricing';
+import Checkout from '@/pages/Checkout';
+import BusinessPage from '@/pages/BusinessPage';
+import TrialPage from '@/pages/TrialPage';
+import CommunityDetail from '@/pages/CommunityDetail';
+import VoucherActive from '@/pages/VoucherActive';
+import VoucherDetails from '@/pages/VoucherDetails';
+import ActiveVoucherSuccess from '@/pages/ActiveVoucherSuccess';
+import CulturalPartnerLanding from '@/pages/CulturalPartnerLanding';
+import HowItWorksPartners from '@/pages/partners/HowItWorksPartners';
+import PartnerSignup from '@/pages/partners/PartnerSignup';
+import PartnerSuccess from '@/pages/partners/PartnerSuccess';
+import CulturalPartnerPortal from './pages/CulturalPartnerPortal';
+import MerchantPortal from './pages/Merchant/MerchantPortal';
+import MerchantDashboard from '@/pages/Dashboard/MerchantDashboard';
+import AdminLoginPage from '@/pages/Admin/AdminLoginPage';
+import AdminDashboard from '@/pages/Admin/AdminDashboard';
+import OffersManager from '@/pages/Admin/OffersManager';
+import UsersManager from '@/pages/Admin/UsersManager';
+import Analytics from '@/pages/Admin/Analytics';
+import AdminSettings from '@/pages/Admin/AdminSettings';
+// import PartnerDashboard from '@/pages/PartnerDashboard'; // File not found
+// import BusinessAnalytics from '@/pages/BusinessAnalytics'; // File not found
+import PromptBuilderPage from '@/pages/PromptBuilderPage';
+import NotificationsPage from '@/pages/NotificationsPage';
+import Offers from '@/pages/Offers';
+import OfferDetails from '@/pages/OfferDetails';
+import OfertasPage from '@/pages/OfertasPage';
+import Onboarding from '@/pages/Onboarding';
 
 // Legal Pages
-import { TermosDeUso } from './pages/Legal/TermosDeUso';
-import { PoliticaPrivacidade } from './pages/Legal/PoliticaPrivacidade';
-import { Cancelamento } from './pages/Legal/Cancelamento';
-import { ExperienciasTermos } from './pages/Legal/ExperienciasTermos';
+import Cancelamento from '@/pages/Legal/Cancelamento';
+import ExperienciasTermos from '@/pages/Legal/ExperienciasTermos';
+import PoliticaPrivacidade from '@/pages/Legal/PoliticaPrivacidade';
+import TermosDeUso from '@/pages/Legal/TermosDeUso';
 
-import { supabase } from './lib/supabaseConfig';
+// Route Protection
+import { ProtectedRoute, CustomerRoute, MerchantRoute, PartnerRoute } from '@/components/ProtectedRoute';
+import AdminProtectedRoute from '@/components/AdminProtectedRoute';
 
 function App() {
-  // Teste de conexão com Supabase
-  useEffect(() => {
-
-    supabase.from('categories').select('*').then((result) => {
-      if (result.error) {
-        console.error('❌ Erro ao conectar com Supabase:', result.error);
-      } else {
-        console.log('✅ Conexão com Supabase OK! Categorias encontradas:', result.data);
-      }
-    });
-  }, []);
-
   return (
     <HelmetProvider>
       <LanguageProvider>
         <AuthProvider>
-          <Router
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
-          >
+        <AdminAuthProvider>
+          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Layout>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
-              <Route path="/offers" element={<Navigate to="/ofertas" replace />} />
-              <Route path="/offer/:id" element={<OfferDetails />} />
-              
-              {/* Experiências Routes */}
               <Route path="/experiencias" element={<ExperienciasPage />} />
-              <Route path="/ofertas" element={<OfertasPage />} />
+
+<Route path="/ofertas" element={<ProtectedRoute><OfertasPage /></ProtectedRoute>} />
+
+              {/* Legal Routes */}
+              <Route path="/legal/cancelamento" element={<Cancelamento />} />
+              <Route path="/legal/termos-experiencias" element={<ExperienciasTermos />} />
+              <Route path="/legal/politica-de-privacidade" element={<PoliticaPrivacidade />} />
+              <Route path="/legal/termos-de-uso" element={<TermosDeUso />} />
               
-              {/* Legal Pages */}
-              <Route path="/termos-de-uso" element={<TermosDeUso />} />
-              <Route path="/privacidade" element={<PoliticaPrivacidade />} />
-              <Route path="/cancelamento" element={<Cancelamento />} />
-              <Route path="/experiencias-termos" element={<ExperienciasTermos />} />
               
+              
+              {/* Auth Routes */} 
               <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/email-verification" element={<EmailVerification />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/auth/callback" element={<Callback />} />
               <Route path="/confirm-email" element={<ConfirmEmail />} />
+              <Route path="/email-verification" element={<EmailVerification />} />
+              <Route path="/auth/google/callback" element={<AuthCallback />} />
+              <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               
-              {/* Protected Routes - Customer */}
-              <Route path="/customer-dashboard" element={
-                <CustomerRoute>
-                  <CustomerDashboard />
-                </CustomerRoute>
-              } />
-              <Route path="/vouchers" element={
-                <CustomerRoute>
-                  <Vouchers />
-                </CustomerRoute>
-              } />
-              <Route path="/meus-vouchers" element={
-                <CustomerRoute>
-                  <MyVouchers />
-                </CustomerRoute>
-              } />
-              <Route path="/history" element={
-                <CustomerRoute>
-                  <History />
-                </CustomerRoute>
-              } />
-
               
-              {/* Voucher Flow Routes */}
-              <Route path="/voucher/:id" element={
-                <CustomerRoute>
-                  <VoucherDetails />
-                </CustomerRoute>
-              } />
-              <Route path="/voucher/:id/active" element={
-                <CustomerRoute>
-                  <VoucherActive />
-                </CustomerRoute>
-              } />
-
-              <Route path="/oferta/:offerId" element={<OfferPage />} />
-              <Route path="/oferta/desconto-pizza" element={<DescontoPizza />} />
-              <Route path="/oferta/massagem-relaxante" element={<MassagemRelaxante />} />
-              <Route path="/oferta/corte-barba" element={<CorteBarba />} />
-              <Route path="/oferta/aula-yoga" element={<AulaYoga />} />
               
-              {/* Experience Details Route */}
-              <Route path="/experiencia/:id" element={<ExperienceDetails />} />
-              <Route path="/experience/:id" element={<ExperienceDetails />} />
-              
-              {/* Membership Routes */}
+              {/* Membership Routes */} 
               <Route path="/memberships" element={<Memberships />} />
               <Route path="/pricing" element={<Pricing />} />
             <Route path="/empresas" element={<BusinessPage />} />
             <Route path="/trial" element={<TrialPage />} />
               <Route path="/checkout" element={<Checkout />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
+              {/* <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> */}
+              <Route path="/customer-dashboard" element={<CustomerRoute><CustomerDashboard /></CustomerRoute>} />
+              <Route path="/recomendacoes-ia" element={<CustomerRoute><Recommendations /></CustomerRoute>} />
+              <Route path="/meus-vouchers" element={<CustomerRoute><MyVouchers /></CustomerRoute>} />
+              <Route path="/historico" element={<CustomerRoute><History /></CustomerRoute>} />
+              <Route path="/connect" element={<CustomerRoute><Connect /></CustomerRoute>} />
+
               
               {/* Community Detail Route */}
               <Route path="/comunidade/:id" element={
@@ -160,8 +130,10 @@ function App() {
                 </CustomerRoute>
               } />
               
-              {/* Active Voucher Success Route */}
-              <Route path="/voucher/ativo/:id" element={<ActiveVoucherSuccess />} />
+              {/* Voucher Routes */}
+              <Route path="/voucher/:id" element={<CustomerRoute><VoucherDetails /></CustomerRoute>} />
+              <Route path="/voucher/:id/active" element={<CustomerRoute><VoucherActive /></CustomerRoute>} />
+              <Route path="/voucher/active/success" element={<CustomerRoute><ActiveVoucherSuccess /></CustomerRoute>} />
               
               {/* Cultural Partner Routes */}
               <Route path="/parceiros-culturais" element={<CulturalPartnerLanding />} />
@@ -175,19 +147,40 @@ function App() {
                 </ProtectedRoute>
               } />
               
+              {/* Merchant Portal - Public for testing */}
+              <Route path="/merchant" element={<MerchantPortal />} />
+              
               {/* Protected Routes - Merchant */}
               <Route path="/merchant/dashboard" element={
                 <MerchantRoute>
                   <MerchantDashboard />
                 </MerchantRoute>
               } />
+
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route path="/admin" element={<AdminProtectedRoute><DashboardLayout><AdminDashboard /></DashboardLayout></AdminProtectedRoute>} />
+              <Route path="/admin/ofertas" element={<AdminProtectedRoute><DashboardLayout><OffersManager /></DashboardLayout></AdminProtectedRoute>} />
+              <Route path="/admin/usuarios" element={<AdminProtectedRoute><DashboardLayout><UsersManager /></DashboardLayout></AdminProtectedRoute>} />
+              <Route path="/admin/analytics" element={<AdminProtectedRoute><DashboardLayout><Analytics /></DashboardLayout></AdminProtectedRoute>} />
+              <Route path="/admin/settings" element={<AdminProtectedRoute><DashboardLayout><AdminSettings /></DashboardLayout></AdminProtectedRoute>} />
               
-              {/* Protected Routes - Partner */}
-               <Route path="/dashboard-parceiro" element={
-                 <PartnerRoute>
-                   <PartnerDashboard />
-                 </PartnerRoute>
-               } />
+              {/* Protected Routes - Partner - File not found, route commented out */}
+               {/* <Route path="/dashboard-parceiro" element={ */}
+               {/*   <PartnerRoute> */}
+               {/*     <PartnerDashboard /> */}
+               {/*   </PartnerRoute> */}
+               {/* } /> */}
+              
+              {/* Analytics Route - Admin Only - File not found, route commented out */}
+              {/* <Route path="/analytics" element={ */}
+              {/*   <ProtectedRoute> */}
+              {/*     <BusinessAnalytics /> */}
+              {/*   </ProtectedRoute> */}
+              {/* } /> */}
+              
+              {/* Prompt Builder - Demo Tool for Investors */}
+              <Route path="/prompt-builder" element={<PromptBuilderPage />} />
               
               {/* Protected Routes - Any Authenticated User */}
               <Route path="/profile" element={
@@ -219,6 +212,7 @@ function App() {
             </Routes>
           </Layout>
           </Router>
+        </AdminAuthProvider>
         </AuthProvider>
       </LanguageProvider>
     </HelmetProvider>

@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import DuoPassLogo from '../../assets/duopass_logo.svg';
+import DuoPassLogo from '../../components/ui/DuoPassLogo';
+import GoogleSignInButton from '../../components/Auth/GoogleSignInButton';
 
-export function SignUp() {
+export default function SignUp() {
   const { signUp } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -23,29 +24,44 @@ export function SignUp() {
     setLoading(true);
 
     try {
-
+      console.log('🚀 CADASTRO: Iniciando cadastro com:', {
+        email: formData.email,
+        userType: formData.userType,
+        fullName: formData.fullName
+      });
       
       await signUp(formData.email, formData.password, {
         full_name: formData.fullName,
         user_type: formData.userType,
       });
-      // Redirect to email verification page with email parameter
-      navigate(`/email-verification?email=${encodeURIComponent(formData.email)}`);
+      
+      console.log('✅ CADASTRO: Sucesso! Redirecionando para o onboarding');
+      navigate('/onboarding');
     } catch (error: unknown) {
-      console.error('Erro no cadastro:', error);
+      console.error('❌ ERRO NO CADASTRO:', error);
       
       // Mensagens de erro mais específicas e amigáveis
       let errorMessage = 'Erro ao criar conta. Tente novamente.';
       
       if (error instanceof Error) {
-        if (error.message.includes('já está cadastrado')) {
+        console.log('🔍 ERRO DETALHADO:', {
+          message: error.message,
+          name: error.name,
+          stack: error.stack
+        });
+        
+        if (error.message.includes('já está cadastrado') || error.message.includes('already registered')) {
           errorMessage = 'Este email já está cadastrado. Tente fazer login ou use outro email.';
+        } else if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Este email já existe no sistema. Tente fazer login ao invés de cadastrar.';
         } else if (error.message.includes('Invalid email')) {
           errorMessage = 'Email inválido. Verifique o formato do email.';
-        } else if (error.message.includes('Password')) {
+        } else if (error.message.includes('Password') || error.message.includes('password')) {
           errorMessage = 'Senha deve ter pelo menos 6 caracteres.';
-        } else if (error.message.includes('duplicate key')) {
+        } else if (error.message.includes('duplicate key') || error.message.includes('unique constraint')) {
           errorMessage = 'Este email já está em uso. Tente fazer login.';
+        } else if (error.message.includes('User already registered')) {
+          errorMessage = 'Este email já está cadastrado. Faça login ou use outro email.';
         } else {
           errorMessage = error.message;
         }
@@ -63,7 +79,7 @@ export function SignUp() {
         <div className="bg-white rounded-3xl shadow-2xl p-8">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
-              <DuoPassLogo className="h-20 w-auto" fill="currentColor" />
+              <DuoPassLogo height={80} className="w-auto" />
             </div>
             <h2 className="text-3xl font-bold text-[#333333]">
               Criar Conta
@@ -172,6 +188,23 @@ export function SignUp() {
               {loading ? 'Criando conta...' : t('auth.signup')}
             </button>
           </form>
+
+          {/* Divisor */}
+          <div className="mt-6 mb-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">ou cadastre-se com</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Cadastro Social */}
+          <div className="space-y-3">
+            <GoogleSignInButton />
+          </div>
 
           <div className="mt-8 text-center">
             <p className="text-gray-600">

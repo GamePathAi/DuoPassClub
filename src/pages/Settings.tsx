@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import DashboardLayout from '../components/Layout/DashboardLayout';
 import { 
   Bell, 
   Globe, 
@@ -28,7 +29,7 @@ interface PrivacySettings {
   location_sharing: boolean;
 }
 
-export function Settings() {
+export default function Settings() {
   const { language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<'notifications' | 'privacy' | 'account' | 'preferences'>('notifications');
   const [darkMode, setDarkMode] = useState(false);
@@ -81,49 +82,39 @@ export function Settings() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F5F3EF] py-8 pt-16">
-      <div className="max-w-4xl mx-auto px-4">
+    <DashboardLayout title="Configurações">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#333333] mb-2">
-            Configurações
-          </h1>
           <p className="text-gray-600">
             Personalize sua experiência no DuoPass
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <nav className="space-y-2">
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id as 'notifications' | 'privacy' | 'account' | 'preferences')}
-                      className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                        activeTab === tab.id
-                          ? 'bg-[#C91F1F] text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span className="font-medium">{tab.label}</span>
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
+        <div className="flex flex-col">
+          {/* Tabs Navigation */}
+          <div className="border-b border-gray-200 mb-6">
+            <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as 'notifications' | 'privacy' | 'account' | 'preferences')}
+                  className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-[#C91F1F] text-[#C91F1F]'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
           </div>
 
           {/* Content */}
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              {/* Notifications Tab */}
-              {activeTab === 'notifications' && (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            {/* Notifications Tab */}
+            {activeTab === 'notifications' && (
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900 mb-6">
                     Configurações de Notificação
@@ -343,11 +334,15 @@ export function Settings() {
                       </div>
                       <select
                         value={language}
-                        onChange={(e) => setLanguage(e.target.value as 'pt' | 'en')}
+                        onChange={(e) => setLanguage(e.target.value as 'pt' | 'en' | 'fr' | 'de' | 'it' | 'es')}
                         className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C91F1F] focus:border-transparent"
                       >
                         <option value="pt">Português</option>
                         <option value="en">English</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="it">Italiano</option>
+                        <option value="es">Español</option>
                       </select>
                     </div>
                     
@@ -388,7 +383,6 @@ export function Settings() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </DashboardLayout>
   );
 }

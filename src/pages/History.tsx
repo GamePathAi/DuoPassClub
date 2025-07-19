@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import DashboardLayout from '../components/Layout/DashboardLayout';
 
-export function History() {
+export default function History() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -12,87 +13,10 @@ export function History() {
     try {
       console.log('📦 Criando histórico demo...');
       
-      // HISTÓRICO DEMO
-      const demoHistory = [
-        {
-          id: 'hist-1',
-          type: 'voucher_used',
-          title: 'Voucher Utilizado',
-          description: 'Você usou o voucher WELCOME50 e economizou CHF 8.10',
-          amount_saved: 45.00,
-          voucher_code: 'WELCOME50',
-          merchant_name: 'Restaurante Demo',
-          merchant_logo: '🍕',
-          created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 dias atrás
-          status: 'completed'
-        },
-        {
-          id: 'hist-2',
-          type: 'voucher_received',
-          title: 'Novo Voucher Recebido',
-          description: 'Você ganhou um voucher de 20% de desconto na Loja Fashion',
-          amount_saved: 0,
-          voucher_code: 'FASHION20',
-          merchant_name: 'Loja Fashion',
-          merchant_logo: '👕',
-          created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 dias atrás
-          status: 'received'
-        },
-        {
-          id: 'hist-3',
-          type: 'voucher_used',
-          title: 'Voucher Utilizado',
-          description: 'Você usou o voucher SAVE20 e economizou CHF 3.60',
-          amount_saved: 20.00,
-          voucher_code: 'SAVE20',
-          merchant_name: 'Café Gourmet',
-          merchant_logo: '☕',
-          created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 dias atrás
-          status: 'completed'
-        },
-        {
-          id: 'hist-4',
-          type: 'voucher_expired',
-          title: 'Voucher Expirado',
-          description: 'O voucher EXPIRED99 expirou sem ser utilizado',
-          amount_saved: 0,
-          voucher_code: 'EXPIRED99',
-          merchant_name: 'Supermercado Local',
-          merchant_logo: '🛒',
-          created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 dias atrás
-          status: 'expired'
-        },
-        {
-          id: 'hist-5',
-          type: 'voucher_used',
-          title: 'Voucher Utilizado',
-          description: 'Você usou o voucher FIRST30 e economizou CHF 6.30',
-          amount_saved: 35.00,
-          voucher_code: 'FIRST30',
-          merchant_name: 'Farmácia Central',
-          merchant_logo: '💊',
-          created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 dias atrás
-          status: 'completed'
-        },
-        {
-          id: 'hist-6',
-          type: 'account_created',
-          title: 'Conta Criada',
-          description: 'Bem-vindo ao DuoPass Club! Sua conta foi criada com sucesso',
-          amount_saved: 0,
-          voucher_code: null,
-          merchant_name: 'DuoPass Club',
-          merchant_logo: '🎉',
-          created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 dias atrás
-          status: 'completed'
-        }
-      ];
-      
-      console.log('⏳ Simulando delay...');
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      console.log('✅ Setando histórico:', demoHistory.length);
-      setHistory(demoHistory);
+      // TODO: Implementar a busca do histórico do Supabase
+      // Por enquanto, retornamos um array vazio para garantir que não haja dados mock.
+      console.log('✅ Histórico mock removido. Setando array vazio.');
+      setHistory([]);
       
     } catch (error) {
       console.error('❌ Erro no loadHistory:', error);
@@ -147,10 +71,9 @@ export function History() {
   const totalSaved = history.reduce((total, item) => total + (item.amount_saved || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 pt-16">
+    <DashboardLayout title="Histórico">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold mb-2">Histórico</h1>
           <p className="text-gray-600">Acompanhe todas as suas atividades no DuoPass Club</p>
         </div>
         
@@ -235,6 +158,6 @@ export function History() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

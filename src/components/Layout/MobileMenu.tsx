@@ -9,7 +9,8 @@ import {
   Settings, 
   LogOut,
   Store,
-  BarChart3
+  BarChart3,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -19,7 +20,7 @@ interface MobileMenuProps {
   onClose: () => void;
 }
 
-export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const { user, userProfile, signOut } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -151,13 +152,15 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </Link>
             )}
 
-            <Link
-              to="/trial"
-              onClick={handleLinkClick}
-              className="mx-3 my-2 bg-gradient-to-r from-orange-500 to-purple-600 text-white px-4 py-3 rounded-lg font-semibold text-center block"
-            >
-              Comece Grátis
-            </Link>
+            {!user && (
+              <Link
+                to="/trial"
+                onClick={handleLinkClick}
+                className="mx-3 my-2 bg-gradient-to-r from-orange-500 to-purple-600 text-white px-4 py-3 rounded-lg font-semibold text-center block"
+              >
+                Comece Grátis
+              </Link>
+            )}
 
             {/* Authenticated User Links */}
             {user && userProfile && (
@@ -197,6 +200,14 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     </>
                   ) : (
                     <>
+                      <Link
+                        to="/recommendations"
+                        onClick={handleLinkClick}
+                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <Sparkles className="w-5 h-5 text-orange-500" />
+                        <span className="font-medium text-[#333333]">Recomendações IA</span>
+                      </Link>
                       <Link
                         to="/meus-vouchers"
                         onClick={handleLinkClick}

@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseConfig';
 import { NotificationInput } from '../hooks/useNotifications';
-// import { NotificationType } from '../types/notification';
+
 
 export interface DemoNotificationData {
   type: string;

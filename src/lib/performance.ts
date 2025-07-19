@@ -1,19 +1,5 @@
 // Otimizações de Performance para DuoPass
-
-// Lazy Loading de Componentes
-interface ComponentModule {
-  default: React.ComponentType<Record<string, unknown>>;
-}
-
-export const lazyLoadComponent = (importFunc: () => Promise<ComponentModule>) => {
-  return React.lazy(() => {
-    return importFunc().catch(error => {
-      console.error('Erro ao carregar componente:', error);
-      // Fallback para componente de erro
-      return { default: () => React.createElement('div', { className: 'p-4 text-red-500' }, 'Erro ao carregar componente') };
-    });
-  });
-};
+import React from 'react';
 
 // Preload de recursos críticos
 export const preloadCriticalResources = () => {

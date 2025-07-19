@@ -4,12 +4,15 @@ import { MapPin, Calendar, Eye, Trash2, Filter, Search, CheckCircle, AlertCircle
 // Removed unused imports
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { AnalyticsService } from '../services/analyticsService';
 
 import { VoucherWithOffer } from '../types/voucher';
 
 type VoucherStatus = 'active' | 'used' | 'expired' | 'all';
 
-export function MyVouchers() {
+import DashboardLayout from '../components/Layout/DashboardLayout';
+
+export default function MyVouchers() {
   const navigate = useNavigate();
   const { user } = useAuth();
   
@@ -20,170 +23,41 @@ export function MyVouchers() {
   const [selectedStatus, setSelectedStatus] = useState<VoucherStatus>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 2. Função getDemoVouchers ANTES de ser usada
-  const getDemoVouchers = useCallback((): VoucherWithOffer[] => {
-    const now = new Date();
-    return [
-      {
-        id: 'demo-voucher-1',
-        user_id: user?.id || 'demo-user',
-        offer_id: 'demo-1',
-        merchant_id: 'demo-merchant-1',
-        voucher_code: 'DUO123456',
-        qr_code_data: 'demo-qr-data-1',
-        status: 'active',
-        created_at: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        expires_at: new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000).toISOString(),
-        used_at: null,
-        offer: {
-          id: 'demo-1',
-          merchant_id: 'demo-merchant-1',
-          title: '🍕 Pizza Margherita + Bebida GRÁTIS',
-          description: 'Deliciosa pizza artesanal com molho especial da casa.',
-          original_value: 45.90,
-          category: 'gastronomy',
-          location: 'Zürich',
-          city: 'Zürich',
-          expires_at: new Date(now.getTime() + 28 * 24 * 60 * 60 * 1000).toISOString(),
-          is_active: true,
-          image_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
-          terms_conditions: 'Válido de segunda a quinta-feira das 18h às 22h.',
-          created_at: new Date().toISOString(),
-          merchant: {
-            business_name: 'Pizzaria Bella Vista',
-            contact_info: '+41 44 123 4567'
-          }
-        }
-      },
-      {
-        id: 'demo-voucher-2',
-        user_id: user?.id || 'demo-user',
-        offer_id: 'demo-2',
-        merchant_id: 'demo-merchant-2',
-        voucher_code: 'DUO789012',
-        qr_code_data: 'demo-qr-data-2',
-        status: 'used',
-        created_at: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-        expires_at: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-        used_at: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        offer: {
-          id: 'demo-2',
-          merchant_id: 'demo-merchant-2',
-          title: '💄 Maquiagem Completa - 50% OFF',
-          description: 'Transformação completa com maquiagem profissional.',
-          original_value: 120.00,
-          category: 'beauty',
-          location: 'Genève',
-          city: 'Genève',
-          expires_at: new Date(now.getTime() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-          is_active: true,
-          image_url: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=300&fit=crop',
-          terms_conditions: 'Agendamento obrigatório com 24h de antecedência.',
-          created_at: new Date().toISOString(),
-          merchant: {
-            business_name: 'Studio Glamour',
-            contact_info: '+41 22 987 6543'
-          }
-        }
-      },
-      {
-        id: 'demo-voucher-3',
-        user_id: user?.id || 'demo-user',
-        offer_id: 'demo-3',
-        merchant_id: 'demo-merchant-3',
-        voucher_code: 'DUO345678',
-        qr_code_data: 'demo-qr-data-3',
-        status: 'expired',
-        created_at: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString(),
-        expires_at: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        used_at: null,
-        offer: {
-          id: 'demo-3',
-          merchant_id: 'demo-merchant-3',
-          title: '☕ Café Premium + Croissant',
-          description: 'Café especial da casa com croissant artesanal.',
-          original_value: 18.50,
-          category: 'gastronomy',
-          location: 'Basel',
-          city: 'Basel',
-          expires_at: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          is_active: false,
-          image_url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop',
-          terms_conditions: 'Válido apenas no período da manhã.',
-          created_at: new Date().toISOString(),
-          merchant: {
-            business_name: 'Café Central',
-            contact_info: '+41 61 555 0123'
-          }
-        }
-      }
-    ];
-  }, [user]);
 
-  // 3. Função loadVouchers AGORA pode usar getDemoVouchers
+
   const loadVouchers = useCallback(async () => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
-      // Tentar buscar vouchers do Supabase
       const { data: vouchersData, error } = await supabase
         .from('vouchers')
         .select(`
           *,
-          offers (
-            id,
-            title,
-            description,
-            original_value,
-            category,
-            location,
-            image_url,
-            merchants (
-              name
-            )
-          )
+          offer:offers (*, merchant:users!merchant_id(business_name, contact_info))
         `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (vouchersData && !error) {
-        const formattedVouchers = vouchersData.map(v => ({
-          ...v,
-          offer: v.offers ? {
-            id: v.offers.id,
-            merchant_id: v.merchant_id,
-            title: v.offers.title,
-            description: v.offers.description,
-            original_value: v.offers.original_value || 0,
-            category: v.offers.category,
-            location: v.offers.location || 'Zürich',
-            city: v.offers.location || 'Zürich',
-            expires_at: v.expires_at,
-            is_active: true,
-            image_url: v.offers.image_url,
-            terms_conditions: 'Consulte termos e condições.',
-            created_at: v.created_at,
-            merchant: {
-              business_name: v.offers.merchants?.name || 'Merchant',
-              contact_info: 'Contato não informado'
-            }
-          } : undefined
-        }));
-        setVouchers(formattedVouchers);
-      } else {
-        // Fallback para dados demo
-        const demoVouchers = getDemoVouchers();
-        setVouchers(demoVouchers);
+      if (error) {
+        console.error('Erro ao carregar vouchers:', error);
+        setVouchers([]);
+        return;
       }
-    } catch (error) {
-      console.error('Erro ao carregar vouchers:', error);
-      // Fallback para dados demo
-      const demoVouchers = getDemoVouchers();
-      setVouchers(demoVouchers);
+
+      if (vouchersData) {
+        // The data should already be in the correct VoucherWithOffer structure
+        setVouchers(vouchersData as VoucherWithOffer[]);
+      } else {
+        setVouchers([]);
+      }
+    } catch (err) {
+      console.error('Erro crítico ao carregar vouchers:', err);
+      setVouchers([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, [user, getDemoVouchers]);
+  }, [user]);
 
   const filterVouchers = useCallback(() => {
     let filtered = vouchers;
@@ -320,25 +194,22 @@ export function MyVouchers() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F5F3EF] flex items-center justify-center pt-16">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C91F1F] mx-auto mb-4"></div>
-          <p className="text-[#333333] font-medium">Carregando seus vouchers...</p>
+      <DashboardLayout title="Meus Vouchers">
+        <div className="flex items-center justify-center pt-16">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#C91F1F] mx-auto mb-4"></div>
+            <p className="text-[#333333] font-medium">Carregando seus vouchers...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   const counts = getVoucherCounts();
 
   return (
-    <div className="min-h-screen bg-[#F5F3EF] pt-16">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#333333] mb-2">Meus Vouchers</h1>
-          <p className="text-gray-600">Gerencie todos os seus vouchers em um só lugar</p>
-        </div>
+    <DashboardLayout title="Meus Vouchers" subtitle="Gerencie todos os seus vouchers em um só lugar">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Estatísticas */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -410,7 +281,10 @@ export function MyVouchers() {
             </p>
             {!searchTerm && selectedStatus === 'all' && (
               <button
-                onClick={() => navigate('/ofertas')}
+                onClick={() => {
+                  AnalyticsService.trackFunnelStep('offer_conversion', 'visualization');
+                  navigate('/experiencias');
+                }}
                 className="bg-gradient-to-r from-[#F6C100] to-[#C91F1F] text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
               >
                 Ver Ofertas
@@ -535,6 +409,6 @@ export function MyVouchers() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

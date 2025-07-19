@@ -9,7 +9,6 @@ import {
   Star,
   Eye,
   MessageSquare,
-  Bell,
   Settings,
   Plus,
   Edit,
@@ -24,8 +23,9 @@ import {
   DollarSign
   // Zap
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-// import { supabase } from '../lib/supabaseConfig';
+// useAuth import removed as it's not used
+import { DashboardLayout } from './Layout/DashboardLayout';
+
 
 interface PartnerStats {
   total_offers: number;
@@ -61,8 +61,8 @@ interface CustomerInsight {
   count: number;
 }
 
-export const PartnerDashboard: React.FC = () => {
-  const { user } = useAuth();
+export default function PartnerDashboard() {
+  // Auth context not needed in this component
   const [activeTab, setActiveTab] = useState<'overview' | 'offers' | 'analytics' | 'customers' | 'settings'>('overview');
   const [stats, setStats] = useState<PartnerStats>({
     total_offers: 0,
@@ -567,47 +567,27 @@ export const PartnerDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando dashboard...</p>
+      <DashboardLayout title="Dashboard Parceiro">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Carregando dashboard...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Dashboard Parceiro</h1>
-              <p className="text-gray-600">Gerencie suas ofertas e acompanhe o desempenho</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="relative p-2 text-gray-600 hover:text-gray-900">
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
-              </button>
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-semibold">
-                    {user?.email?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <span className="text-sm font-medium text-gray-700">{user?.email}</span>
-              </div>
-            </div>
-          </div>
+    <DashboardLayout title="Dashboard Parceiro">
+      <div className="space-y-6">
+        <div className="mb-6">
+          <p className="text-gray-600">Gerencie suas ofertas e acompanhe o desempenho</p>
         </div>
-      </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
+        {/* Navigation Tabs */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <nav className="flex space-x-8 px-6">
             {[
               { id: 'overview', label: 'Visão Geral', icon: BarChart3 },
               { id: 'offers', label: 'Ofertas', icon: ShoppingBag },
@@ -633,28 +613,28 @@ export const PartnerDashboard: React.FC = () => {
             })}
           </nav>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'overview' && <OverviewTab />}
-        {activeTab === 'offers' && <OffersTab />}
-        {activeTab === 'analytics' && <AnalyticsTab />}
-        {activeTab === 'customers' && (
-          <div className="text-center py-12">
-            <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Gestão de Clientes</h3>
-            <p className="text-gray-600">Funcionalidade em desenvolvimento</p>
-          </div>
-        )}
-        {activeTab === 'settings' && (
-          <div className="text-center py-12">
-            <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Configurações</h3>
-            <p className="text-gray-600">Funcionalidade em desenvolvimento</p>
-          </div>
-        )}
+        {/* Content */}
+        <div>
+          {activeTab === 'overview' && <OverviewTab />}
+          {activeTab === 'offers' && <OffersTab />}
+          {activeTab === 'analytics' && <AnalyticsTab />}
+          {activeTab === 'customers' && (
+            <div className="text-center py-12">
+              <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Gestão de Clientes</h3>
+              <p className="text-gray-600">Funcionalidade em desenvolvimento</p>
+            </div>
+          )}
+          {activeTab === 'settings' && (
+            <div className="text-center py-12">
+              <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Configurações</h3>
+              <p className="text-gray-600">Funcionalidade em desenvolvimento</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };

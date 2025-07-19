@@ -245,6 +245,7 @@ export const voucherUtils = {
         .from('vouchers')
         .select(`
           *,
+          offer:offers!offer_id (*),
           user:users!user_id (
             full_name,
             email

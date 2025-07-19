@@ -1,13 +1,23 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { ArrowRight, Star, Users, Gift, Heart, Zap, Globe, Crown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { CategoryGrid } from '../components/CategoryGrid';
-import { CulturalExperiences } from '../components/CulturalExperiences';
+import CategoryGrid from '../components/CategoryGrid';
+import CulturalExperiences from '../components/CulturalExperiences';
 
-export function Home() {
+export default function Home() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleDiscoverClick = () => {
+    if (user) {
+      navigate('/customer-dashboard?tab=experiences');
+    } else {
+      navigate('/login', { state: { from: '/customer-dashboard?tab=experiences' } });
+    }
+  };
 
   return (
     <div className="bg-[#F5F3EF]">
@@ -67,14 +77,13 @@ export function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            <Link
-              to="/ofertas"
-              onClick={() => console.log('🔗 Clicou em Descobrir Experiências - Navegando para /ofertas')}
+            <button
+              onClick={handleDiscoverClick}
               className="inline-flex items-center bg-white text-[#C91F1F] px-10 py-5 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
             >
               Descobrir Experiências
               <ArrowRight className="ml-3 w-6 h-6" />
-            </Link>
+            </button>
             <Link
               to="/como-funciona-parceiros"
               onClick={() => console.log('🔗 Clicou em Ser Parceiro Cultural - Navegando para /como-funciona-parceiros')}

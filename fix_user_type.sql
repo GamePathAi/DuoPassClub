@@ -1,0 +1,1 @@
+UPDATE public.users SET user_type = 'customer' WHERE email = 'igor.bonafe@gmail.com';

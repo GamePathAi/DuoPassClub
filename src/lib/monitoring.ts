@@ -276,7 +276,11 @@ class UserActionTracker {
   }
 
   private initializeTracking() {
-    // Rastrear cliques
+    // TEMPORARIAMENTE DESABILITADO - CAUSANDO LOOP INFINITO DE NAVEGAÇÃO
+    // TODO: Reabilitar após corrigir conflitos com React Router
+    
+    // Rastrear cliques - DESABILITADO
+    /*
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
       const tagName = target.tagName.toLowerCase();
@@ -290,8 +294,10 @@ class UserActionTracker {
         text: target.textContent?.slice(0, 50)
       });
     });
+    */
 
-    // Rastrear mudanças de página
+    // Rastrear mudanças de página - DESABILITADO
+    /*
     let currentPath = window.location.pathname;
     const observer = new MutationObserver(() => {
       if (window.location.pathname !== currentPath) {
@@ -303,6 +309,7 @@ class UserActionTracker {
       }
     });
     observer.observe(document.body, { childList: true, subtree: true });
+    */
 
     // Rastrear tempo na página
     const pageStartTime = Date.now();
