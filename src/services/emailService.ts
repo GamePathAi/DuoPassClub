@@ -2,13 +2,23 @@ import emailjs from '@emailjs/browser';
 
 // Configurações do EmailJS
 const EMAILJS_CONFIG = {
-  serviceId: 'service_duopass', // Será configurado no EmailJS
+  serviceId: 'service_nj1x65i',
   templateIds: {
-    partnerConfirmation: 'template_partner_confirmation',
-    adminNotification: 'template_admin_notification'
+    partnerConfirmation: 'template_d63ebza',
+    adminNotification: 'template_r3t7pti'
   },
-  publicKey: 'YOUR_EMAILJS_PUBLIC_KEY' // Será configurado
+  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_EMAILJS_PUBLIC_KEY'
 };
+
+// Inicializar EmailJS automaticamente
+(function init() {
+  if (EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.publicKey !== 'YOUR_EMAILJS_PUBLIC_KEY') {
+    emailjs.init(EMAILJS_CONFIG.publicKey);
+    console.log('EmailJS inicializado com sucesso.');
+  } else {
+    console.warn('⚠️ Chave pública do EmailJS não configurada. O envio de e-mails está desativado.');
+  }
+})();
 
 // Interface para dados do parceiro
 interface PartnerData {
@@ -33,23 +43,13 @@ interface PartnerData {
   };
 }
 
-// Inicializar EmailJS
-export const initEmailJS = () => {
-  emailjs.init(EMAILJS_CONFIG.publicKey);
-};
-
 // Enviar email de confirmação para o parceiro
 export const sendPartnerConfirmationEmail = async (partnerData: PartnerData): Promise<boolean> => {
   try {
     const templateParams = {
-      to_email: partnerData.email,
-      to_name: partnerData.contactName,
+      contact_name: partnerData.contactName,
       business_name: partnerData.businessName,
-      business_type: partnerData.businessType,
-      experience_title: partnerData.proposedExperience.title,
-      reply_to: 'contact@dupassclub.ch',
-      from_name: 'DUO PASS Club',
-      from_email: 'contact@dupassclub.ch'
+      email: partnerData.email,
     };
 
     const response = await emailjs.send(
@@ -70,23 +70,21 @@ export const sendPartnerConfirmationEmail = async (partnerData: PartnerData): Pr
 export const sendAdminNotificationEmail = async (partnerData: PartnerData): Promise<boolean> => {
   try {
     const templateParams = {
-      to_email: 'contact@dupassclub.ch',
-      to_name: 'Equipe DUO PASS',
-      partner_name: partnerData.contactName,
       business_name: partnerData.businessName,
-      partner_email: partnerData.email,
-      partner_phone: partnerData.phone,
+      contact_name: partnerData.contactName,
+      email: partnerData.email,
+      phone: partnerData.phone,
       business_type: partnerData.businessType,
-      address: `${partnerData.address.street}, ${partnerData.address.city}, ${partnerData.address.postalCode}`,
+      address_street: partnerData.address.street,
+      address_city: partnerData.address.city,
+      address_postal_code: partnerData.address.postalCode,
+      address_country: partnerData.address.country,
       founder_story: partnerData.founderStory,
       cultural_mission: partnerData.culturalMission,
       experience_title: partnerData.proposedExperience.title,
       experience_description: partnerData.proposedExperience.description,
-      normal_price: partnerData.proposedExperience.normalPrice,
-      duo_value: partnerData.proposedExperience.duoValue,
-      reply_to: 'contact@dupassclub.ch',
-      from_name: 'Sistema DUO PASS',
-      from_email: 'contact@dupassclub.ch'
+      experience_normal_price: `CHF ${partnerData.proposedExperience.normalPrice}`,
+      experience_duo_value: `CHF ${partnerData.proposedExperience.duoValue}`,
     };
 
     const response = await emailjs.send(
@@ -104,17 +102,18 @@ export const sendAdminNotificationEmail = async (partnerData: PartnerData): Prom
 };
 
 // Função principal para enviar ambos os emails
-export const sendPartnerRegistrationEmails = async (partnerData: PartnerData): Promise<{ success: boolean; errors: string[] }> => {
+export const sendPartnerRegistrationEmails = async (partnerData: PartnerData & { adminOnly?: boolean }): Promise<{ success: boolean; errors: string[] }> => {
   const errors: string[] = [];
+  const isAdminOnly = partnerData.adminOnly || false;
   
   try {
-    // Enviar email de confirmação para o parceiro
-    const partnerEmailSent = await sendPartnerConfirmationEmail(partnerData);
-    if (!partnerEmailSent) {
-      errors.push('Falha ao enviar email de confirmação para o parceiro');
+    if (!isAdminOnly) {
+      const partnerEmailSent = await sendPartnerConfirmationEmail(partnerData);
+      if (!partnerEmailSent) {
+        errors.push('Falha ao enviar email de confirmação para o parceiro');
+      }
     }
 
-    // Enviar notificação para admin
     const adminEmailSent = await sendAdminNotificationEmail(partnerData);
     if (!adminEmailSent) {
       errors.push('Falha ao enviar notificação para admin');

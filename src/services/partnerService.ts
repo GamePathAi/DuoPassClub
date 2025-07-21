@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabase';
 
-// Interface para dados do parceiro
+// Interface para dados do parceiro (do formulário)
 export interface PartnerRegistrationData {
   businessName: string;
   contactName: string;
@@ -25,62 +25,53 @@ export interface PartnerRegistrationData {
   privacyAccepted: boolean;
 }
 
-// Interface para dados salvos no banco
-export interface PartnerRecord {
-  id: string;
-  business_name: string;
-  contact_name: string;
-  email: string;
-  phone: string;
-  business_type: string;
-  address_street: string;
-  address_city: string;
-  address_postal_code: string;
-  address_country: string;
-  founder_story: string;
-  cultural_mission: string;
-  experience_title: string;
-  experience_description: string;
-  experience_normal_price: number;
-  experience_duo_value: string;
-  terms_accepted: boolean;
-  privacy_accepted: boolean;
-  status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
-  updated_at: string;
-}
+// Verificar se o e-mail já existe
+export const checkEmailExists = async (email: string): Promise<{ exists: boolean; error?: string }> => {
+  try {
+    const { data, error } = await supabase
+      .from('partner_registrations')
+      .select('email')
+      .eq('email', email)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // PGRST116: 'No rows found'
+      console.error('❌ Erro ao verificar e-mail:', error);
+      return { exists: false, error: error.message };
+    }
+
+    return { exists: !!data };
+  } catch (error) {
+    console.error('❌ Erro interno ao verificar e-mail:', error);
+    return { exists: false, error: 'Erro interno do sistema' };
+  }
+};
 
 // Salvar dados do parceiro no Supabase
-export const savePartnerRegistration = async (data: PartnerRegistrationData): Promise<{ success: boolean; id?: string; error?: string }> => {
+export const savePartnerRegistration = async (data: PartnerRegistrationData): Promise<{ success: boolean; id?: number; error?: string }> => {
   try {
-    console.log('💾 Salvando dados do parceiro no Supabase...');
-    
-    const partnerRecord = {
-      business_name: data.businessName,
-      contact_name: data.contactName,
-      email: data.email,
-      phone: data.phone,
-      business_type: data.businessType,
-      address_street: data.address.street,
-      address_city: data.address.city,
-      address_postal_code: data.address.postalCode,
-      address_country: data.address.country,
-      founder_story: data.founderStory,
-      cultural_mission: data.culturalMission,
-      experience_title: data.proposedExperience.title,
-      experience_description: data.proposedExperience.description,
-      experience_normal_price: data.proposedExperience.normalPrice,
-      experience_duo_value: data.proposedExperience.duoValue,
-      terms_accepted: data.termsAccepted,
-      privacy_accepted: data.privacyAccepted,
-      status: 'pending' as const,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    console.log('💾 Salvando dados do parceiro no Supabase com novo schema...');
 
     const { data: savedData, error } = await supabase
       .from('partner_registrations')
-      .insert([partnerRecord])
+      .insert([
+        {
+          business_name: data.businessName,
+          contact_name: data.contactName,
+          email: data.email,
+          phone: data.phone,
+          address_street: data.address.street,
+          address_city: data.address.city,
+          address_postal_code: data.address.postalCode,
+          address_country: data.address.country || 'Switzerland',
+          business_type: data.businessType,
+          founder_story: data.founderStory,
+          cultural_mission: data.culturalMission,
+          experience_title: data.proposedExperience.title,
+          experience_description: data.proposedExperience.description,
+          experience_normal_price: data.proposedExperience.normalPrice,
+          experience_duo_value: data.proposedExperience.duoValue,
+        },
+      ])
       .select('id')
       .single();
 
@@ -111,7 +102,7 @@ export const getPartnerRegistrations = async (filters?: {
   status?: 'pending' | 'approved' | 'rejected';
   limit?: number;
   offset?: number;
-}): Promise<{ success: boolean; data?: PartnerRecord[]; error?: string }> => {
+}): Promise<{ success: boolean; data?: any[]; error?: string }> => {
   try {
     let query = supabase
       .from('partner_registrations')
@@ -198,51 +189,3 @@ export const updatePartnerStatus = async (
     };
   }
 };
-
-// SQL para criar a tabela (para referência)
-export const CREATE_PARTNER_REGISTRATIONS_TABLE = `
-CREATE TABLE IF NOT EXISTS partner_registrations (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  business_name VARCHAR(255) NOT NULL,
-  contact_name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  phone VARCHAR(50) NOT NULL,
-  business_type VARCHAR(50) NOT NULL,
-  address_street TEXT NOT NULL,
-  address_city VARCHAR(100) NOT NULL,
-  address_postal_code VARCHAR(20) NOT NULL,
-  address_country VARCHAR(100) NOT NULL,
-  founder_story TEXT NOT NULL,
-  cultural_mission TEXT NOT NULL,
-  experience_title VARCHAR(255) NOT NULL,
-  experience_description TEXT NOT NULL,
-  experience_normal_price DECIMAL(10,2) NOT NULL,
-  experience_duo_value TEXT NOT NULL,
-  terms_accepted BOOLEAN NOT NULL DEFAULT false,
-  privacy_accepted BOOLEAN NOT NULL DEFAULT false,
-  status VARCHAR(20) NOT NULL DEFAULT 'pending',
-  admin_notes TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Índices para melhor performance
-CREATE INDEX IF NOT EXISTS idx_partner_registrations_email ON partner_registrations(email);
-CREATE INDEX IF NOT EXISTS idx_partner_registrations_status ON partner_registrations(status);
-CREATE INDEX IF NOT EXISTS idx_partner_registrations_created_at ON partner_registrations(created_at);
-
--- RLS (Row Level Security)
-ALTER TABLE partner_registrations ENABLE ROW LEVEL SECURITY;
-
--- Política para permitir inserção pública (cadastro)
-CREATE POLICY "Allow public insert" ON partner_registrations
-  FOR INSERT WITH CHECK (true);
-
--- Política para admin visualizar todos
-CREATE POLICY "Allow admin select" ON partner_registrations
-  FOR SELECT USING (auth.role() = 'authenticated');
-
--- Política para admin atualizar
-CREATE POLICY "Allow admin update" ON partner_registrations
-  FOR UPDATE USING (auth.role() = 'authenticated');
-`;

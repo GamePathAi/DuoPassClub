@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+// React import removed since it's not directly used in this file
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
-import supabase from '@/lib/supabaseConfig';
+import ScrollToTop from '@/components/ScrollToTop';
+import { supabase } from '@/lib/supabase';
 
 // Layouts
 import Layout from '@/components/Layout/Layout';
@@ -12,7 +13,7 @@ import DashboardLayout from '@/components/Layout/DashboardLayout';
 
 // Page Components
 import Home from '@/pages/Home';
-import DemoShowcase from '@/pages/DemoShowcase';
+// Removed unused import DemoShowcase
 import ExperienciasLanding from '@/pages/ExperienciasLanding';
 import ExperienciasPage from '@/pages/ExperienciasPage';
 import ExperienceDetails from '@/pages/ExperienceDetails';
@@ -72,18 +73,19 @@ import PoliticaPrivacidade from '@/pages/Legal/PoliticaPrivacidade';
 import TermosDeUso from '@/pages/Legal/TermosDeUso';
 
 // Route Protection
-import { ProtectedRoute, CustomerRoute, MerchantRoute, PartnerRoute } from '@/components/ProtectedRoute';
+import { ProtectedRoute, CustomerRoute, MerchantRoute } from '@/components/ProtectedRoute';
 import AdminProtectedRoute from '@/components/AdminProtectedRoute';
 
 function App() {
   return (
-    <HelmetProvider>
-      <LanguageProvider>
-        <AuthProvider>
-        <AdminAuthProvider>
-          <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <Layout>
-            <Routes>
+    <BrowserRouter>
+      <ScrollToTop />
+      <HelmetProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <AdminAuthProvider>
+              <Layout>
+                <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/experiencias" element={<ExperienciasPage />} />
@@ -105,6 +107,7 @@ function App() {
               <Route path="/confirm-email" element={<ConfirmEmail />} />
               <Route path="/email-verification" element={<EmailVerification />} />
               <Route path="/auth/google/callback" element={<AuthCallback />} />
+              <Route path="/auth/v1/callback" element={<AuthCallback />} />
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               
               
@@ -209,13 +212,13 @@ function App() {
                   </div>
                 </div>
               } />
-            </Routes>
-          </Layout>
-          </Router>
-        </AdminAuthProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </HelmetProvider>
+                </Routes>
+              </Layout>
+            </AdminAuthProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </HelmetProvider>
+    </BrowserRouter>
   );
 }
 

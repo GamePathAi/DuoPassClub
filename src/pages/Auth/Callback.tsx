@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -20,7 +20,20 @@ export default function Callback() {
       if (data.session?.user) {
         try {
           await syncGoogleUser(data.session.user);
-          navigate('/dashboard');
+          // Fetch user data to check terms_accepted
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('terms_accepted')
+            .eq('id', data.session.user.id)
+            .single();
+
+          if (userError) throw userError;
+
+          if (userData && 'terms_accepted' in userData) {
+            navigate('/customer-dashboard');
+          } else {
+            navigate('/customer-dashboard?onboarding=true');
+          }
         } catch (syncError) {
           console.error('Error syncing Google user:', syncError);
           navigate('/login?error=sync_failed');

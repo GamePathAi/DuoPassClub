@@ -7,6 +7,7 @@ export interface User {
   updated_at?: string;
   cultural_interests?: string[];
   onboarding_completed?: boolean;
+  terms_accepted?: boolean; // Adicionado para rastrear aceite de termos
   // Outros campos do usuário conforme necessário
 }
 
