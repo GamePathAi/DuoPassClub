@@ -110,21 +110,6 @@ export default function PartnerSignup() {
     setSubmitStatus('saving');
     setSubmitError('');
 
-    // Verificar se o e-mail já existe
-    const emailCheck = await checkEmailExists(formData.email);
-    if (emailCheck.exists) {
-      setSubmitError('Este e-mail já está cadastrado. Por favor, use um e-mail diferente.');
-      setSubmitStatus('error');
-      setIsSubmitting(false);
-      return;
-    }
-    if (emailCheck.error) {
-        setSubmitError(`Erro ao verificar o e-mail: ${emailCheck.error}`);
-        setSubmitStatus('error');
-        setIsSubmitting(false);
-        return;
-    }
-
     if (isNaN(formData.proposedExperience.normalPrice) || formData.proposedExperience.normalPrice <= 0) {
       setSubmitError('Por favor, insira um preço normal válido maior que zero.');
       setIsSubmitting(false);
@@ -136,6 +121,14 @@ export default function PartnerSignup() {
 
       console.log('📝 Salvando registro e enviando e-mails...');
       const dbResult = await savePartnerRegistration(saveData);
+
+      if (dbResult.errorCode === 'duplicate_email') {
+        setSubmitError('Este e-mail já está cadastrado. Por favor, use um e-mail diferente.');
+        setSubmitStatus('error');
+        setIsSubmitting(false);
+        return;
+      }
+
       if (!dbResult.success || !dbResult.id) {
         throw new Error(dbResult.error || 'Falha ao salvar o registro no banco de dados.');
       }

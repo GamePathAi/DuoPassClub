@@ -47,8 +47,20 @@ export const checkEmailExists = async (email: string): Promise<{ exists: boolean
 };
 
 // Salvar dados do parceiro no Supabase
-export const savePartnerRegistration = async (data: PartnerRegistrationData): Promise<{ success: boolean; id?: number; error?: string }> => {
+export const savePartnerRegistration = async (data: PartnerRegistrationData): Promise<{ success: boolean; id?: number; error?: string; errorCode?: string }> => {
   try {
+    const emailCheck = await checkEmailExists(data.email);
+    if (emailCheck.exists) {
+      return {
+        success: false,
+        error: 'Este e-mail já está cadastrado.',
+        errorCode: 'duplicate_email'
+      };
+    }
+    if (emailCheck.error) {
+        return { success: false, error: `Erro ao verificar o e-mail: ${emailCheck.error}` };
+    }
+
     console.log('💾 Salvando dados do parceiro no Supabase com novo schema...');
 
     const { data: savedData, error } = await supabase
@@ -75,11 +87,13 @@ export const savePartnerRegistration = async (data: PartnerRegistrationData): Pr
       .select('id')
       .single();
 
-    if (error) {
-      console.error('❌ Erro ao salvar no Supabase:', error);
+        if (error) {
+      const isDuplicate = error.code === '23505';
+      console.error(`❌ Erro ao salvar no Supabase: ${isDuplicate ? 'E-mail duplicado.' : ''}`, (error as Error).message || JSON.stringify(error));
       return {
-        success: false,
-        error: error.message
+          success: false,
+          error: isDuplicate ? 'Este e-mail já está cadastrado.' : error.message,
+          errorCode: isDuplicate ? 'duplicate_email' : error.code
       };
     }
 

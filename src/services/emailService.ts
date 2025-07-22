@@ -2,12 +2,12 @@ import emailjs from '@emailjs/browser';
 
 // Configurações do EmailJS
 const EMAILJS_CONFIG = {
-  serviceId: 'service_nj1x65i',
+  serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || '',
   templateIds: {
-    partnerConfirmation: 'template_d63ebza',
-    adminNotification: 'template_r3t7pti'
+    partnerConfirmation: import.meta.env.VITE_EMAILJS_PARTNER_TEMPLATE_ID || '',
+    adminNotification: import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE_ID || ''
   },
-  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_EMAILJS_PUBLIC_KEY'
+  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''
 };
 
 // Inicializar EmailJS automaticamente
@@ -96,7 +96,7 @@ export const sendAdminNotificationEmail = async (partnerData: PartnerData): Prom
     console.log('✅ Notificação admin enviada:', response.status, response.text);
     return true;
   } catch (error) {
-    console.error('❌ Erro ao enviar notificação admin:', error);
+    console.error('❌ Erro detalhado ao enviar notificação admin:', JSON.stringify(error, null, 2));
     return false;
   }
 };
