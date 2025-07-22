@@ -7,7 +7,7 @@ const EMAILJS_CONFIG = {
     partnerConfirmation: import.meta.env.VITE_EMAILJS_PARTNER_TEMPLATE_ID || '',
     adminNotification: import.meta.env.VITE_EMAILJS_ADMIN_TEMPLATE_ID || ''
   },
-  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''
+  publicKey: 'jwnAl9bi3b1X98hdq' // Chave pública do EmailJS
 };
 
 // Inicializar EmailJS automaticamente
