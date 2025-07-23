@@ -135,7 +135,7 @@ export const ConfirmacaoCancelamento: React.FC<ConfirmacaoCancelamentoProps> = (
             Sua opinião nos ajuda a criar experiências culturais ainda mais incríveis.
           </p>
           <div style={{ textAlign: 'center' }}>
-            <a href="https://duopass.ch/feedback?type=cancelamento" 
+            <a href="https://duopassclub.ch/feedback?type=cancelamento" 
                style={{ 
                  backgroundColor: '#F59E0B', 
                  color: '#ffffff', 
@@ -156,7 +156,7 @@ export const ConfirmacaoCancelamento: React.FC<ConfirmacaoCancelamentoProps> = (
           <p style={{ color: '#6B7280', marginBottom: '15px' }}>
             Mudou de ideia? Você pode reativar sua assinatura a qualquer momento.
           </p>
-          <a href="https://duopass.ch/dashboard" 
+          <a href="https://duopassclub.ch/dashboard" 
              style={{ 
                backgroundColor: '#8B5CF6', 
                color: '#ffffff', 
@@ -186,7 +186,7 @@ export const ConfirmacaoCancelamento: React.FC<ConfirmacaoCancelamentoProps> = (
             Dúvidas sobre o cancelamento? Nossa equipe está aqui para ajudar!
           </p>
           <p style={{ color: '#6B7280', fontSize: '14px', margin: '0' }}>
-            📧 <a href="mailto:suporte@duopass.ch" style={{ color: '#8B5CF6' }}>suporte@duopass.ch</a> • 
+            📧 <a href="mailto:suporte@duopassclub.ch" style={{ color: '#8B5CF6' }}>suporte@duopassclub.ch</a> • 
             📱 WhatsApp: +41 XX XXX XX XX
           </p>
         </div>
@@ -198,9 +198,9 @@ export const ConfirmacaoCancelamento: React.FC<ConfirmacaoCancelamentoProps> = (
           <strong>DUO PASS Club</strong> • Empresa Suíça • GDPR Compliant
         </p>
         <p style={{ margin: '0 0 10px 0' }}>
-          <a href="https://duopass.ch/termos-de-uso" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Termos de Uso</a> • 
-          <a href="https://duopass.ch/privacidade" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Política de Privacidade</a> • 
-          <a href="https://duopass.ch/cancelamento" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Cancelamento</a>
+          <a href="https://duopassclub.ch/termos-de-uso" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Termos de Uso</a> • 
+          <a href="https://duopassclub.ch/privacidade" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Política de Privacidade</a> • 
+          <a href="https://duopassclub.ch/cancelamento" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Cancelamento</a>
         </p>
         <p style={{ margin: '0', fontSize: '11px' }}>
           Obrigado por ter feito parte da comunidade DUO PASS Club. 

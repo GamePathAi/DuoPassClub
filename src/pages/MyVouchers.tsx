@@ -5,6 +5,8 @@ import { MapPin, Calendar, Eye, Trash2, Filter, Search, CheckCircle, AlertCircle
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { AnalyticsService } from '../services/analyticsService';
+// Import ActiveVoucher component
+import ActiveVoucher from '../components/ActiveVoucher';
 
 import { VoucherWithOffer } from '../types/voucher';
 
@@ -297,15 +299,23 @@ export default function MyVouchers() {
               const status = getVoucherStatus(voucher);
               const discountedPrice = (voucher.offer?.original_value || 0) * 0.5;
               
-              return (
+              // Usar o componente ActiveVoucher para vouchers ativos
+              return status === 'active' ? (
+                <ActiveVoucher
+                  key={voucher.id}
+                  voucherId={voucher.id}
+                  voucherCode={voucher.voucher_code}
+                  businessName={voucher.offer?.merchant?.business_name || ''}
+                  expiresAt={voucher.expires_at}
+                  onView={() => handleViewVoucher(voucher)}
+                />
+              ) : (
                 <div
                   key={voucher.id}
                   className={`bg-white rounded-xl border-2 overflow-hidden transition-all hover:shadow-lg ${
-                    status === 'active' 
-                      ? 'border-green-200 hover:border-green-300' 
-                      : status === 'used'
-                      ? 'border-blue-200 hover:border-blue-300'
-                      : 'border-red-200 hover:border-red-300'
+                    status === 'used'
+                    ? 'border-blue-200 hover:border-blue-300'
+                    : 'border-red-200 hover:border-red-300'
                   }`}
                 >
                   {/* Imagem */}

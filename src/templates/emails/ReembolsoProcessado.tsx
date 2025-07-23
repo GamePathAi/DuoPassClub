@@ -195,7 +195,7 @@ export const ReembolsoProcessado: React.FC<ReembolsoProcessadoProps> = ({
           <p style={{ color: '#6B7280', marginBottom: '15px' }}>
             Sentiu falta das experiências culturais? Reative sua assinatura a qualquer momento.
           </p>
-          <a href="https://duopass.ch/dashboard" 
+          <a href="https://duopassclub.ch/dashboard" 
              style={{ 
                backgroundColor: '#8B5CF6', 
                color: '#ffffff', 
@@ -225,7 +225,7 @@ export const ReembolsoProcessado: React.FC<ReembolsoProcessadoProps> = ({
             Dúvidas sobre o reembolso? Nossa equipe está aqui para ajudar!
           </p>
           <p style={{ color: '#6B7280', fontSize: '14px', margin: '0' }}>
-            📧 <a href="mailto:financeiro@duopass.ch" style={{ color: '#8B5CF6' }}>financeiro@duopass.ch</a> • 
+            📧 <a href="mailto:financeiro@duopassclub.ch" style={{ color: '#8B5CF6' }}>financeiro@duopassclub.ch</a> • 
             📱 WhatsApp: +41 XX XXX XX XX
           </p>
         </div>
@@ -237,9 +237,9 @@ export const ReembolsoProcessado: React.FC<ReembolsoProcessadoProps> = ({
           <strong>DUO PASS Club</strong> • Empresa Suíça • PCI DSS Compliant • GDPR Compliant
         </p>
         <p style={{ margin: '0 0 10px 0' }}>
-          <a href="https://duopass.ch/termos-de-uso" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Termos de Uso</a> • 
-          <a href="https://duopass.ch/privacidade" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Política de Privacidade</a> • 
-          <a href="https://duopass.ch/cancelamento" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Cancelamento</a>
+          <a href="https://duopassclub.ch/termos-de-uso" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Termos de Uso</a> • 
+          <a href="https://duopassclub.ch/privacidade" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Política de Privacidade</a> • 
+          <a href="https://duopassclub.ch/cancelamento" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Cancelamento</a>
         </p>
         <p style={{ margin: '0', fontSize: '11px' }}>
           Transação ID: {transactionId} • Processado em {refundDate}

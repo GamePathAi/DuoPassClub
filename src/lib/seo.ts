@@ -29,7 +29,7 @@ export const defaultSEOConfig: SEOConfig = {
     'duopass'
   ],
   image: '/images/og-image.jpg',
-  url: 'https://duopass.ch',
+  url: 'https://duopassclub.ch',
   type: 'website',
   locale: 'pt_BR',
   siteName: 'DuoPass'
@@ -163,8 +163,8 @@ export const generateStructuredData = (type: 'Organization' | 'WebSite' | 'Offer
       structuredData = {
         ...baseStructure,
         name: 'DuoPass',
-        url: 'https://duopass.ch',
-        logo: 'https://duopass.ch/duopass_logo.svg',
+        url: 'https://duopassclub.ch',
+        logo: 'https://duopassclub.ch/duopass_logo.svg',
         description: 'Ofertas exclusivas e experiências únicas na Suíça',
         address: {
           '@type': 'PostalAddress',
@@ -183,7 +183,7 @@ export const generateStructuredData = (type: 'Organization' | 'WebSite' | 'Offer
       structuredData = {
         ...baseStructure,
         name: 'DuoPass',
-        url: 'https://duopass.ch',
+        url: 'https://duopassclub.ch',
         description: 'Ofertas exclusivas e experiências únicas na Suíça',
         publisher: {
           '@type': 'Organization',
@@ -191,7 +191,7 @@ export const generateStructuredData = (type: 'Organization' | 'WebSite' | 'Offer
         },
         potentialAction: {
           '@type': 'SearchAction',
-          target: 'https://duopass.ch/search?q={search_term_string}',
+          target: 'https://duopassclub.ch/search?q={search_term_string}',
           'query-input': 'required name=search_term_string'
         },
         ...data
@@ -244,7 +244,7 @@ export const useSEO = () => {
 
 // Sitemap generator (para build time)
 export const generateSitemap = () => {
-  const baseUrl = 'https://duopass.ch';
+  const baseUrl = 'https://duopassclub.ch';
   const pages = [
     { url: '/', priority: 1.0, changefreq: 'daily' },
     { url: '/ofertas', priority: 0.9, changefreq: 'daily' },
@@ -275,7 +275,7 @@ export const generateRobotsTxt = () => {
   return `User-agent: *
 Allow: /
 
-Sitemap: https://duopass.ch/sitemap.xml`;
+Sitemap: https://duopassclub.ch/sitemap.xml`;
 };
 
 // Inicialização do SEO

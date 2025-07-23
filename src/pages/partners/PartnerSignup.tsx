@@ -150,7 +150,7 @@ export default function PartnerSignup() {
       setShowSuccessModal(true);
 
       setTimeout(() => {
-        navigate('/partners/success', { 
+        navigate('/parceiro-cadastrado', { 
           state: { 
             contactName: formData.contactName,
             businessName: formData.businessName,

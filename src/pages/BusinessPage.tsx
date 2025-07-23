@@ -363,7 +363,7 @@ export default function BusinessPage() {
               <Mail className="w-6 h-6 text-orange-300" />
               <div>
                 <p className="font-semibold">Email</p>
-                <p className="text-purple-200">empresas@duopass.ch</p>
+                <p className="text-purple-200">empresas@duopassclub.ch</p>
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Mail, Phone, MapPin } from 'lucide-react';
+import { Heart, Mail, MapPin } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -29,11 +29,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-2 text-gray-300">
                 <Mail className="w-4 h-4" />
-                <span className="text-sm">contato@duopassclub.ch</span>
-              </div>
-              <div className="flex items-center space-x-2 text-gray-300">
-                <Phone className="w-4 h-4" />
-                <span className="text-sm">+41 44 123 4567</span>
+                <span className="text-sm">contact@duopassclub.ch</span>
               </div>
             </div>
           </div>

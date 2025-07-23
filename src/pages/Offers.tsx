@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, MapPin, Star, Users, Zap } from 'lucide-react';
-import { OfferCard } from '../components/OfferCard';
+import OfferCard from '../components/OfferCard';
 import DuoPassLogo from '../components/ui/DuoPassLogo';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -50,7 +50,8 @@ export default function Offers() {
         setTimeout(() => reject(new Error('Timeout da query (10s)')), 10000)
       );
       
-      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+      const result = await Promise.race([queryPromise, timeoutPromise]) as { data: Offer[] | null, error: any };
+      const { data, error } = result;
 
       
       if (error) {
@@ -59,204 +60,23 @@ export default function Offers() {
 
       }
       
-      // Se não há dados no Supabase ou houve erro, usar dados demo
-      if (error || !data || data.length === 0) {
-
-        const demoOffers: Offer[] = [
-      {
-        id: 'demo-1',
-        merchant_id: 'demo-merchant-1',
-        title: '🍕 Pizza Margherita + Bebida GRÁTIS',
-        description: 'Deliciosa pizza artesanal com molho especial da casa, mussarela fresca e manjericão. Acompanha refrigerante ou suco natural à sua escolha!',
-        original_value: 45.90,
-        category: 'gastronomy',
-        location: 'Zürich',
-        city: 'Zürich',
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop',
-        terms_conditions: 'Válido de segunda a quinta-feira. Não cumulativo com outras promoções.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'Pizzaria Bella Vista',
-          contact_info: '+41 44 123 4567'
-        }
-      },
-      {
-        id: 'demo-2',
-        merchant_id: 'demo-merchant-2',
-        title: '💄 Maquiagem Completa - 50% OFF',
-        description: 'Transformação completa com maquiagem profissional para qualquer ocasião. Inclui limpeza de pele, base, contorno, olhos e batom de longa duração.',
-        original_value: 120.00,
-        category: 'beauty',
-        location: 'Genève',
-        city: 'Genève',
-        expires_at: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=300&fit=crop',
-        terms_conditions: 'Agendamento obrigatório. Válido até o final do mês.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'Studio Glamour',
-          contact_info: '+41 22 987 6543'
-        }
-      },
-      {
-        id: 'demo-3',
-        merchant_id: 'demo-merchant-3',
-        title: '🎬 Cinema 2x1 + Pipoca Gigante',
-        description: 'Ingresso duplo para qualquer sessão + pipoca gigante doce ou salgada para compartilhar. Válido para todos os filmes em cartaz!',
-        original_value: 38.00,
-        category: 'leisure',
-        location: 'Basel',
-        city: 'Basel',
-        expires_at: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1489185078254-c3365d6e359f?w=400&h=300&fit=crop',
-        terms_conditions: 'Não válido para pré-estreias e sessões especiais.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'CineMax Basel',
-          contact_info: '+41 61 456 7890'
-        }
-      },
-      {
-        id: 'demo-4',
-        merchant_id: 'demo-merchant-4',
-        title: '💪 1 Mês de Academia + Personal',
-        description: 'Acesso completo à academia por 30 dias + 2 sessões de personal trainer. Inclui avaliação física e plano de treino personalizado.',
-        original_value: 180.00,
-        category: 'fitness',
-        location: 'Bern',
-        city: 'Bern',
-        expires_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
-        terms_conditions: 'Válido apenas para novos alunos. Documentos obrigatórios.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'FitZone Bern',
-          contact_info: '+41 31 234 5678'
-        }
-      },
-      {
-        id: 'demo-5',
-        merchant_id: 'demo-merchant-5',
-        title: '📱 iPhone 15 - Cashback CHF 36.-',
-        description: 'iPhone 15 128GB com cashback exclusivo de CHF 36.- + película de vidro e capinha premium inclusos. Parcelamento em até 12x sem juros!',
-        original_value: 1299.00,
-        category: 'shopping',
-        location: 'Lausanne',
-        city: 'Lausanne',
-        expires_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=300&fit=crop',
-        terms_conditions: 'Cashback creditado em até 30 dias. Estoque limitado.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'TechStore Lausanne',
-          contact_info: '+41 21 345 6789'
-        }
-      },
-      {
-        id: 'demo-6',
-        merchant_id: 'demo-merchant-6',
-        title: '🏠 Limpeza Residencial Completa',
-        description: 'Limpeza profunda de casa ou apartamento até 100m². Inclui todos os cômodos, janelas, eletrodomésticos e organização básica.',
-        original_value: 150.00,
-        category: 'services',
-        location: 'Winterthur',
-        city: 'Winterthur',
-        expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-        is_active: true,
-        image_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-        terms_conditions: 'Agendamento com 48h de antecedência. Produtos inclusos.',
-        created_at: new Date().toISOString(),
-        merchant: {
-          business_name: 'CleanPro Services',
-          contact_info: '+41 52 678 9012'
-        }
-      }
-    ];
-
-        
-        console.log('✅ [DEBUG] Dados demo carregados:', demoOffers.length);
-        setOffers(demoOffers);
-      } else {
+      if (error) {
+        console.error('❌ [ERROR] Erro ao carregar ofertas do Supabase:', error);
+        setError(error);
+        setOffers([]);
+      } else if (data && data.length > 0) {
         console.log('✅ [SUCCESS] Ofertas carregadas do Supabase:', data.length);
         setOffers(data);
+      } else {
+        console.log('ℹ️ [INFO] Nenhuma oferta encontrada no Supabase');
+        setOffers([]);
       }
       
     } catch (err) {
        console.error('❌ [ERROR] Erro inesperado ao carregar ofertas:', err);
        console.error('❌ [ERROR] Stack trace:', err instanceof Error ? err.stack : 'N/A');
        setError(err as Error);
-       
-       // SEMPRE usar dados mock em caso de erro para testar renderização
-       
-       const mockOffers: Offer[] = [
-         {
-           id: 'mock-1',
-           merchant_id: 'mock-merchant-1',
-           title: '🔥 MOCK: Jantar Romântico',
-           description: 'Dados mock para teste - Experiência gastronômica única com menu degustação',
-           original_value: 120.00,
-           category: 'gastronomy',
-           location: 'Centro, São Paulo',
-           city: 'São Paulo',
-           expires_at: new Date('2024-12-31').toISOString(),
-           is_active: true,
-           image_url: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500',
-           terms_conditions: 'Válido de terça a domingo. Reserva obrigatória.',
-           created_at: new Date().toISOString(),
-           merchant: {
-             business_name: 'Restaurante Romântico SP',
-             contact_info: '+55 11 9999-0001'
-           }
-         },
-         {
-           id: 'mock-2',
-           merchant_id: 'mock-merchant-2',
-           title: '🧘 MOCK: Spa Relaxante',
-           description: 'Dados mock para teste - Dia completo de relaxamento com massagens e tratamentos',
-           original_value: 200.00,
-           category: 'beauty',
-           location: 'Jardins, São Paulo',
-           city: 'São Paulo',
-           expires_at: new Date('2024-12-31').toISOString(),
-           is_active: true,
-           image_url: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=500',
-           terms_conditions: 'Agendamento com 48h de antecedência. Não válido em feriados.',
-           created_at: new Date().toISOString(),
-           merchant: {
-             business_name: 'Spa Bem-Estar Jardins',
-             contact_info: '+55 11 9999-0002'
-           }
-         },
-         {
-           id: 'mock-3',
-           merchant_id: 'mock-merchant-3',
-           title: '🎭 MOCK: Teatro Cultural',
-           description: 'Dados mock para teste - Espetáculo teatral imperdível com elenco renomado',
-           original_value: 100.00,
-           category: 'leisure',
-           location: 'Vila Madalena, São Paulo',
-           city: 'São Paulo',
-           expires_at: new Date('2024-12-31').toISOString(),
-           is_active: true,
-           image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500',
-           terms_conditions: 'Ingressos sujeitos à disponibilidade. Não há reembolso.',
-           created_at: new Date().toISOString(),
-           merchant: {
-             business_name: 'Teatro Cultural Vila Madalena',
-             contact_info: '+55 11 9999-0003'
-           }
-         }
-       ];
-       setOffers(mockOffers);
-       setError(null); // Limpar erro quando dados mock são carregados com sucesso
-       console.log('✅ [DEBUG] Dados mock carregados:', mockOffers.length);
-       console.log('✅ [DEBUG] Erro limpo - dados mock funcionando');
+       setOffers([]);
      } finally {
        // SEMPRE definir loading como false
  
@@ -276,7 +96,7 @@ export default function Offers() {
       return;
     }
 
-    if (!userProfile || userProfile.subscription_status !== 'active') {
+    if (!userProfile?.subscription_status || userProfile.subscription_status !== 'active') {
       setShowSubscriptionModal(true);
       return;
     }

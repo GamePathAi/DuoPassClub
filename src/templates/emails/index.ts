@@ -14,20 +14,20 @@ export interface EmailTemplateProps {
 
 // Configurações de email
 export const EMAIL_CONFIG = {
-  from: 'noreply@duopass.ch',
-  replyTo: 'suporte@duopass.ch',
+  from: 'noreply@duopassclub.ch',
+  replyTo: 'suporte@duopassclub.ch',
   company: {
     name: 'DUO PASS Club',
     address: 'Suíça',
-    website: 'https://duopass.ch',
-    support: 'suporte@duopass.ch',
+    website: 'https://duopassclub.ch',
+    support: 'suporte@duopassclub.ch',
     phone: '+41 XX XXX XX XX'
   },
   legal: {
-    termsUrl: 'https://duopass.ch/termos-de-uso',
-    privacyUrl: 'https://duopass.ch/privacidade',
-    cancelUrl: 'https://duopass.ch/cancelamento',
-    experiencesTermsUrl: 'https://duopass.ch/experiencias-termos'
+    termsUrl: 'https://duopassclub.ch/termos-de-uso',
+    privacyUrl: 'https://duopassclub.ch/privacidade',
+    cancelUrl: 'https://duopassclub.ch/cancelamento',
+    experiencesTermsUrl: 'https://duopassclub.ch/experiencias-termos'
   },
   compliance: {
     gdprCompliant: true,

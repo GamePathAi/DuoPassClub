@@ -128,7 +128,7 @@ sudo systemctl reload nginx
 
 # Verificar se o site está respondendo
 log_info "Verificando se o site está online..."
-if curl -f -s https://duopass.ch > /dev/null; then
+if curl -f -s https://duopassclub.ch > /dev/null; then
     log_info "✅ Site está online e respondendo!"
 else
     log_warn "⚠️  Site pode não estar respondendo corretamente."
@@ -146,7 +146,7 @@ echo "   - Tamanho total: $(du -sh dist | cut -f1)"
 echo "   - Arquivos: $(find dist -type f | wc -l)"
 echo "   - Data: $(date)"
 echo ""
-log_info "🔗 Acesse: https://duopass.ch"
+log_info "🔗 Acesse: https://duopassclub.ch"
 log_info "📋 Logs do Nginx: sudo tail -f /var/log/nginx/duopass_*.log"
 echo ""
 log_warn "📝 Lembre-se de:"

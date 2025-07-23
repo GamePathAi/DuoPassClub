@@ -1,17 +1,8 @@
-import React, { useState } from 'react';
 import { Heart, Users, Sparkles, MapPin, ArrowRight, CheckCircle, Star, Coffee, Palette, Music } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function CulturalPartnerLanding() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Aqui integraria com sistema de leads
-    setSubmitted(true);
-  };
 
   const partnerMessage = {
     hero: "Sua história merece ser vivida por pessoas que valorizam o autêntico",
@@ -298,33 +289,15 @@ export default function CulturalPartnerLanding() {
             Junte-se a uma comunidade que valoriza autenticidade, propósito e conexões genuínas
           </p>
 
-          {!submitted ? (
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Seu email para começar"
-                  className="flex-1 px-6 py-4 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="bg-white text-amber-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center space-x-2"
-                >
-                  <span>Começar</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="bg-white/20 rounded-lg p-8 max-w-md mx-auto">
-              <CheckCircle className="w-12 h-12 text-white mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">Obrigado!</h3>
-              <p className="text-amber-100">Em breve entraremos em contato para conhecer sua história.</p>
-            </div>
-          )}
+          <div className="max-w-md mx-auto">
+            <Link 
+              to="/cadastro-parceiro"
+              className="bg-white text-amber-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors flex items-center justify-center space-x-2 w-full"
+            >
+              <span>Começar Agora</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
 
           <div className="mt-8 text-amber-100 text-sm">
             Ou acesse diretamente o{' '}

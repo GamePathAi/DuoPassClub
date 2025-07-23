@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Sparkles, MapPin, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useExperiences } from '../hooks/useExperiences';
+import { useCulturalExperiences } from '../hooks/useCulturalExperiences';
 import { Offer } from '../types';
 
 interface CulturalExperiencesProps {
@@ -11,7 +11,7 @@ interface CulturalExperiencesProps {
 }
 
 const CulturalExperiences: React.FC<CulturalExperiencesProps> = ({ limit = 6, showHeader = true, isLandingPage = false }) => {
-  const { experiences: allExperiences, loading, error } = useExperiences();
+  const { experiences: allExperiences, loading, error } = useCulturalExperiences();
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
 
   const emotionCategories = useMemo(() => [
@@ -121,18 +121,18 @@ const CulturalExperiences: React.FC<CulturalExperiencesProps> = ({ limit = 6, sh
 
           </div>
         ) : (
-          experiences.map((exp: Offer) => (
+          experiences.map((exp: any) => (
             <div key={exp.id} className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group flex flex-col">
               {/* Header da Experiência */}
               <div className="p-6 pb-4 flex-grow">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-amber-600 transition-colors">
-                      {exp.title}
+                      {exp.experience_name || exp.title || 'Experiência Cultural'}
                     </h3>
                     <div className="flex items-center space-x-2 text-sm text-gray-600 mb-3">
                       <MapPin className="w-4 h-4" />
-                      <span>{exp.merchant?.business_name || 'Parceiro Cultural'}</span>
+                      <span>{exp.cultural_partners?.business_name || exp.merchant?.business_name || 'Parceiro Cultural'}</span>
                     </div>
                   </div>
                   <div className="flex items-center space-x-1">
@@ -146,7 +146,7 @@ const CulturalExperiences: React.FC<CulturalExperiencesProps> = ({ limit = 6, sh
                 </div>
 
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow">
-                  {exp.description}
+                  {exp.story_behind || exp.description || 'Uma experiência cultural única'}
                 </p>
 
                 {/* Tags de Melhor Para */}
@@ -168,24 +168,21 @@ const CulturalExperiences: React.FC<CulturalExperiencesProps> = ({ limit = 6, sh
                 <div className="bg-gradient-to-r from-amber-50 to-rose-50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-600">Valor Original</span>
-                    <span className="text-sm text-gray-500 line-through">CHF {exp.original_value.toFixed(2)}</span>
+                    <span className="text-sm text-gray-500 line-through">CHF {(exp.original_price || exp.original_value || 0).toFixed(2)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-amber-700">DUO PASS</span>
-                    <span className="text-xl font-bold text-green-600">CHF {(exp.original_value / 2).toFixed(2)}</span>
+                    <span className="text-xl font-bold text-green-600">CHF {(exp.duo_price || (exp.original_price || exp.price || exp.original_value || 0) / 2).toFixed(2)}</span>
                   </div>
-                  {/* @ts-ignore */}
-                  <p className="text-xs text-gray-600 mt-2">{exp.duo_benefit}</p>
+                  <p className="text-xs text-gray-600 mt-2">{exp.duo_benefit || 'Experiência para duas pessoas'}</p>
                 </div>
               </div>
 
               {/* Ambiente e CTA */}
               <div className="px-6 pb-6">
-                {/* @ts-ignore */}
                 {exp.ambiance_notes && (
                   <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
                     <Sparkles className="w-4 h-4 text-amber-500" />
-                    {/* @ts-ignore */}
                     <span className="line-clamp-1">{exp.ambiance_notes}</span>
                   </div>
                 )}

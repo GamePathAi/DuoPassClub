@@ -80,7 +80,7 @@ export const ConfirmacaoAssinatura: React.FC<ConfirmacaoAssinaturaProps> = ({
 
         {/* CTA Button */}
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <a href="https://duopass.ch/dashboard" 
+          <a href="https://duopassclub.ch/dashboard" 
              style={{ 
                backgroundColor: '#8B5CF6', 
                color: '#ffffff', 
@@ -100,7 +100,7 @@ export const ConfirmacaoAssinatura: React.FC<ConfirmacaoAssinaturaProps> = ({
             Dúvidas? Nossa equipe está aqui para ajudar!
           </p>
           <p style={{ color: '#6B7280', fontSize: '14px', margin: '0' }}>
-            📧 <a href="mailto:suporte@duopass.ch" style={{ color: '#8B5CF6' }}>suporte@duopass.ch</a> • 
+            📧 <a href="mailto:suporte@duopassclub.ch" style={{ color: '#8B5CF6' }}>suporte@duopassclub.ch</a> • 
             📱 WhatsApp: +41 XX XXX XX XX
           </p>
         </div>
@@ -112,13 +112,13 @@ export const ConfirmacaoAssinatura: React.FC<ConfirmacaoAssinaturaProps> = ({
           <strong>DUO PASS Club</strong> • Empresa Suíça • GDPR Compliant
         </p>
         <p style={{ margin: '0 0 10px 0' }}>
-          <a href="https://duopass.ch/termos-de-uso" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Termos de Uso</a> • 
-          <a href="https://duopass.ch/privacidade" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Política de Privacidade</a> • 
-          <a href="https://duopass.ch/cancelamento" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Cancelamento</a>
+          <a href="https://duopassclub.ch/termos-de-uso" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Termos de Uso</a> • 
+          <a href="https://duopassclub.ch/privacidade" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Política de Privacidade</a> • 
+          <a href="https://duopassclub.ch/cancelamento" style={{ color: '#8B5CF6', textDecoration: 'none' }}>Cancelamento</a>
         </p>
         <p style={{ margin: '0', fontSize: '11px' }}>
           Este email foi enviado para {userName}. Se você não solicitou esta assinatura, 
-          <a href="mailto:suporte@duopass.ch" style={{ color: '#8B5CF6' }}>entre em contato conosco</a>.
+          <a href="mailto:suporte@duopassclub.ch" style={{ color: '#8B5CF6' }}>entre em contato conosco</a>.
         </p>
       </div>
     </div>
