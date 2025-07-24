@@ -10,15 +10,15 @@ import emailjs from '@emailjs/browser';
 const EMAILJS_CONFIG = {
   serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_nj1x65i',
   templateIds: {
-    // Usando apenas o template existente para todos os casos
-    admin: 'template_r3t7pti',
-    partner: 'template_r3t7pti',
-    contactAdmin: 'template_r3t7pti',
-    contactConfirmation: 'template_r3t7pti',
+    // Usando os templates específicos do .env
+    admin: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_ADMIN || 'template_r3t7pti',
+    partner: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_PARTNER || 'template_d63ebza',
+    contactAdmin: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_CONTACT_ADMIN || 'template_r3t7pti',
+    contactConfirmation: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_CONTACT_CONFIRMATION || 'template_r3t7pti',
     universal: 'template_r3t7pti'
   },
-  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'jwnAl9bi3b1X98hdq'
-};
+  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'k4Yr2qeZ3HOym8wgI'
+}
 
 // ========================================
 // 🚨 INICIALIZAÇÃO ÚNICA
