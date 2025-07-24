@@ -1,0 +1,138 @@
+﻿name: DuoPass CI/CD Pipeline - Optimized
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Ambiente para deploy'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+env:
+  NODE_VERSION: '20'
+  DEPLOY_TIMEOUT: 30
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        node-version: [20]
+      fail-fast: false
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: 'project/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd project
+          npm ci --prefer-offline --no-audit
+
+      - name: Security audit
+        run: |
+          cd project
+          npm audit --audit-level moderate || echo "Vulnerabilidades encontradas, mas continuando..."
+
+      - name: Lint code
+        run: |
+          cd project
+          npm run lint
+
+      - name: Build application
+        run: |
+          cd project
+          cp .env.production .env
+          npm run build
+
+      - name: Verify build integrity
+        run: |
+          cd project
+          if [ ! -d "dist" ]; then
+            echo "DiretÃ³rio dist nÃ£o foi criado"
+            exit 1
+          fi
+          echo "Build verificado com sucesso"
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: project/dist
+          retention-days: 30
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ github.sha }}
+          path: project/dist
+
+      - name: Verify secrets
+        run: |
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "SSH_PRIVATE_KEY nÃ£o configurado"
+            exit 1
+          fi
+          echo "Todos os secrets necessÃ¡rios estÃ£o configurados"
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Create deployment backup
+        run: |
+          echo "Criando backup da versÃ£o atual..."
+          BACKUP_DIR="/var/www/duopass/backup/$(date +%Y%m%d_%H%M%S)"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo mkdir -p $BACKUP_DIR && sudo cp -r /var/www/duopass/dist/* $BACKUP_DIR/ 2>/dev/null || true"
+
+      - name: Deploy new files
+        run: |
+          echo "Iniciando deploy dos novos arquivos..."
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo rm -rf /var/www/duopass/dist/*"
+          rsync -avz --delete project/dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/duopass-new/
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo cp -r /tmp/duopass-new/* /var/www/duopass/dist/ && sudo chown -R www-data:www-data /var/www/duopass/dist"
+
+      - name: Reload services
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo systemctl reload nginx"
+
+      - name: Post-deploy verification
+        run: |
+          echo "Verificando deploy..."
+          sleep 10
+          if ! curl -f -s https://duopassclub.ch > /dev/null; then
+            echo "Site nÃ£o estÃ¡ respondendo"
+            exit 1
+          fi
+          echo "Deploy verificado com sucesso!"

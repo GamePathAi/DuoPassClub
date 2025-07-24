@@ -1,0 +1,102 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/node:20.10
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+          app-dir: project
+      - run:
+          name: Lint code
+          command: cd project && npm run lint
+      - run:
+          name: Build application
+          command: |
+            cd project
+            cp .env.production .env
+            npm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - project/dist
+            - project/nginx-unified.conf
+
+  deploy:
+    docker:
+      - image: cimg/base:2023.10
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install rsync
+          command: sudo apt-get update && sudo apt-get install -y rsync
+      - add_ssh_keys:
+          fingerprints:
+            - "${SSH_KEY_FINGERPRINT}"
+      - run:
+          name: Add server to known hosts
+          command: ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
+      - run:
+          name: Backup current version
+          command: |
+            ssh $SSH_USER@$SSH_HOST "sudo mkdir -p /var/www/duopass/backup/$(date +%Y%m%d_%H%M%S) && \
+            sudo cp -r /var/www/duopass/dist/* /var/www/duopass/backup/$(date +%Y%m%d_%H%M%S)/ 2>/dev/null || true"
+      - run:
+          name: Clear current directory
+          command: ssh $SSH_USER@$SSH_HOST "sudo rm -rf /var/www/duopass/dist/*"
+      - run:
+          name: Deploy new files
+          command: |
+            rsync -avz --delete project/dist/ $SSH_USER@$SSH_HOST:/tmp/duopass-new/
+            ssh $SSH_USER@$SSH_HOST "sudo mkdir -p /var/www/duopass/dist && \
+            sudo cp -r /tmp/duopass-new/* /var/www/duopass/dist/ && \
+            sudo chown -R www-data:www-data /var/www/duopass/dist && \
+            sudo chmod -R 755 /var/www/duopass/dist"
+      - run:
+          name: Configure Nginx
+          command: |
+            scp project/nginx-unified.conf $SSH_USER@$SSH_HOST:/tmp/nginx-unified.conf
+            ssh $SSH_USER@$SSH_HOST "sudo cp /tmp/nginx-unified.conf /etc/nginx/sites-available/duopass && \
+            sudo ln -sf /etc/nginx/sites-available/duopass /etc/nginx/sites-enabled/ && \
+            sudo rm -f /etc/nginx/sites-enabled/default && \
+            sudo nginx -t && sudo systemctl reload nginx"
+      - run:
+          name: Verify deployment
+          command: |
+            # Verificar se o site está respondendo
+            curl -I https://duopassclub.ch
+            curl -I https://www.duopassclub.ch
+            
+            # Verificar se ambos retornam o mesmo conteúdo
+            HASH1=$(curl -s https://duopassclub.ch | md5sum | cut -d' ' -f1)
+            HASH2=$(curl -s https://www.duopassclub.ch | md5sum | cut -d' ' -f1)
+            
+            if [ "$HASH1" = "$HASH2" ]; then
+              echo "✅ Conteúdo sincronizado - ambos os domínios iguais"
+            else
+              echo "❌ DESSINCRONIZAÇÃO DETECTADA - conteúdos diferentes!"
+              echo "Hash duopassclub.ch: $HASH1"
+              echo "Hash www.duopassclub.ch: $HASH2"
+              exit 1
+            fi
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build-and-test
+      - deploy:
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only:
+                - main
+                - master

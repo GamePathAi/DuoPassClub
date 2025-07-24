@@ -1,0 +1,113 @@
+name: DuoPass CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Ambiente para deploy'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'project/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd project
+          npm ci
+
+      - name: Lint code
+        run: |
+          cd project
+          npm run lint
+
+      - name: Build application
+        run: |
+          cd project
+          cp .env.production .env
+          npm run build
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: project/dist
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: project/dist
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Deploy to server
+        run: |
+          # Backup da versão atual
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo mkdir -p /var/www/duopass/backup/$(date +%Y%m%d_%H%M%S) && sudo cp -r /var/www/duopass/dist/* /var/www/duopass/backup/$(date +%Y%m%d_%H%M%S)/ 2>/dev/null || true"
+          
+          # Limpar pasta atual
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo rm -rf /var/www/duopass/dist/*"
+          
+          # Enviar novos arquivos
+          rsync -avz --delete project/dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/duopass-new/
+          
+          # Mover arquivos para local correto
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo mkdir -p /var/www/duopass/dist && sudo cp -r /tmp/duopass-new/* /var/www/duopass/dist/ && sudo chown -R www-data:www-data /var/www/duopass/dist && sudo chmod -R 755 /var/www/duopass/dist"
+          
+          # Copiar configuração Nginx
+          scp project/nginx-unified.conf ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/nginx-unified.conf
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo cp /tmp/nginx-unified.conf /etc/nginx/sites-available/duopass && sudo ln -sf /etc/nginx/sites-available/duopass /etc/nginx/sites-enabled/ && sudo rm -f /etc/nginx/sites-enabled/default"
+          
+          # Testar e recarregar Nginx
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo nginx -t && sudo systemctl reload nginx"
+
+      - name: Verify deployment
+        run: |
+          # Verificar se o site está respondendo
+          curl -I https://duopassclub.ch
+          curl -I https://www.duopassclub.ch
+          
+          # Verificar se ambos retornam o mesmo conteúdo
+          HASH1=$(curl -s https://duopassclub.ch | md5sum | cut -d' ' -f1)
+          HASH2=$(curl -s https://www.duopassclub.ch | md5sum | cut -d' ' -f1)
+          
+          if [ "$HASH1" = "$HASH2" ]; then
+            echo "✅ Conteúdo sincronizado - ambos os domínios iguais"
+          else
+            echo "❌ DESSINCRONIZAÇÃO DETECTADA - conteúdos diferentes!"
+            echo "Hash duopassclub.ch: $HASH1"
+            echo "Hash www.duopassclub.ch: $HASH2"
+            exit 1
+          fi

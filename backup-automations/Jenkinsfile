@@ -1,0 +1,157 @@
+pipeline {
+    agent {
+        docker {
+            image 'node:20-alpine'
+            args '-p 5174:5174'
+        }
+    }
+    
+    environment {
+        HOME = '.'
+        NPM_CONFIG_CACHE = '.npm'
+        CI = 'true'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Setup') {
+            steps {
+                dir('project') {
+                    sh 'npm ci'
+                }
+            }
+        }
+        
+        stage('Lint') {
+            steps {
+                dir('project') {
+                    sh 'npm run lint'
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                dir('project') {
+                    sh 'cp .env.production .env'
+                    sh 'npm run build'
+                }
+            }
+        }
+        
+        stage('Archive') {
+            steps {
+                dir('project') {
+                    archiveArtifacts artifacts: 'dist/**', fingerprint: true
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'duopass-ssh-key', keyFileVariable: 'SSH_KEY')
+                ]) {
+                    dir('project') {
+                        // Backup da versão atual
+                        sh '''
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST \
+                            "sudo mkdir -p /var/www/duopass/backup/$(date +%Y%m%d_%H%M%S) && \
+                             sudo cp -r /var/www/duopass/dist/* /var/www/duopass/backup/$(date +%Y%m%d_%H%M%S)/ 2>/dev/null || true"
+                        '''
+                        
+                        // Limpar pasta atual
+                        sh '''
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST \
+                            "sudo rm -rf /var/www/duopass/dist/*"
+                        '''
+                        
+                        // Enviar novos arquivos
+                        sh '''
+                            rsync -avz -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=no" \
+                            --delete dist/ $SSH_USER@$SSH_HOST:/tmp/duopass-new/
+                        '''
+                        
+                        // Mover arquivos para local correto
+                        sh '''
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST \
+                            "sudo mkdir -p /var/www/duopass/dist && \
+                             sudo cp -r /tmp/duopass-new/* /var/www/duopass/dist/ && \
+                             sudo chown -R www-data:www-data /var/www/duopass/dist && \
+                             sudo chmod -R 755 /var/www/duopass/dist"
+                        '''
+                        
+                        // Copiar configuração Nginx
+                        sh '''
+                            scp -i $SSH_KEY -o StrictHostKeyChecking=no \
+                            nginx-unified.conf $SSH_USER@$SSH_HOST:/tmp/nginx-unified.conf
+                            
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST \
+                            "sudo cp /tmp/nginx-unified.conf /etc/nginx/sites-available/duopass && \
+                             sudo ln -sf /etc/nginx/sites-available/duopass /etc/nginx/sites-enabled/ && \
+                             sudo rm -f /etc/nginx/sites-enabled/default"
+                        '''
+                        
+                        // Testar e recarregar Nginx
+                        sh '''
+                            ssh -i $SSH_KEY -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST \
+                            "sudo nginx -t && sudo systemctl reload nginx"
+                        '''
+                    }
+                }
+            }
+        }
+        
+        stage('Verify') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'master'
+                }
+            }
+            steps {
+                sh '''
+                    # Verificar se o site está respondendo
+                    curl -I https://duopassclub.ch
+                    curl -I https://www.duopassclub.ch
+                    
+                    # Verificar se ambos retornam o mesmo conteúdo
+                    HASH1=$(curl -s https://duopassclub.ch | md5sum | cut -d' ' -f1)
+                    HASH2=$(curl -s https://www.duopassclub.ch | md5sum | cut -d' ' -f1)
+                    
+                    if [ "$HASH1" = "$HASH2" ]; then
+                        echo "✅ Conteúdo sincronizado - ambos os domínios iguais"
+                    else
+                        echo "❌ DESSINCRONIZAÇÃO DETECTADA - conteúdos diferentes!"
+                        echo "Hash duopassclub.ch: $HASH1"
+                        echo "Hash www.duopassclub.ch: $HASH2"
+                        exit 1
+                    fi
+                '''
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo 'Deploy concluído com sucesso!'
+        }
+        failure {
+            echo 'Deploy falhou!'
+        }
+    }
+}
