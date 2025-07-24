@@ -25,21 +25,39 @@ export interface PartnerRegistrationData {
   privacyAccepted: boolean;
 }
 
-// Verificar se o e-mail já existe
+// Verificar se o e-mail já existe - VERSÃO ROBUSTA PARA PRODUÇÃO
 export const checkEmailExists = async (email: string): Promise<{ exists: boolean; error?: string }> => {
   try {
-    const { data, error } = await supabase
+    console.log('🔍 Verificando email duplicado:', email);
+    
+    // Método mais robusto usando count
+    const { data, error, count } = await supabase
       .from('partner_registrations')
-      .select('email')
-      .eq('email', email)
-      .single();
+      .select('email', { count: 'exact' })
+      .eq('email', email);
 
-    if (error && error.code !== 'PGRST116') { // PGRST116: 'No rows found'
-      console.error('❌ Erro ao verificar e-mail:', error);
-      return { exists: false, error: error.message };
+    if (error) {
+      console.error('❌ Erro ao verificar e-mail (método count):', error);
+      
+      // Fallback: tentar método alternativo
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('partner_registrations')
+        .select('email')
+        .eq('email', email)
+        .limit(1);
+      
+      if (fallbackError) {
+        console.error('❌ Erro no fallback:', fallbackError);
+        return { exists: false, error: fallbackError.message };
+      }
+      
+      return { exists: (fallbackData && fallbackData.length > 0) };
     }
 
-    return { exists: !!data };
+    const exists = (count || 0) > 0;
+    console.log(`✅ Verificação concluída: ${exists ? 'Email já existe' : 'Email disponível'}`);
+    return { exists };
+    
   } catch (error) {
     console.error('❌ Erro interno ao verificar e-mail:', error);
     return { exists: false, error: 'Erro interno do sistema' };
@@ -49,51 +67,69 @@ export const checkEmailExists = async (email: string): Promise<{ exists: boolean
 // Salvar dados do parceiro no Supabase
 export const savePartnerRegistration = async (data: PartnerRegistrationData): Promise<{ success: boolean; id?: number; error?: string; errorCode?: string }> => {
   try {
+    // Verificação de email duplicado
     const emailCheck = await checkEmailExists(data.email);
+    
     if (emailCheck.exists) {
+      console.log('⚠️ Email já cadastrado:', data.email);
       return {
         success: false,
         error: 'Este e-mail já está cadastrado.',
         errorCode: 'duplicate_email'
       };
     }
+    
+    // Se houve erro na verificação, continuar mas com cuidado
     if (emailCheck.error) {
-        return { success: false, error: `Erro ao verificar o e-mail: ${emailCheck.error}` };
+      console.warn('⚠️ Erro na verificação de email, continuando com inserção:', emailCheck.error);
     }
 
-    console.log('💾 Salvando dados do parceiro no Supabase com novo schema...');
+    console.log('💾 Salvando dados do parceiro no Supabase...');
 
+    const partnerData = {
+      business_name: data.businessName,
+      contact_name: data.contactName,
+      email: data.email,
+      phone: data.phone,
+      address_street: data.address.street,
+      address_city: data.address.city,
+      address_postal_code: data.address.postalCode,
+      address_country: data.address.country || 'Switzerland',
+      business_type: data.businessType,
+      founder_story: data.founderStory,
+      cultural_mission: data.culturalMission,
+      experience_title: data.proposedExperience.title,
+      experience_description: data.proposedExperience.description,
+      experience_normal_price: data.proposedExperience.normalPrice,
+      experience_duo_value: data.proposedExperience.duoValue,
+    };
+
+    // Usar upsert para lidar com emails duplicados
     const { data: savedData, error } = await supabase
       .from('partner_registrations')
-      .insert([
-        {
-          business_name: data.businessName,
-          contact_name: data.contactName,
-          email: data.email,
-          phone: data.phone,
-          address_street: data.address.street,
-          address_city: data.address.city,
-          address_postal_code: data.address.postalCode,
-          address_country: data.address.country || 'Switzerland',
-          business_type: data.businessType,
-          founder_story: data.founderStory,
-          cultural_mission: data.culturalMission,
-          experience_title: data.proposedExperience.title,
-          experience_description: data.proposedExperience.description,
-          experience_normal_price: data.proposedExperience.normalPrice,
-          experience_duo_value: data.proposedExperience.duoValue,
-        },
-      ])
+      .upsert([partnerData], {
+        onConflict: 'email',
+        ignoreDuplicates: false
+      })
       .select('id')
       .single();
 
-        if (error) {
-      const isDuplicate = error.code === '23505';
-      console.error(`❌ Erro ao salvar no Supabase: ${isDuplicate ? 'E-mail duplicado.' : ''}`, (error as Error).message || JSON.stringify(error));
-      return {
+    if (error) {
+      // Tratamento específico para email duplicado
+      if (error.code === '23505' && error.message.includes('partner_registrations_email_key')) {
+        console.error('❌ Email duplicado detectado na inserção:', data.email);
+        return {
           success: false,
-          error: isDuplicate ? 'Este e-mail já está cadastrado.' : error.message,
-          errorCode: isDuplicate ? 'duplicate_email' : error.code
+          error: 'Este e-mail já está cadastrado. Por favor, use um e-mail diferente.',
+          errorCode: 'duplicate_email'
+        };
+      }
+      
+      console.error('❌ Erro ao salvar no Supabase:', error);
+      return {
+        success: false,
+        error: error.message,
+        errorCode: error.code
       };
     }
 
