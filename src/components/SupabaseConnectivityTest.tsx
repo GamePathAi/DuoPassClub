@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabaseConfig';
 
 interface TestResult {
@@ -117,7 +117,7 @@ export function SupabaseConnectivityTest() {
       });
     }
 
-    // Teste 4: Acesso à tabela cultural_experiences (com RLS)
+    // Teste 4: Acesso à tabela cultural_experiences
     const culturalTest: TestResult = {
       test: 'Tabela Cultural Experiences',
       status: 'pending',
@@ -129,7 +129,7 @@ export function SupabaseConnectivityTest() {
       const startTime4 = Date.now();
       const { data, error } = await supabase
         .from('cultural_experiences')
-        .select('id, experience_name')
+        .select('*')
         .limit(1);
       
       const duration4 = Date.now() - startTime4;
@@ -143,7 +143,7 @@ export function SupabaseConnectivityTest() {
       } else {
         updateResult(3, {
           status: 'success',
-          message: `${data?.length || 0} registros encontrados (${duration4}ms)`,
+          message: `${data?.length || 0} experiências culturais encontradas (${duration4}ms)`,
           duration: duration4
         });
       }

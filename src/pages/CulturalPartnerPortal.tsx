@@ -108,40 +108,47 @@ export default function CulturalPartnerPortal() {
     try {
       setLoading(true);
       
-      // Carregar dados do parceiro
-      const { data: partnerData, error: partnerError } = await supabase
-        .from('cultural_partners')
-        .select('*')
-        .eq('email', user.email)
-        .single();
-
-      if (partnerError && partnerError.code !== 'PGRST116') {
-        console.error('Erro ao carregar parceiro:', partnerError);
-      }
-
-      if (partnerData) {
-        setPartner(partnerData);
-        setPartnerForm({
-          business_name: partnerData.business_name || '',
-          founder_story: partnerData.founder_story || '',
-          cultural_mission: partnerData.cultural_mission || '',
-          contact_name: partnerData.contact_name || '',
-          email: partnerData.email || '',
-          business_type: partnerData.business_type || '',
-          cultural_category: partnerData.cultural_category || '',
-          ambiance_description: partnerData.ambiance_description || '',
-          social_values: partnerData.social_values || []
-        });
-
-        // Carregar experiências
-        const { data: experiencesData } = await supabase
-          .from('cultural_experiences')
+      // CORREÇÃO: Verificar se tabelas culturais existem antes de fazer queries
+      try {
+        // Carregar dados do parceiro
+        const { data: partnerData, error: partnerError } = await supabase
+          .from('cultural_partners')
           .select('*')
-          .eq('partner_id', partnerData.id);
+          .eq('email', user.email)
+          .single();
 
-        if (experiencesData) {
-          setExperiences(experiencesData);
+        if (partnerError && partnerError.code !== 'PGRST116') {
+          throw partnerError;
         }
+
+        if (partnerData) {
+          setPartner(partnerData);
+          setPartnerForm({
+            business_name: partnerData.business_name || '',
+            founder_story: partnerData.founder_story || '',
+            cultural_mission: partnerData.cultural_mission || '',
+            contact_name: partnerData.contact_name || '',
+            email: partnerData.email || '',
+            business_type: partnerData.business_type || '',
+            cultural_category: partnerData.cultural_category || '',
+            ambiance_description: partnerData.ambiance_description || '',
+            social_values: partnerData.social_values || []
+          });
+
+          // Carregar experiências
+          const { data: experiencesData, error: expError } = await supabase
+            .from('cultural_experiences')
+            .select('*')
+            .eq('partner_id', partnerData.id);
+
+          if (expError) {
+            throw expError;
+          }
+
+          setExperiences(experiencesData || []);
+        }
+      } catch (tableError) {
+        console.warn('⚠️ Tabelas culturais não disponíveis, usando modo demo:', tableError);
       }
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
@@ -173,7 +180,9 @@ export default function CulturalPartnerPortal() {
           .update(partnerData)
           .eq('id', partner.id);
 
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
       } else {
         // Criar novo
         const { data, error } = await supabase
@@ -182,7 +191,9 @@ export default function CulturalPartnerPortal() {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
         setPartner(data);
       }
 

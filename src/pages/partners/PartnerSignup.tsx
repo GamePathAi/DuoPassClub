@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, Heart, MapPin, Building, User, Mail, Phone, FileText, DollarSign, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { savePartnerRegistration, checkEmailExists, type PartnerRegistrationData } from '../../services/partnerService';
-import { sendPartnerRegistrationEmails } from '../../services/emailService';
+import { sendPartnerRegistrationEmails } from '../../services/emailService-CORRIGIDO';
 
 interface PartnerSignupForm {
   // Informações básicas
@@ -411,11 +411,17 @@ export default function PartnerSignup() {
                 </label>
                 <input
                   type="number"
-                  value={formData.proposedExperience.normalPrice}
+                  value={formData.proposedExperience.normalPrice || ''}
                   onChange={(e) => {
   const value = e.target.value;
-  const num = value ? parseFloat(value) : 0;
-  handleInputChange('proposedExperience.normalPrice', isNaN(num) ? 0 : num);
+  if (value === '') {
+    handleInputChange('proposedExperience.normalPrice', 0);
+  } else {
+    const num = parseFloat(value);
+    if (!isNaN(num) && num >= 0) {
+      handleInputChange('proposedExperience.normalPrice', num);
+    }
+  }
 }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   placeholder="25.00"

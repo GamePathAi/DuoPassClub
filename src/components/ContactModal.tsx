@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Send, Loader2, CheckCircle } from 'lucide-react';
-import { saveContactMessage, sendContactEmails } from '../services/contactService';
+import { saveContactMessage } from '../services/contactService';
+import { sendContactEmails } from '../services/emailService';
 
 interface ContactModalProps {
   isOpen: boolean;

@@ -414,9 +414,26 @@ export const couponUtils = {
 };
 
 // Utilitários para categorias
+// TEMPORARIAMENTE DESABILITADO: Tabela 'categories' não existe no Supabase
 export const categoryUtils = {
   // Buscar todas as categorias
   async getAll(): Promise<ApiResponse<Record<string, unknown>[]>> {
+    // CORREÇÃO: Retornar categorias mock até a tabela ser criada
+    const mockCategories = [
+      { id: 1, name: 'Gastronomia', slug: 'gastronomia' },
+      { id: 2, name: 'Entretenimento', slug: 'entretenimento' },
+      { id: 3, name: 'Bem-estar', slug: 'bem-estar' },
+      { id: 4, name: 'Educação', slug: 'educacao' },
+      { id: 5, name: 'Tecnologia', slug: 'tecnologia' }
+    ];
+    
+    return {
+      data: mockCategories,
+      error: null,
+      success: true
+    };
+    
+    /* TODO: Descomentar quando tabela 'categories' for criada
     try {
       const { data, error } = await supabase
         .from('categories')
@@ -435,6 +452,7 @@ export const categoryUtils = {
         success: false
       };
     }
+    */
   }
 };
 

@@ -10,7 +10,7 @@ async function createCulturalTables() {
     console.log('🏗️ Criando tabelas culturais...');
     
     // Ler o arquivo SQL
-    const sqlPath = path.join(__dirname, 'scripts', 'create_cultural_tables.sql');
+    const sqlPath = path.join(__dirname, 'cultural-partners-schema.sql');
     const sqlContent = fs.readFileSync(sqlPath, 'utf8');
     
     console.log('📄 SQL a ser executado:');

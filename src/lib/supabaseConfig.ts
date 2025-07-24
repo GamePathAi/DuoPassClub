@@ -45,9 +45,9 @@ export const checkSupabaseConnection = async (): Promise<{
   try {
     const startTime = Date.now();
     
-    // Teste simples de conexão
+    // Teste simples de conexão usando tabela que existe
     const { error } = await supabase
-      .from('categories')
+      .from('offers')
       .select('count')
       .limit(1);
     

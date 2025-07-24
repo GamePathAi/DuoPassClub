@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Teste EmailJS - Correção Status 400</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .section {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .section h3 {
+            color: #495057;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Teste EmailJS - Correção Status 400</h1>
+        
+        <div class="info">
+            <strong>📋 Objetivo:</strong> Testar as correções implementadas para resolver o erro Status 400 do EmailJS
+        </div>
+        
+        <!-- Seção 1: Configuração -->
+        <div class="section">
+            <h3>🔧 1. Configuração do EmailJS</h3>
+            <div class="form-group">
+                <label>Service ID:</label>
+                <input type="text" id="serviceId" value="service_nj1x65i" placeholder="Seu Service ID">
+            </div>
+            <div class="form-group">
+                <label>Public Key:</label>
+                <input type="text" id="publicKey" value="jwnAl9bi3b1X98hdq" placeholder="Sua Public Key">
+            </div>
+            <div class="form-group">
+                <label>Template ID (Teste):</label>
+                <input type="text" id="templateId" value="template_d63ebza" placeholder="Template ID para teste">
+            </div>
+            <button onclick="testarConfiguracao()">🔍 Testar Configuração</button>
+        </div>
+        
+        <!-- Seção 2: Teste Mínimo -->
+        <div class="section">
+            <h3>🧪 2. Teste com Payload Mínimo</h3>
+            <div class="form-group">
+                <label>Email Destinatário:</label>
+                <input type="email" id="testEmail" value="teste@duopassclub.ch" placeholder="email@exemplo.com">
+            </div>
+            <div class="form-group">
+                <label>Nome:</label>
+                <input type="text" id="testName" value="Teste DuoPass" placeholder="Nome do remetente">
+            </div>
+            <div class="form-group">
+                <label>Mensagem:</label>
+                <textarea id="testMessage" rows="3" placeholder="Mensagem de teste">Este é um teste para verificar se o EmailJS está funcionando corretamente após as correções.</textarea>
+            </div>
+            <button onclick="testeMinimo()">🚀 Enviar Teste Mínimo</button>
+        </div>
+        
+        <!-- Seção 3: Teste Completo de Contato -->
+        <div class="section">
+            <h3>📧 3. Teste Completo - Email de Contato</h3>
+            <div class="form-group">
+                <label>Nome:</label>
+                <input type="text" id="contactName" value="João Silva" placeholder="Nome completo">
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="contactEmail" value="joao@exemplo.com" placeholder="email@exemplo.com">
+            </div>
+            <div class="form-group">
+                <label>Negócio:</label>
+                <input type="text" id="contactBusiness" value="Restaurante Exemplo" placeholder="Nome do negócio">
+            </div>
+            <div class="form-group">
+                <label>Tipo de Negócio:</label>
+                <select id="contactType">
+                    <option value="gastronomy">Gastronomia</option>
+                    <option value="art">Arte e Cultura</option>
+                    <option value="wellbeing">Bem-estar</option>
+                    <option value="other">Outro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Descrição:</label>
+                <textarea id="contactDescription" rows="3" placeholder="Descreva seu negócio">Somos um restaurante especializado em culinária italiana, localizado no centro da cidade. Gostaríamos de fazer parte da rede DuoPass.</textarea>
+            </div>
+            <button onclick="testeContatoCompleto()">📧 Testar Email de Contato</button>
+        </div>
+        
+        <!-- Seção 4: Logs -->
+        <div class="section">
+            <h3>📋 4. Logs de Execução</h3>
+            <button onclick="limparLogs()">🗑️ Limpar Logs</button>
+            <div id="logs" class="log">Aguardando execução dos testes...
+</div>
+        </div>
+        
+        <!-- Status -->
+        <div id="status"></div>
+    </div>
+    
+    <!-- EmailJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
+    <script>
+        // ========================================
+        // 🔧 CONFIGURAÇÃO E INICIALIZAÇÃO
+        // ========================================
+        
+        let emailjsInitialized = false;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('logs');
+            const prefix = {
+                'info': 'ℹ️',
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️'
+            }[type] || 'ℹ️';
+            
+            logElement.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('status');
+            statusElement.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function initializeEmailJS() {
+            if (!emailjsInitialized) {
+                try {
+                    const publicKey = document.getElementById('publicKey').value;
+                    if (!publicKey) {
+                        throw new Error('Public Key não configurada');
+                    }
+                    
+                    emailjs.init(publicKey);
+                    emailjsInitialized = true;
+                    log('EmailJS inicializado corretamente', 'success');
+                    return true;
+                } catch (error) {
+                    log(`Erro ao inicializar EmailJS: ${error.message}`, 'error');
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function sanitizeString(str) {
+            if (!str) return 'N/A';
+            return str.toString().trim().substring(0, 1000);
+        }
+        
+        function validateTemplateParams(params) {
+            const errors = [];
+            
+            if (!params.to_email || !validateEmail(params.to_email)) {
+                errors.push('Email destinatário inválido');
+            }
+            
+            // Sanitizar todos os campos
+            Object.keys(params).forEach(key => {
+                if (params[key] === undefined || params[key] === null) {
+                    params[key] = 'N/A';
+                    log(`Campo ${key} era null/undefined, substituído por 'N/A'`, 'warning');
+                }
+                if (typeof params[key] === 'string') {
+                    params[key] = sanitizeString(params[key]);
+                }
+            });
+            
+            return errors;
+        }
+        
+        // ========================================
+        // 🧪 FUNÇÕES DE TESTE
+        // ========================================
+        
+        async function testarConfiguracao() {
+            log('Iniciando teste de configuração...', 'info');
+            
+            const serviceId = document.getElementById('serviceId').value;
+            const publicKey = document.getElementById('publicKey').value;
+            const templateId = document.getElementById('templateId').value;
+            
+            if (!serviceId || !publicKey || !templateId) {
+                showStatus('❌ Preencha todos os campos de configuração', 'error');
+                log('Campos de configuração incompletos', 'error');
+                return;
+            }
+            
+            log(`Service ID: ${serviceId}`, 'info');
+            log(`Public Key: ${publicKey.substring(0, 8)}...`, 'info');
+            log(`Template ID: ${templateId}`, 'info');
+            
+            if (initializeEmailJS()) {
+                showStatus('✅ Configuração válida - EmailJS inicializado', 'success');
+                log('Configuração testada com sucesso', 'success');
+            } else {
+                showStatus('❌ Erro na configuração', 'error');
+            }
+        }
+        
+        async function testeMinimo() {
+            log('Iniciando teste mínimo...', 'info');
+            
+            if (!initializeEmailJS()) {
+                showStatus('❌ EmailJS não inicializado', 'error');
+                return;
+            }
+            
+            const serviceId = document.getElementById('serviceId').value;
+            const templateId = document.getElementById('templateId').value;
+            const email = document.getElementById('testEmail').value;
+            const name = document.getElementById('testName').value;
+            const message = document.getElementById('testMessage').value;
+            
+            const templateParams = {
+                to_email: email,
+                to_name: name,
+                from_name: name,
+                message: message,
+                reply_to: 'contact@duopassclub.ch'
+            };
+            
+            // Validar payload
+            const errors = validateTemplateParams(templateParams);
+            if (errors.length > 0) {
+                showStatus(`❌ Erro no payload: ${errors.join(', ')}`, 'error');
+                log(`Erros de validação: ${errors.join(', ')}`, 'error');
+                return;
+            }
+            
+            log('Payload validado:', 'info');
+            log(JSON.stringify(templateParams, null, 2), 'info');
+            
+            try {
+                showStatus('📤 Enviando email de teste...', 'info');
+                log('Enviando email via EmailJS...', 'info');
+                
+                const response = await emailjs.send(
+                    serviceId,
+                    templateId,
+                    templateParams
+                    // ❌ NÃO passar publicKey aqui - já foi inicializada
+                );
+                
+                showStatus('✅ Email de teste enviado com sucesso!', 'success');
+                log(`Email enviado com sucesso! Status: ${response.status}`, 'success');
+                log(`Response: ${JSON.stringify(response, null, 2)}`, 'success');
+                
+            } catch (error) {
+                showStatus(`❌ Erro ao enviar email: ${error.message}`, 'error');
+                log(`Erro detalhado: ${error.message}`, 'error');
+                log(`Stack: ${error.stack}`, 'error');
+                
+                // Análise específica do erro
+                if (error.message.includes('400')) {
+                    log('DIAGNÓSTICO: Erro 400 - Bad Request detectado', 'error');
+                    log('Possíveis causas:', 'warning');
+                    log('1. Template ID incorreto ou inexistente', 'warning');
+                    log('2. Campos do payload não correspondem ao template', 'warning');
+                    log('3. Service ID incorreto', 'warning');
+                    log('4. Public Key incorreta', 'warning');
+                }
+            }
+        }
+        
+        async function testeContatoCompleto() {
+            log('Iniciando teste completo de contato...', 'info');
+            
+            if (!initializeEmailJS()) {
+                showStatus('❌ EmailJS não inicializado', 'error');
+                return;
+            }
+            
+            const serviceId = document.getElementById('serviceId').value;
+            const contactData = {
+                name: document.getElementById('contactName').value,
+                email: document.getElementById('contactEmail').value,
+                business: document.getElementById('contactBusiness').value,
+                type: document.getElementById('contactType').value,
+                description: document.getElementById('contactDescription').value
+            };
+            
+            try {
+                // Simular envio para admin
+                const adminParams = {
+                    to_email: 'admin@duopassclub.ch',
+                    contact_name: sanitizeString(contactData.name),
+                    contact_email: sanitizeString(contactData.email),
+                    contact_business: sanitizeString(contactData.business),
+                    contact_type: getBusinessTypeLabel(contactData.type),
+                    contact_description: sanitizeString(contactData.description),
+                    contact_date: new Date().toLocaleString('pt-BR'),
+                    reply_to: 'contact@duopassclub.ch'
+                };
+                
+                log('Payload para admin:', 'info');
+                log(JSON.stringify(adminParams, null, 2), 'info');
+                
+                const adminErrors = validateTemplateParams(adminParams);
+                if (adminErrors.length > 0) {
+                    throw new Error(`Erro no payload admin: ${adminErrors.join(', ')}`);
+                }
+                
+                showStatus('📤 Enviando email para admin...', 'info');
+                
+                const adminResponse = await emailjs.send(
+                    serviceId,
+                    'template_r3t7pti', // Template admin
+                    adminParams
+                );
+                
+                log(`Email admin enviado! Status: ${adminResponse.status}`, 'success');
+                
+                // Simular envio de confirmação
+                const confirmationParams = {
+                    to_email: sanitizeString(contactData.email),
+                    to_name: sanitizeString(contactData.name),
+                    business_name: sanitizeString(contactData.business),
+                    business_type: getBusinessTypeLabel(contactData.type),
+                    reply_to: 'contact@duopassclub.ch'
+                };
+                
+                log('Payload para confirmação:', 'info');
+                log(JSON.stringify(confirmationParams, null, 2), 'info');
+                
+                const confirmationErrors = validateTemplateParams(confirmationParams);
+                if (confirmationErrors.length > 0) {
+                    throw new Error(`Erro no payload confirmação: ${confirmationErrors.join(', ')}`);
+                }
+                
+                showStatus('📤 Enviando email de confirmação...', 'info');
+                
+                const confirmationResponse = await emailjs.send(
+                    serviceId,
+                    'template_d63ebza', // Template confirmação
+                    confirmationParams
+                );
+                
+                log(`Email confirmação enviado! Status: ${confirmationResponse.status}`, 'success');
+                
+                showStatus('✅ Teste completo realizado com sucesso!', 'success');
+                log('TESTE COMPLETO CONCLUÍDO COM SUCESSO!', 'success');
+                
+            } catch (error) {
+                showStatus(`❌ Erro no teste completo: ${error.message}`, 'error');
+                log(`Erro detalhado: ${error.message}`, 'error');
+            }
+        }
+        
+        function getBusinessTypeLabel(type) {
+            const labels = {
+                gastronomy: 'Gastronomia',
+                art: 'Arte e Cultura',
+                wellbeing: 'Bem-estar',
+                other: 'Outro'
+            };
+            return labels[type] || type;
+        }
+        
+        function limparLogs() {
+            document.getElementById('logs').textContent = 'Logs limpos...\n';
+            document.getElementById('status').innerHTML = '';
+        }
+        
+        // ========================================
+        // 🚀 INICIALIZAÇÃO
+        // ========================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Página de teste carregada', 'success');
+            log('Pronto para testar as correções do EmailJS', 'info');
+            showStatus('🔧 Página de teste carregada - Configure e execute os testes', 'info');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Teste EmailJS - CORREÇÃO FINAL</title>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .logs {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        .config-info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #555;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .payload-display {
+            background-color: #f1f3f4;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Teste EmailJS - CORREÇÃO FINAL</h1>
+        
+        <div class="config-info">
+            <h3>📋 Configuração Corrigida:</h3>
+            <p><strong>Service ID:</strong> service_nj1x65i</p>
+            <p><strong>Public Key:</strong> jwnAl9bi3b1X98hdq</p>
+            <p><strong>Template ID (FUNCIONANDO):</strong> template_r3t7pti</p>
+            <p><strong>✅ Correção:</strong> Todos os emails agora usam template_r3t7pti com payload normalizado</p>
+        </div>
+
+        <div class="section">
+            <h2>🧪 1. Teste Básico - Template Funcionando</h2>
+            <p>Teste simples com o template que sabemos que funciona</p>
+            <button class="button" onclick="testeBasico()">🚀 Teste Básico</button>
+        </div>
+
+        <div class="section">
+            <h2>📧 2. Teste Email de Contato - Payload Normalizado</h2>
+            <p>Teste completo com payload normalizado para template_r3t7pti</p>
+            <button class="button" onclick="testeEmailContato()">📧 Teste Email Contato</button>
+        </div>
+
+        <div class="section">
+            <h2>🤝 3. Teste Email de Parceiro - Payload Normalizado</h2>
+            <p>Teste de registro de parceiro com payload normalizado</p>
+            <button class="button" onclick="testeEmailParceiro()">🤝 Teste Email Parceiro</button>
+        </div>
+
+        <div class="section">
+            <h2>📋 4. Logs de Execução</h2>
+            <button class="button" onclick="limparLogs()">🗑️ Limpar Logs</button>
+            <div id="logs" class="logs">Aguardando execução dos testes...</div>
+        </div>
+    </div>
+
+    <script>
+        // Configuração EmailJS
+        const EMAILJS_CONFIG = {
+            serviceId: 'service_nj1x65i',
+            publicKey: 'jwnAl9bi3b1X98hdq',
+            templateId: 'template_r3t7pti' // Template que funciona
+        };
+
+        let emailjsInitialized = false;
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('logs');
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            logElement.textContent += `[${timestamp}] ${icon} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function limparLogs() {
+            document.getElementById('logs').textContent = 'Logs limpos...\n';
+        }
+
+        function initializeEmailJS() {
+            if (!emailjsInitialized) {
+                emailjs.init(EMAILJS_CONFIG.publicKey);
+                emailjsInitialized = true;
+                log('EmailJS inicializado com sucesso');
+            }
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function sanitizeString(str) {
+            if (!str) return 'N/A';
+            return String(str)
+                .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove caracteres de controle
+                .replace(/["'`]/g, '') // Remove aspas
+                .trim();
+        }
+
+        // Função de normalização igual à do emailService-CORRIGIDO.ts
+        function normalizePayloadForWorkingTemplate(originalPayload, emailType) {
+            const basePayload = {
+                to_email: sanitizeString(originalPayload.to_email),
+                contact_name: sanitizeString(originalPayload.contact_name || originalPayload.to_name || 'Nome não informado'),
+                contact_email: sanitizeString(originalPayload.contact_email || originalPayload.to_email),
+                contact_business: sanitizeString(originalPayload.contact_business || originalPayload.business_name || 'Negócio não informado'),
+                contact_type: sanitizeString(originalPayload.contact_type || originalPayload.business_type || 'Tipo não informado'),
+                contact_description: sanitizeString(originalPayload.contact_description || originalPayload.message || `Email de ${emailType}`),
+                contact_date: new Date().toLocaleString('pt-BR'),
+                reply_to: sanitizeString(originalPayload.reply_to || 'contact@duopassclub.ch')
+            };
+            
+            log(`🔧 Payload normalizado para template_r3t7pti (${emailType}): ${JSON.stringify(basePayload, null, 2)}`);
+            return basePayload;
+        }
+
+        async function testeBasico() {
+            try {
+                log('Iniciando teste básico...');
+                initializeEmailJS();
+
+                const payloadOriginal = {
+                    to_email: 'teste@duopassclub.ch',
+                    to_name: 'Teste DuoPass',
+                    message: 'Teste básico com template_r3t7pti'
+                };
+
+                const payload = normalizePayloadForWorkingTemplate(payloadOriginal, 'admin');
+
+                log('Enviando email via EmailJS...');
+                const response = await emailjs.send(
+                    EMAILJS_CONFIG.serviceId,
+                    EMAILJS_CONFIG.templateId,
+                    payload
+                );
+
+                log(`✅ Teste básico enviado! Status: ${response.status}`, 'success');
+                
+            } catch (error) {
+                log(`❌ Erro no teste básico: ${error.message || error}`, 'error');
+                log(`❌ Stack: ${error.stack || 'N/A'}`, 'error');
+            }
+        }
+
+        async function testeEmailContato() {
+            try {
+                log('Iniciando teste de email de contato...');
+                initializeEmailJS();
+
+                // 1. Email para admin
+                const adminPayloadOriginal = {
+                    to_email: 'admin@duopassclub.ch',
+                    contact_name: 'João Silva',
+                    contact_email: 'joao@exemplo.com',
+                    contact_business: 'Restaurante Exemplo',
+                    contact_type: 'Gastronomia',
+                    contact_description: 'Somos um restaurante especializado em culinária italiana, localizado no centro da cidade. Gostaríamos de fazer parte da rede DuoPass.',
+                    reply_to: 'contact@duopassclub.ch'
+                };
+
+                const adminPayload = normalizePayloadForWorkingTemplate(adminPayloadOriginal, 'admin');
+
+                log('Enviando email para admin...');
+                const adminResponse = await emailjs.send(
+                    EMAILJS_CONFIG.serviceId,
+                    EMAILJS_CONFIG.templateId,
+                    adminPayload
+                );
+
+                log(`✅ Email admin enviado! Status: ${adminResponse.status}`, 'success');
+
+                // 2. Email de confirmação
+                const confirmationPayloadOriginal = {
+                    to_email: 'joao@exemplo.com',
+                    to_name: 'João Silva',
+                    business_name: 'Restaurante Exemplo',
+                    business_type: 'Gastronomia',
+                    reply_to: 'contact@duopassclub.ch'
+                };
+
+                const confirmationPayload = normalizePayloadForWorkingTemplate(confirmationPayloadOriginal, 'confirmation');
+
+                log('Enviando email de confirmação...');
+                const confirmationResponse = await emailjs.send(
+                    EMAILJS_CONFIG.serviceId,
+                    EMAILJS_CONFIG.templateId,
+                    confirmationPayload
+                );
+
+                log(`✅ Email confirmação enviado! Status: ${confirmationResponse.status}`, 'success');
+                log('✅ Teste de email de contato concluído com sucesso!', 'success');
+                
+            } catch (error) {
+                log(`❌ Erro no teste de contato: ${error.message || error}`, 'error');
+                log(`❌ Stack: ${error.stack || 'N/A'}`, 'error');
+            }
+        }
+
+        async function testeEmailParceiro() {
+            try {
+                log('Iniciando teste de email de parceiro...');
+                initializeEmailJS();
+
+                // 1. Email para parceiro
+                const partnerPayloadOriginal = {
+                    to_email: 'parceiro@exemplo.com',
+                    contact_name: 'Maria Santos',
+                    business_name: 'Café Cultural Santos',
+                    reply_to: 'contact@duopassclub.ch'
+                };
+
+                const partnerPayload = normalizePayloadForWorkingTemplate(partnerPayloadOriginal, 'partner');
+
+                log('Enviando email para parceiro...');
+                const partnerResponse = await emailjs.send(
+                    EMAILJS_CONFIG.serviceId,
+                    EMAILJS_CONFIG.templateId,
+                    partnerPayload
+                );
+
+                log(`✅ Email parceiro enviado! Status: ${partnerResponse.status}`, 'success');
+
+                // 2. Email para admin sobre novo parceiro
+                const adminNotificationOriginal = {
+                    to_email: 'admin@duopassclub.ch',
+                    contact_name: 'Maria Santos',
+                    contact_email: 'parceiro@exemplo.com',
+                    contact_business: 'Café Cultural Santos',
+                    contact_type: 'Gastronomia',
+                    contact_description: 'Novo parceiro registrado: Café Cultural Santos. Telefone: +41 123 456 789. Endereço: Rua das Flores, 123, Zurich, 8001, Suíça.',
+                    reply_to: 'contact@duopassclub.ch'
+                };
+
+                const adminNotificationPayload = normalizePayloadForWorkingTemplate(adminNotificationOriginal, 'admin');
+
+                log('Enviando notificação para admin...');
+                const adminResponse = await emailjs.send(
+                    EMAILJS_CONFIG.serviceId,
+                    EMAILJS_CONFIG.templateId,
+                    adminNotificationPayload
+                );
+
+                log(`✅ Notificação admin enviada! Status: ${adminResponse.status}`, 'success');
+                log('✅ Teste de email de parceiro concluído com sucesso!', 'success');
+                
+            } catch (error) {
+                log(`❌ Erro no teste de parceiro: ${error.message || error}`, 'error');
+                log(`❌ Stack: ${error.stack || 'N/A'}`, 'error');
+            }
+        }
+
+        // Inicializar página
+        window.onload = function() {
+            log('✅ Página de teste FINAL carregada');
+            log('ℹ️ Pronto para testar as correções finais do EmailJS');
+            log('🔧 Usando template_r3t7pti com payloads normalizados');
+        };
+    </script>
+</body>
+</html>

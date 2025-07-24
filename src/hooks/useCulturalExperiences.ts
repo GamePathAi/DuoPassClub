@@ -26,43 +26,29 @@ export function useCulturalExperiences() {
         setError(null);
 
         // Try to fetch from database first
-        const { data: experiencesData, error: experiencesError } = await supabase
+        const { data, error } = await supabase
           .from('cultural_experiences')
-          .select('*');
+          .select(`
+            *,
+            cultural_partners (
+              business_name,
+              cultural_category,
+              address,
+              ambiance_description
+            )
+          `)
+          .eq('active', true)
+          .order('featured', { ascending: false })
+          .order('created_at', { ascending: false });
 
-        if (experiencesError) {
-          console.warn('⚠️ Tabelas culturais não encontradas, usando dados mock:', experiencesError.message);
-          // Use mock data immediately if tables don't exist
+        if (error) {
+          console.error('Erro ao buscar experiências culturais:', error);
+          // Fallback para dados mock em caso de erro
           setExperiences(mockCulturalExperiences);
-          setLoading(false);
-          return;
-        }
-
-        const { data: partnersData, error: partnersError } = await supabase
-          .from('cultural_partners')
-          .select('*');
-
-        if (partnersError) {
-          console.warn('⚠️ Tabela de parceiros não encontrada, usando dados mock:', partnersError.message);
-          setExperiences(mockCulturalExperiences);
-          setLoading(false);
-          return;
-        }
-
-        // If we have real data, use it
-        if (experiencesData && experiencesData.length > 0) {
-          const combinedData = experiencesData.map(exp => {
-            const partner = partnersData?.find(p => p.id === exp.partner_id);
-            return {
-              ...exp,
-              cultural_partners: partner ? { business_name: partner.business_name } : undefined
-            };
-          });
-          setExperiences(combinedData);
         } else {
-          // No data in database, use mock data
-          console.info('ℹ️ Nenhum dado encontrado no banco, usando dados mock');
-          setExperiences(mockCulturalExperiences);
+          // Combinar dados reais com mock se necessário
+          const combinedData = data && data.length > 0 ? data : mockCulturalExperiences;
+          setExperiences(combinedData);
         }
       } catch (err: any) {
         console.error('❌ Erro ao buscar experiências culturais:', err);
@@ -94,11 +80,13 @@ const mockCulturalExperiences: CulturalExperience[] = [
       emotion_tags: ['reflexao', 'descoberta'],
       active: true,
       cultural_partners: {
-        id: 'cafe-das-letras',
+        // id property removed as it's not defined in the CulturalExperience interface
         business_name: 'Café das Letras',
-        business_type: 'cafe_cultural',
-        cultural_category: 'literatura_gastronomia',
-        ambiance_description: 'Café literário acolhedor com eventos culturais e biblioteca comunitária.',
+// business_type property removed as it's not defined in the CulturalExperience interface
+// Removed cultural_category as it's not defined in the CulturalExperience interface
+// business_type property removed as it's not defined in the CulturalExperience interface
+cultural_category: 'literatura_cafe',
+ambiance_description: 'A cozy literary café with soft lighting, live acoustic music, and shelves filled with books, creating the perfect atmosphere for meaningful connections.',
         contact_name: 'Ana Beatriz',
         email: 'contato@cafedasletras.com',
         address: {
