@@ -67,7 +67,7 @@ jobs:
         run: |
           cd project
           if [ ! -d "dist" ]; then
-            echo "DiretÃ³rio dist nÃ£o foi criado"
+            echo "Diretorio dist nao foi criado"
             exit 1
           fi
           echo "Build verificado com sucesso"
@@ -99,40 +99,65 @@ jobs:
       - name: Verify secrets
         run: |
           if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
-            echo "SSH_PRIVATE_KEY nÃ£o configurado"
+            echo "SSH_PRIVATE_KEY nao configurado"
             exit 1
           fi
-          echo "Todos os secrets necessÃ¡rios estÃ£o configurados"
+          echo "Todos os secrets necessarios estao configurados"
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          if_key_exists: replace
 
       - name: Create deployment backup
         run: |
-          echo "Criando backup da versÃ£o atual..."
+          echo "Criando backup da versao atual..."
           BACKUP_DIR="/var/www/duopass/backup/$(date +%Y%m%d_%H%M%S)"
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo mkdir -p $BACKUP_DIR && sudo cp -r /var/www/duopass/dist/* $BACKUP_DIR/ 2>/dev/null || true"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo mkdir -p $BACKUP_DIR && sudo cp -r /var/www/duopass/dist/* $BACKUP_DIR/ 2>/dev/null || true"
 
       - name: Deploy new files
         run: |
           echo "Iniciando deploy dos novos arquivos..."
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo rm -rf /var/www/duopass/dist/*"
-          rsync -avz --delete project/dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/duopass-new/
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo cp -r /tmp/duopass-new/* /var/www/duopass/dist/ && sudo chown -R www-data:www-data /var/www/duopass/dist"
+          echo "Limpando diretorio de destino..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo rm -rf /var/www/duopass/dist/*" || { echo "Erro ao limpar diretorio"; exit 1; }
+          
+          echo "Criando diretorio temporario..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo mkdir -p /tmp/duopass-new && sudo chown ${{ secrets.SSH_USER }}:${{ secrets.SSH_USER }} /tmp/duopass-new" || { echo "Erro ao criar diretorio temporario"; exit 1; }
+          
+          echo "Transferindo arquivos..."
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" project/dist/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/tmp/duopass-new/ || { echo "Erro na transferencia de arquivos"; exit 1; }
+          
+          echo "Movendo arquivos para destino final..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo cp -r /tmp/duopass-new/* /var/www/duopass/dist/ && sudo chown -R www-data:www-data /var/www/duopass/dist && sudo rm -rf /tmp/duopass-new" || { echo "Erro ao mover arquivos"; exit 1; }
+          
+          echo "Deploy de arquivos concluido com sucesso!"
 
       - name: Reload services
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo systemctl reload nginx"
+          echo "Recarregando servicos..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo systemctl reload nginx" || { echo "Erro ao recarregar nginx"; exit 1; }
+          echo "Servicos recarregados com sucesso!"
 
       - name: Post-deploy verification
         run: |
           echo "Verificando deploy..."
-          sleep 10
-          if ! curl -f -s https://duopassclub.ch > /dev/null; then
-            echo "Site nÃ£o estÃ¡ respondendo"
-            exit 1
-          fi
-          echo "Deploy verificado com sucesso!"
+          sleep 15
+          
+          echo "Testando conectividade com o site..."
+          for i in {1..3}; do
+            if curl -f -s -I https://duopassclub.ch | head -n 1 | grep -q "200 OK"; then
+              echo "Site respondendo corretamente (tentativa $i)"
+              echo "Deploy verificado com sucesso!"
+              exit 0
+            else
+              echo "Tentativa $i falhou, aguardando..."
+              sleep 10
+            fi
+          done
+          
+          echo "Site nao esta respondendo apos 3 tentativas"
+          echo "Verificando logs do nginx..."
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "sudo tail -n 20 /var/log/nginx/error.log" || true
+          exit 1

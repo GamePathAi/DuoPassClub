@@ -6,7 +6,7 @@ Write-Host "=========================================" -ForegroundColor Blue
 Write-Host ""
 
 # Configuracoes
-$SERVER_IP = "54.229.77.39"
+$SERVER_IP = "54.78.178.154"
 $SSH_KEY = "C:\Users\igor_\Downloads\dpkeyaws.pem"
 $SERVER_USER = "ubuntu"
 $LOCAL_FILES = @(
