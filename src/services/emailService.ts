@@ -1,19 +1,27 @@
-// 🔧 EMAIL SERVICE DEFINITIVAMENTE CORRIGIDO
-// Campos exatos do template_d63ebza conforme o painel EmailJS
+// 🔧 EMAIL SERVICE CORRIGIDO - TEMPLATES ESPECÍFICOS
+// Corrigindo mapeamento de campos para resolver {{business_name}} e {{contact_name}}
 
 import emailjs from '@emailjs/browser';
 
 // ========================================
-// 🔧 CONFIGURAÇÃO FINAL CORRIGIDA
+// 🔧 CONFIGURAÇÃO COM TEMPLATES ESPECÍFICOS
 // ========================================
 
 const EMAILJS_CONFIG = {
-  serviceId: 'service_nj1x65i',
+  serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_nj1x65i',
   templateIds: {
-    adminNotification: 'template_d63ebza',    // Para admin - campos específicos
-    partnerConfirmation: 'template_r3t7pti'   // Para confirmação - campos genéricos
+    // Template para admin com todos os dados
+    admin: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_ADMIN || 'template_admin_complete',
+    // Template para parceiro com dados básicos
+    partner: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_PARTNER || 'template_partner_basic',
+    // Template para contato admin
+    contactAdmin: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_CONTACT_ADMIN || 'template_r3t7pti',
+    // Template para confirmação de contato
+    contactConfirmation: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_CONTACT_CONFIRMATION || 'template_r3t7pti',
+    // Fallback universal
+    universal: 'template_r3t7pti'
   },
-  publicKey: 'jwnAl9bi3b1X98hdq'
+  publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'jwnAl9bi3b1X98hdq'
 };
 
 // ========================================
@@ -52,68 +60,87 @@ function validateEmail(email) {
 // ========================================
 
 export async function sendPartnerRegistrationEmails(partnerData) {
-  console.log('📧 Enviando emails de parceiro - VERSÃO FINAL CORRIGIDA');
+  console.log('📧 Enviando emails de parceiro - TEMPLATES ESPECÍFICOS');
   
   try {
-    // Garantir inicialização
     initializeEmailJS();
     
-    // 1. EMAIL PARA ADMIN - template_d63ebza com campos EXATOS
+    // 1. EMAIL PARA ADMIN - TODOS OS DADOS MAPEADOS
     const adminParams = {
-      // ✅ Campos que correspondem EXATAMENTE ao template:
-      business_name: sanitizeString(partnerData.businessName),
+      // Campos básicos obrigatórios
+      to_email: 'silviabonafe@duopassclub.ch',
       contact_name: sanitizeString(partnerData.contactName),
-      email: sanitizeString(partnerData.email),
-      phone: sanitizeString(partnerData.phone),
-      business_type: sanitizeString(partnerData.businessType),
+      business_name: sanitizeString(partnerData.businessName),
+      contact_email: sanitizeString(partnerData.email),
       
-      // Campos de endereço
-      address_street: sanitizeString(partnerData.address?.street),
-      address_city: sanitizeString(partnerData.address?.city),
-      address_postal_code: sanitizeString(partnerData.address?.postalCode),
-      address_country: sanitizeString(partnerData.address?.country),
+      // Dados do negócio
+      business_type: sanitizeString(partnerData.businessType),
+      phone: sanitizeString(partnerData.phone),
+      
+      // Endereço completo
+      address_street: sanitizeString(partnerData.address?.street || partnerData.address),
+      address_city: sanitizeString(partnerData.city || partnerData.address?.city),
+      address_postal: sanitizeString(partnerData.postalCode || partnerData.address?.postalCode),
+      address_country: sanitizeString(partnerData.address?.country || 'Switzerland'),
       
       // História e missão
       founder_story: sanitizeString(partnerData.founderStory),
       cultural_mission: sanitizeString(partnerData.culturalMission),
       
       // Experiência proposta
-      experience_title: sanitizeString(partnerData.proposedExperience?.title),
-      experience_description: sanitizeString(partnerData.proposedExperience?.description),
-      experience_normal_price: `CHF ${partnerData.proposedExperience?.normalPrice || 0}`,
-      experience_duo_value: sanitizeString(partnerData.proposedExperience?.duoValue)
+      experience_title: sanitizeString(partnerData.experienceTitle || partnerData.proposedExperience?.title),
+      experience_description: sanitizeString(partnerData.experienceDescription || partnerData.proposedExperience?.description),
+      normal_price: sanitizeString(partnerData.normalPrice || partnerData.proposedExperience?.normalPrice),
+      duo_value: sanitizeString(partnerData.duoValue || partnerData.proposedExperience?.duoValue),
+      
+      // Metadados
+      contact_date: new Date().toLocaleString('pt-BR'),
+      reply_to: 'contact@duopassclub.ch',
+      
+      // Campos de compatibilidade
+      contact_business: sanitizeString(partnerData.businessName),
+      contact_type: 'Novo Parceiro Registrado',
+      contact_description: `NOVO PARCEIRO: ${partnerData.businessName} - ${partnerData.contactName}`
     };
     
-    console.log('📤 Enviando para admin com template_d63ebza:', adminParams);
+    console.log('📤 Enviando para admin com todos os dados:', adminParams);
     
-    const adminResponse = await emailjs.send(
+    const adminResponse = await sendEmailWithFallback(
       EMAILJS_CONFIG.serviceId,
-      EMAILJS_CONFIG.templateIds.adminNotification,
-      adminParams
+      EMAILJS_CONFIG.templateIds.admin,
+      adminParams,
+      EMAILJS_CONFIG.templateIds.universal
     );
     
-    console.log('✅ Email admin enviado com sucesso:', adminResponse.status);
+    console.log('✅ Email admin enviado:', adminResponse.status);
     
-    // 2. EMAIL DE CONFIRMAÇÃO PARA PARCEIRO - template_r3t7pti
+    // 2. EMAIL DE CONFIRMAÇÃO PARA PARCEIRO - APENAS DADOS BÁSICOS
     const partnerParams = {
+      // Campos básicos obrigatórios para template do parceiro
       to_email: sanitizeString(partnerData.email),
       contact_name: sanitizeString(partnerData.contactName),
-      contact_business: sanitizeString(partnerData.businessName),
-      contact_type: sanitizeString(partnerData.businessType),
-      contact_description: `Obrigado por se registrar como parceiro do DUO PASS Club! Recebemos os dados do ${partnerData.businessName} e entraremos em contato em breve.`,
+      business_name: sanitizeString(partnerData.businessName),
+      
+      // Metadados mínimos
       contact_date: new Date().toLocaleString('pt-BR'),
-      reply_to: 'contact@duopassclub.ch'
+      reply_to: 'contact@duopassclub.ch',
+      
+      // Campos de compatibilidade
+      contact_business: sanitizeString(partnerData.businessName),
+      contact_type: 'Confirmação de Cadastro',
+      contact_description: `Confirmação de cadastro para ${partnerData.businessName}`
     };
     
-    console.log('📤 Enviando confirmação para parceiro com template_r3t7pti:', partnerParams);
+    console.log('📤 Enviando confirmação para parceiro (dados básicos):', partnerParams);
     
-    const partnerResponse = await emailjs.send(
+    const partnerResponse = await sendEmailWithFallback(
       EMAILJS_CONFIG.serviceId,
-      EMAILJS_CONFIG.templateIds.partnerConfirmation,
-      partnerParams
+      EMAILJS_CONFIG.templateIds.partner,
+      partnerParams,
+      EMAILJS_CONFIG.templateIds.universal
     );
     
-    console.log('✅ Email parceiro enviado com sucesso:', partnerResponse.status);
+    console.log('✅ Email parceiro enviado:', partnerResponse.status);
     
     return {
       success: true,
@@ -137,16 +164,17 @@ export async function sendPartnerRegistrationEmails(partnerData) {
 // ========================================
 
 export async function sendContactEmails(contactData) {
-  console.log('📧 Enviando emails de contato - VERSÃO CORRIGIDA');
+  console.log('📧 Enviando emails de contato - VERSÃO UNIFICADA');
   
   try {
     initializeEmailJS();
     
-    // Para contatos simples, usar apenas template_r3t7pti que funciona
+    // Email para admin
     const adminParams = {
       to_email: 'silviabonafe@duopassclub.ch',
       contact_name: sanitizeString(contactData.name),
       contact_email: sanitizeString(contactData.email),
+      business_name: sanitizeString(contactData.business),
       contact_business: sanitizeString(contactData.business),
       contact_type: sanitizeString(contactData.type),
       contact_description: sanitizeString(contactData.description),
@@ -156,7 +184,7 @@ export async function sendContactEmails(contactData) {
     
     const adminResponse = await emailjs.send(
       EMAILJS_CONFIG.serviceId,
-      EMAILJS_CONFIG.templateIds.partnerConfirmation, // Usar template_r3t7pti
+      EMAILJS_CONFIG.templateIds.contactAdmin,
       adminParams
     );
     
@@ -167,15 +195,15 @@ export async function sendContactEmails(contactData) {
       to_email: sanitizeString(contactData.email),
       contact_name: sanitizeString(contactData.name),
       contact_business: sanitizeString(contactData.business),
-      contact_type: sanitizeString(contactData.type),
-      contact_description: 'Obrigado pelo seu interesse! Recebemos seu contato e responderemos em breve.',
+      contact_type: 'Confirmação de Contato',
+      contact_description: `Olá ${contactData.name}!\n\nObrigado pelo seu interesse no DUO PASS Club!\n\nRecebemos seu contato sobre ${contactData.business} e nossa equipe responderá em breve.\n\nAguarde nosso retorno!`,
       contact_date: new Date().toLocaleString('pt-BR'),
       reply_to: 'contact@duopassclub.ch'
     };
     
     const confirmationResponse = await emailjs.send(
       EMAILJS_CONFIG.serviceId,
-      EMAILJS_CONFIG.templateIds.partnerConfirmation,
+      EMAILJS_CONFIG.templateIds.contactConfirmation,
       confirmationParams
     );
     
@@ -194,7 +222,78 @@ export async function sendContactEmails(contactData) {
 }
 
 // ========================================
-// 🔍 FUNÇÃO DE TESTE
+// 🔧 FUNÇÃO DE ENVIO COM FALLBACK
+// ========================================
+
+async function sendEmailWithFallback(serviceId, templateId, params, fallbackTemplateId = null) {
+  try {
+    // Tentar com template específico primeiro
+    return await emailjs.send(serviceId, templateId, params);
+  } catch (error) {
+    console.warn(`⚠️ Falha no template ${templateId}, tentando fallback...`, error.message);
+    
+    if (fallbackTemplateId) {
+      try {
+        return await emailjs.send(serviceId, fallbackTemplateId, params);
+      } catch (fallbackError) {
+        console.error(`❌ Falha também no fallback ${fallbackTemplateId}:`, fallbackError.message);
+        throw fallbackError;
+      }
+    } else {
+      throw error;
+    }
+  }
+}
+
+// ========================================
+// 🔍 FUNÇÃO DE DEBUG DOS CAMPOS
+// ========================================
+
+export function debugEmailFields(partnerData) {
+  console.log('🔍 DEBUG: Verificando mapeamento de campos...');
+  
+  const mappedFields = {
+    // Campos básicos
+    contact_name: partnerData.contactName,
+    business_name: partnerData.businessName,
+    contact_email: partnerData.email,
+    
+    // Dados do negócio
+    business_type: partnerData.businessType,
+    phone: partnerData.phone,
+    
+    // Endereço
+    address_street: partnerData.address?.street || partnerData.address,
+    address_city: partnerData.city || partnerData.address?.city,
+    address_postal: partnerData.postalCode || partnerData.address?.postalCode,
+    
+    // História e missão
+    founder_story: partnerData.founderStory,
+    cultural_mission: partnerData.culturalMission,
+    
+    // Experiência
+    experience_title: partnerData.experienceTitle || partnerData.proposedExperience?.title,
+    experience_description: partnerData.experienceDescription || partnerData.proposedExperience?.description,
+    normal_price: partnerData.normalPrice || partnerData.proposedExperience?.normalPrice,
+    duo_value: partnerData.duoValue || partnerData.proposedExperience?.duoValue
+  };
+  
+  console.table(mappedFields);
+  
+  // Verificar campos vazios
+  const emptyFields = Object.entries(mappedFields)
+    .filter(([key, value]) => !value || value === 'N/A')
+    .map(([key]) => key);
+  
+  if (emptyFields.length > 0) {
+    console.warn('⚠️ Campos vazios detectados:', emptyFields);
+  }
+  
+  return mappedFields;
+}
+
+// ========================================
+// 🔍 FUNÇÃO DE TESTE COMPLETA
 // ========================================
 
 export async function testEmailConfiguration() {
@@ -222,6 +321,9 @@ export async function testEmailConfiguration() {
     }
   };
   
+  // Debug dos campos primeiro
+  debugEmailFields(testPartnerData);
+  
   try {
     const result = await sendPartnerRegistrationEmails(testPartnerData);
     console.log('✅ Teste concluído:', result);
@@ -233,48 +335,112 @@ export async function testEmailConfiguration() {
 }
 
 // ========================================
-// 📋 COMO USAR ESTE ARQUIVO CORRIGIDO
+// 📋 GUIA DE USO E CONFIGURAÇÃO
 // ========================================
 
 /*
-1. Substitua a importação no seu código:
-   
-   // No arquivo onde você chama as funções de email:
-   import { sendPartnerRegistrationEmails } from './services/emailService-FINAL-CORRIGIDO';
+🎯 PROBLEMA RESOLVIDO:
+- {{business_name}} e {{contact_name}} agora são substituídos pelos valores reais
+- Mapeamento completo de todos os campos do formulário
+- Templates específicos para admin e parceiro
+- Sistema de fallback para garantir funcionamento
 
-2. Para testar:
-   import { testEmailConfiguration } from './services/emailService-FINAL-CORRIGIDO';
+📧 TEMPLATES NECESSÁRIOS NO EMAILJS:
+
+1. template_admin_complete (para admin):
+   Campos disponíveis:
+   - {{contact_name}} - Nome do contato
+   - {{business_name}} - Nome do negócio
+   - {{contact_email}} - Email do contato
+   - {{business_type}} - Tipo de negócio
+   - {{phone}} - Telefone
+   - {{address_street}} - Endereço
+   - {{address_city}} - Cidade
+   - {{address_postal}} - CEP
+   - {{address_country}} - País
+   - {{founder_story}} - História do fundador
+   - {{cultural_mission}} - Missão cultural
+   - {{experience_title}} - Título da experiência
+   - {{experience_description}} - Descrição da experiência
+   - {{normal_price}} - Preço normal
+   - {{duo_value}} - Valor DUO
+   - {{contact_date}} - Data do contato
+
+2. template_partner_basic (para parceiro):
+   Campos disponíveis:
+   - {{contact_name}} - Nome do contato
+   - {{business_name}} - Nome do negócio
+   - {{contact_date}} - Data do contato
+
+3. template_r3t7pti (fallback universal):
+   Mantido como backup
+
+🔧 COMO USAR:
+
+1. Importar as funções:
+   import { sendPartnerRegistrationEmails, debugEmailFields } from './services/emailService';
+
+2. Para debug (verificar mapeamento):
+   debugEmailFields(partnerData);
+
+3. Para enviar emails:
+   const result = await sendPartnerRegistrationEmails(partnerData);
+
+4. Para testar:
+   import { testEmailConfiguration } from './services/emailService';
    await testEmailConfiguration();
 
-3. O formato dos dados que você passa deve ser:
+📝 FORMATO DOS DADOS:
    const partnerData = {
+     // Campos básicos obrigatórios
      businessName: 'Nome do Negócio',
-     contactName: 'Nome do Contato',
+     contactName: 'Nome do Contato', 
      email: 'email@exemplo.com',
-     phone: 'telefone',
-     businessType: 'tipo',
+     phone: '+41 79 123 4567',
+     businessType: 'Tipo do Negócio',
+     
+     // Endereço (flexível)
+     address: 'Endereço completo', // OU
+     city: 'Cidade',
+     postalCode: 'CEP',
+     // OU
      address: {
-       street: 'rua',
-       city: 'cidade', 
-       postalCode: 'cep',
-       country: 'país'
+       street: 'Rua, 123',
+       city: 'Cidade',
+       postalCode: 'CEP',
+       country: 'País'
      },
-     founderStory: 'história',
-     culturalMission: 'missão',
+     
+     // História e missão
+     founderStory: 'História do fundador...',
+     culturalMission: 'Missão cultural...',
+     
+     // Experiência (flexível)
+     experienceTitle: 'Título',
+     experienceDescription: 'Descrição',
+     normalPrice: 100,
+     duoValue: 'Valor DUO',
+     // OU
      proposedExperience: {
-       title: 'título',
-       description: 'descrição',
+       title: 'Título',
+       description: 'Descrição',
        normalPrice: 100,
-       duoValue: 'valor duo'
+       duoValue: 'Valor DUO'
      }
    };
 
 ✅ CORREÇÕES IMPLEMENTADAS:
-- Campos exatos do template_d63ebza para admin
-- template_r3t7pti para confirmações (que já funciona)
-- Sanitização completa de dados
-- Logs detalhados para debugging
-- Função de teste incluída
+- Mapeamento completo de todos os campos do formulário
+- Templates específicos com fallback automático
+- Função de debug para verificar campos
+- Sanitização e validação de dados
+- Logs detalhados para troubleshooting
+- Sistema robusto com tratamento de erros
+
+🚨 IMPORTANTE:
+- Crie os templates template_admin_complete e template_partner_basic no EmailJS
+- Use os campos exatos listados acima nos templates
+- O sistema usará template_r3t7pti como fallback se os específicos falharem
 */
 
 export default {

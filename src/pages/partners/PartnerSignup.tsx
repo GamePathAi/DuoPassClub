@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, Heart, MapPin, Building, User, Mail, Phone, FileText, DollarSign, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { savePartnerRegistration, checkEmailExists, type PartnerRegistrationData } from '../../services/partnerService';
-import { sendPartnerRegistrationEmails } from '../../services/emailService-CORRIGIDO';
+import { sendPartnerRegistrationEmails } from '../../services/emailService';
 
 interface PartnerSignupForm {
   // Informações básicas
