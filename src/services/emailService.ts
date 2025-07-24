@@ -10,15 +10,11 @@ import emailjs from '@emailjs/browser';
 const EMAILJS_CONFIG = {
   serviceId: import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_nj1x65i',
   templateIds: {
-    // Template para admin com todos os dados
-    admin: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_ADMIN || 'template_admin_complete',
-    // Template para parceiro com dados básicos
-    partner: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_PARTNER || 'template_partner_basic',
-    // Template para contato admin
-    contactAdmin: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_CONTACT_ADMIN || 'template_r3t7pti',
-    // Template para confirmação de contato
-    contactConfirmation: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_CONTACT_CONFIRMATION || 'template_r3t7pti',
-    // Fallback universal
+    // Usando apenas o template existente para todos os casos
+    admin: 'template_r3t7pti',
+    partner: 'template_r3t7pti',
+    contactAdmin: 'template_r3t7pti',
+    contactConfirmation: 'template_r3t7pti',
     universal: 'template_r3t7pti'
   },
   publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'jwnAl9bi3b1X98hdq'
@@ -105,11 +101,10 @@ export async function sendPartnerRegistrationEmails(partnerData) {
     
     console.log('📤 Enviando para admin com todos os dados:', adminParams);
     
-    const adminResponse = await sendEmailWithFallback(
+    const adminResponse = await emailjs.send(
       EMAILJS_CONFIG.serviceId,
       EMAILJS_CONFIG.templateIds.admin,
-      adminParams,
-      EMAILJS_CONFIG.templateIds.universal
+      adminParams
     );
     
     console.log('✅ Email admin enviado:', adminResponse.status);
@@ -133,11 +128,10 @@ export async function sendPartnerRegistrationEmails(partnerData) {
     
     console.log('📤 Enviando confirmação para parceiro (dados básicos):', partnerParams);
     
-    const partnerResponse = await sendEmailWithFallback(
+    const partnerResponse = await emailjs.send(
       EMAILJS_CONFIG.serviceId,
       EMAILJS_CONFIG.templateIds.partner,
-      partnerParams,
-      EMAILJS_CONFIG.templateIds.universal
+      partnerParams
     );
     
     console.log('✅ Email parceiro enviado:', partnerResponse.status);

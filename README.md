@@ -40,6 +40,7 @@ DUO PASS Club é uma plataforma cultural suíça que conecta pessoas através de
 ### Backend & Serviços
 - **Supabase** - Backend as a Service
 - **PostgreSQL** - Banco de dados
+- **EmailJS** - Sistema de emails transacionais
 - **Stripe** - Processamento de pagamentos
 - **Google Analytics** - Analytics
 - **Sentry** - Monitoramento de erros

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste EmailJS - DuoPass</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #dc3545;
+      border-bottom: 2px solid #ffd700;
+      padding-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #c82333;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+    .config-section {
+      background-color: #f0f0f0;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Teste de Configuração EmailJS</h1>
+  
+  <div class="config-section">
+    <h2>Configuração</h2>
+    <div class="form-group">
+      <label for="serviceId">Service ID:</label>
+      <input type="text" id="serviceId" value="service_nj1x65i">
+    </div>
+    <div class="form-group">
+      <label for="templateId">Template ID:</label>
+      <input type="text" id="templateId" value="template_r3t7pti">
+    </div>
+    <div class="form-group">
+      <label for="publicKey">Public Key:</label>
+      <input type="text" id="publicKey" placeholder="Cole sua chave pública aqui">
+    </div>
+  </div>
+
+  <h2>Dados de Teste</h2>
+  <div class="form-group">
+    <label for="toEmail">Email de Destino:</label>
+    <input type="email" id="toEmail" value="seu-email@exemplo.com">
+  </div>
+  <div class="form-group">
+    <label for="contactName">Nome do Contato:</label>
+    <input type="text" id="contactName" value="Teste Automatizado">
+  </div>
+  <div class="form-group">
+    <label for="businessName">Nome do Negócio:</label>
+    <input type="text" id="businessName" value="DuoPass Test">
+  </div>
+
+  <button id="sendTestEmail">Enviar Email de Teste</button>
+
+  <div id="result" class="result" style="display: none;">
+    <h3>Resultado:</h3>
+    <pre id="resultContent"></pre>
+  </div>
+
+  <!-- Carregar EmailJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  
+  <script>
+    document.getElementById('sendTestEmail').addEventListener('click', function() {
+      // Obter valores do formulário
+      const serviceId = document.getElementById('serviceId').value.trim();
+      const templateId = document.getElementById('templateId').value.trim();
+      const publicKey = document.getElementById('publicKey').value.trim();
+      const toEmail = document.getElementById('toEmail').value.trim();
+      const contactName = document.getElementById('contactName').value.trim();
+      const businessName = document.getElementById('businessName').value.trim();
+      
+      // Validar campos
+      if (!serviceId || !templateId || !publicKey || !toEmail) {
+        showResult('❌ Erro: Todos os campos de configuração e email de destino são obrigatórios!', true);
+        return;
+      }
+      
+      // Inicializar EmailJS
+      emailjs.init({
+        publicKey: publicKey
+      });
+      
+      // Preparar parâmetros
+      const params = {
+        to_email: toEmail,
+        contact_name: contactName,
+        business_name: businessName,
+        contact_email: 'noreply@duopassclub.ch',
+        contact_business: businessName,
+        contact_type: 'Teste de Configuração',
+        contact_description: 'Este é um email de teste para verificar a configuração do EmailJS.',
+        contact_date: new Date().toLocaleString(),
+        reply_to: 'contact@duopassclub.ch'
+      };
+      
+      // Mostrar status
+      showResult('⏳ Enviando email de teste...', false);
+      
+      // Enviar email
+      emailjs.send(serviceId, templateId, params)
+        .then(function(response) {
+          console.log('✅ Email enviado com sucesso!', response);
+          showResult(`✅ Email enviado com sucesso!\n\nStatus: ${response.status}\nTexto: ${response.text}\n\nVerifique a caixa de entrada de ${toEmail}`, false);
+        })
+        .catch(function(error) {
+          console.error('❌ Erro ao enviar email:', error);
+          let errorMessage = `❌ Erro ao enviar email!\n\nStatus: ${error.status}\nTexto: ${error.text}\n\n`;
+          
+          if (error.text && error.text.includes('The Public Key is invalid')) {
+            errorMessage += '🔑 SOLUÇÃO: Verifique se a chave pública está correta.\nObtenha a chave em: https://dashboard.emailjs.com/admin/account';
+          }
+          
+          showResult(errorMessage, true);
+        });
+    });
+    
+    function showResult(message, isError) {
+      const resultDiv = document.getElementById('result');
+      const resultContent = document.getElementById('resultContent');
+      
+      resultDiv.style.display = 'block';
+      resultContent.textContent = message;
+      
+      if (isError) {
+        resultContent.className = 'error';
+      } else {
+        resultContent.className = 'success';
+      }
+    }
+  </script>
+</body>
+</html>
