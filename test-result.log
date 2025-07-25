@@ -1,0 +1,23 @@
+🚀 Iniciando teste de inserção anônima...
+✅ Inserção anônima bem-sucedida: [
+  {
+    "id": "f0d0b1e4-a252-40df-99a4-879ca0ba8bcd",
+    "business_name": "Teste Anônimo Completo",
+    "contact_name": "Tester Completo",
+    "email": "test-completo-1753117386808@example.com",
+    "phone": "987654321",
+    "address_street": "Rua do Teste Completo",
+    "address_city": "Cidade Teste Completo",
+    "address_postal_code": "54321-876",
+    "address_country": "Brasil",
+    "business_type": "restaurante",
+    "founder_story": "História de teste completo.",
+    "cultural_mission": "Missão de teste completo.",
+    "experience_title": "Experiência de Teste Completo",
+    "experience_description": "Descrição de teste completo.",
+    "experience_normal_price": 150,
+    "experience_duo_value": "Valor de teste completo",
+    "status": "pending",
+    "created_at": "2025-07-21T17:03:09.903912+00:00"
+  }
+]
