@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Teste Template d63ebza - Diagnóstico</title>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Teste Template d63ebza - Diagnóstico</h1>
+        <p><strong>Objetivo:</strong> Identificar exatamente por que o template <code>template_d63ebza</code> está falhando</p>
+        
+        <div class="test-section">
+            <h3>📋 Configuração</h3>
+            <p><strong>Service ID:</strong> service_nj1x65i</p>
+            <p><strong>Template Admin (funcionando):</strong> template_r3t7pti</p>
+            <p><strong>Template Parceiro (falhando):</strong> template_d63ebza</p>
+            <p><strong>Public Key:</strong> k4Yr2qeZ3HOym8wgI</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Testes</h3>
+            <button onclick="testeTemplateAdmin()">✅ Teste Template Admin (r3t7pti)</button>
+            <button onclick="testeTemplateParceiro()">❌ Teste Template Parceiro (d63ebza)</button>
+            <button onclick="testeComparacaoPayloads()">🔍 Comparar Payloads</button>
+            <button onclick="testeMinimo()">⚡ Teste Mínimo d63ebza</button>
+        </div>
+
+        <div id="status"></div>
+        <div id="logs"></div>
+    </div>
+
+    <script>
+        // Configuração EmailJS
+        const CONFIG = {
+            serviceId: 'service_nj1x65i',
+            templateAdmin: 'template_r3t7pti',
+            templateParceiro: 'template_d63ebza',
+            publicKey: 'k4Yr2qeZ3HOym8wgI'
+        };
+
+        // Inicializar EmailJS
+        emailjs.init(CONFIG.publicKey);
+        console.log('✅ EmailJS inicializado');
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+
+        function addLog(message) {
+            const logsDiv = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logsDiv.innerHTML += `<pre>[${timestamp}] ${message}</pre>`;
+        }
+
+        // Payload padrão para parceiro
+        function getPartnerPayload() {
+            return {
+                to_email: 'teste@duopassclub.ch',
+                contact_name: 'João Silva',
+                business_name: 'Restaurante Teste',
+                contact_email: 'teste@duopassclub.ch',
+                business_type: 'Restaurante',
+                phone: '+41 12 345 6789',
+                address_street: 'Rua Teste, 123',
+                address_city: 'Zurich',
+                address_postal: '8001',
+                address_country: 'Switzerland',
+                founder_story: 'História do fundador teste',
+                cultural_mission: 'Missão cultural teste',
+                experience_title: 'Experiência Gastronômica',
+                experience_description: 'Descrição da experiência',
+                normal_price: 'CHF 50',
+                duo_value: 'CHF 35',
+                contact_date: new Date().toLocaleString('pt-BR'),
+                reply_to: 'contact@duopassclub.ch',
+                contact_business: 'Restaurante Teste',
+                contact_type: 'Novo Parceiro Registrado',
+                contact_description: 'NOVO PARCEIRO: Restaurante Teste - João Silva'
+            };
+        }
+
+        // Payload mínimo para teste
+        function getMinimalPayload() {
+            return {
+                to_email: 'teste@duopassclub.ch',
+                contact_name: 'João Silva',
+                business_name: 'Restaurante Teste'
+            };
+        }
+
+        async function testeTemplateAdmin() {
+            showStatus('🧪 Testando template admin (r3t7pti)...', 'info');
+            addLog('Iniciando teste template admin');
+            
+            try {
+                const payload = getPartnerPayload();
+                addLog(`Payload admin: ${JSON.stringify(payload, null, 2)}`);
+                
+                const response = await emailjs.send(
+                    CONFIG.serviceId,
+                    CONFIG.templateAdmin,
+                    payload
+                );
+                
+                addLog(`✅ Sucesso admin: Status ${response.status}`);
+                showStatus(`✅ Template admin funcionando! Status: ${response.status}`, 'success');
+                
+            } catch (error) {
+                addLog(`❌ Erro admin: ${error.message}`);
+                addLog(`Detalhes: ${JSON.stringify(error, null, 2)}`);
+                showStatus(`❌ Erro no template admin: ${error.message}`, 'error');
+            }
+        }
+
+        async function testeTemplateParceiro() {
+            showStatus('🧪 Testando template parceiro (d63ebza)...', 'info');
+            addLog('Iniciando teste template parceiro');
+            
+            try {
+                const payload = getPartnerPayload();
+                addLog(`Payload parceiro: ${JSON.stringify(payload, null, 2)}`);
+                
+                const response = await emailjs.send(
+                    CONFIG.serviceId,
+                    CONFIG.templateParceiro,
+                    payload
+                );
+                
+                addLog(`✅ Sucesso parceiro: Status ${response.status}`);
+                showStatus(`✅ Template parceiro funcionando! Status: ${response.status}`, 'success');
+                
+            } catch (error) {
+                addLog(`❌ Erro parceiro: ${error.message}`);
+                addLog(`Detalhes: ${JSON.stringify(error, null, 2)}`);
+                showStatus(`❌ Erro no template parceiro: ${error.message}`, 'error');
+            }
+        }
+
+        async function testeMinimo() {
+            showStatus('⚡ Testando payload mínimo no template d63ebza...', 'info');
+            addLog('Iniciando teste mínimo');
+            
+            try {
+                const payload = getMinimalPayload();
+                addLog(`Payload mínimo: ${JSON.stringify(payload, null, 2)}`);
+                
+                const response = await emailjs.send(
+                    CONFIG.serviceId,
+                    CONFIG.templateParceiro,
+                    payload
+                );
+                
+                addLog(`✅ Sucesso mínimo: Status ${response.status}`);
+                showStatus(`✅ Payload mínimo funcionou! Status: ${response.status}`, 'success');
+                
+            } catch (error) {
+                addLog(`❌ Erro mínimo: ${error.message}`);
+                addLog(`Detalhes: ${JSON.stringify(error, null, 2)}`);
+                showStatus(`❌ Erro no payload mínimo: ${error.message}`, 'error');
+            }
+        }
+
+        async function testeComparacaoPayloads() {
+            showStatus('🔍 Comparando payloads entre templates...', 'info');
+            addLog('=== COMPARAÇÃO DE PAYLOADS ===');
+            
+            const payloadCompleto = getPartnerPayload();
+            const payloadMinimo = getMinimalPayload();
+            
+            addLog('PAYLOAD COMPLETO:');
+            addLog(JSON.stringify(payloadCompleto, null, 2));
+            addLog('\nPAYLOAD MÍNIMO:');
+            addLog(JSON.stringify(payloadMinimo, null, 2));
+            
+            // Teste sequencial
+            addLog('\n=== TESTE SEQUENCIAL ===');
+            
+            // 1. Admin com payload completo
+            try {
+                const adminResponse = await emailjs.send(CONFIG.serviceId, CONFIG.templateAdmin, payloadCompleto);
+                addLog(`✅ Admin + Completo: Status ${adminResponse.status}`);
+            } catch (error) {
+                addLog(`❌ Admin + Completo: ${error.message}`);
+            }
+            
+            // 2. Parceiro com payload completo
+            try {
+                const parceiroCompleto = await emailjs.send(CONFIG.serviceId, CONFIG.templateParceiro, payloadCompleto);
+                addLog(`✅ Parceiro + Completo: Status ${parceiroCompleto.status}`);
+            } catch (error) {
+                addLog(`❌ Parceiro + Completo: ${error.message}`);
+            }
+            
+            // 3. Parceiro com payload mínimo
+            try {
+                const parceiroMinimo = await emailjs.send(CONFIG.serviceId, CONFIG.templateParceiro, payloadMinimo);
+                addLog(`✅ Parceiro + Mínimo: Status ${parceiroMinimo.status}`);
+            } catch (error) {
+                addLog(`❌ Parceiro + Mínimo: ${error.message}`);
+            }
+            
+            showStatus('🔍 Comparação concluída! Verifique os logs.', 'warning');
+        }
+
+        // Log inicial
+        addLog('🔧 Sistema de diagnóstico inicializado');
+        addLog(`Configuração: ${JSON.stringify(CONFIG, null, 2)}`);
+        showStatus('✅ Sistema pronto para testes!', 'success');
+    </script>
+</body>
+</html>
